@@ -1,5 +1,9 @@
 package structure
 
+import (
+	"encoding/json"
+)
+
 type Input struct {
 	Name    string `json:"name",omitempty`
 	Digraph []int  `json:"digraph"`
@@ -26,4 +30,9 @@ func (i *Input) Check() Error {
 		return Error{1, "Structure is not coherent"}
 	}
 	return Error{0, ""}
+}
+
+func (e *Error) Error() string {
+	o, _ := json.Marshal(e)
+	return string(o)
 }
