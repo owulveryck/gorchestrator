@@ -6,6 +6,7 @@ import (
 	"time"
 )
 
+// Run executes the artifact of a given node
 func (n *Node) Run() <-chan Message {
 	c := make(chan Message)
 	waitForIt := make(chan Matrix) // Shared between all messages.
