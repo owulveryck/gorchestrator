@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"github.com/owulveryck/gorchestrator/orchestrator"
+	"os"
 )
 
 var valid orchestrator.Input
@@ -67,5 +69,14 @@ func init() {
 	}
 }
 func main() {
-	valid.Run()
+
+	var v orchestrator.Input
+	dec := json.NewDecoder(os.Stdin)
+	if err := dec.Decode(&v); err != nil {
+		panic(err)
+
+	}
+
+	v.Run()
+	//valid.Run()
 }
