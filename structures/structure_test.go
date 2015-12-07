@@ -6,8 +6,11 @@ import (
 	"testing"
 )
 
-func TestCheck(t *testing.T) {
-	valid := Input{"Valid",
+var valid Input
+var notValid Input
+
+func init() {
+	valid = Input{"Valid",
 		[]int{0, 1, 0, 0, 1, 0, 0, 0,
 			0, 0, 0, 0, 0, 0, 1, 0,
 			0, 0, 0, 0, 0, 0, 0, 0,
@@ -35,7 +38,8 @@ func TestCheck(t *testing.T) {
 			{7, "h", "ansible", "myplaybook7.yml", nil, nil},
 		},
 	}
-	notValid := Input{"NotValid",
+
+	notValid = Input{"NotValid",
 		[]int{0, 1, 0, 0, 1, 0, 0, 0,
 			0, 0, 0, 0, 0, 0, 1, 0,
 			0, 0, 0, 0, 0, 0, 0, 0,
@@ -63,6 +67,9 @@ func TestCheck(t *testing.T) {
 			{7, "h", "ansible", "myplaybook7.yml", nil, nil},
 		},
 	}
+}
+
+func TestCheck(t *testing.T) {
 	e := valid.Check()
 	if e.Code != 0 {
 		t.Errorf("Struct should be valid, error is: %v", e.Error())
