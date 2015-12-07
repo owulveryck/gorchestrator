@@ -16,5 +16,4 @@ func main() {
 	}
 
 	v.Run()
-	//valid.Run()
 }
