@@ -15,7 +15,8 @@ type Message struct {
 
 func main() {
 	// Allocate a zeroed array of size 8×8
-	m := structure.Matrix{0, 1, 0, 0, 1, 0, 0, 0,
+	m := structure.Matrix{
+		0, 1, 0, 0, 1, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 1, 0,
 		0, 0, 0, 0, 0, 0, 0, 0,
 		0, 0, 1, 0, 0, 0, 1, 0,
@@ -45,7 +46,7 @@ func main() {
 				fmt.Printf("%v has finished\n", node.id)
 				// 0 its row in the matrix
 				for c := 0; c < n; c++ {
-					m.Set(int64(node.id), c, 0)
+					m.Set(node.id, c, int64(0))
 				}
 			}
 		case <-timeout:
