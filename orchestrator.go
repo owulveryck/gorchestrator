@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/owulveryck/gorchestrator/structure"
 	"math/rand"
+	"sync"
 	"time"
 )
 
@@ -18,6 +19,15 @@ type Message struct {
 	id    int
 	state int
 	wait  chan structure.Matrix
+}
+
+type lock int
+
+func (l *lock) Lock() {
+	*l = 1
+}
+func (l *lock) Unlock() {
+	*l = 0
 }
 
 func main() {
@@ -35,12 +45,17 @@ func main() {
 
 	n := m.Dim()
 	cs := make([]<-chan Message, n)
+	l := new(lock)
+	co := sync.NewCond(l)
 	for i := 0; i < n; i++ {
 		cs[i] = run(i, time.Duration(rand.Intn(1e3))*time.Millisecond)
 		node := <-cs[i]
 		go func() {
 			for {
 				node.wait <- m
+				l.Lock()
+				defer l.Unlock()
+				co.Wait()
 			}
 		}()
 	}
@@ -55,6 +70,7 @@ func main() {
 				for c := 0; c < n; c++ {
 					m.Set(node.id, c, int64(node.state))
 				}
+				co.Broadcast()
 			}
 		case <-timeout:
 			fmt.Println("Timeout")
