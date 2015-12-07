@@ -26,6 +26,20 @@ type Node struct {
 	Outputs  map[string]string `json:"output",omitempty` // the key is the name of the parameter, the value its value (always a string)
 }
 
+const (
+	ToRun       = 1
+	Running     = 2
+	Success     = 3
+	Failure     = 4
+	NotRunnable = 5
+)
+
+type Message struct {
+	ID    int
+	State int
+	Wait  chan Matrix
+}
+
 // Error is a type used when any error related to the input or node structure occurs
 type Error struct {
 	Code    int    `json:"code"`
