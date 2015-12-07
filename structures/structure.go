@@ -2,12 +2,17 @@ package structure
 
 import (
 	"encoding/json"
+	"fmt"
+	"math"
 )
+
+// Matrix is a list representation of a squared matrix
+type Matrix []int64
 
 // Input is the input of the orchestrator
 type Input struct {
 	Name    string `json:"name",omitempty`
-	Digraph []int  `json:"digraph"`
+	Digraph Matrix `json:"digraph"`
 	Nodes   []Node `json:"nodes"`
 }
 
@@ -38,4 +43,34 @@ func (i *Input) Check() Error {
 func (e *Error) Error() string {
 	o, _ := json.Marshal(e)
 	return string(o)
+}
+
+// isValid check if the matrix is squared
+func (m *Matrix) isValid() error {
+	l := math.Sqrt(float64(len(*m)))
+	if float64(int64(l)) != l {
+		return fmt.Errorf("Matrix is not a squared one")
+	}
+	return nil
+}
+
+// Dim returns the dimension of the matrix
+func (m *Matrix) Dim() int64 {
+	err := m.isValid()
+	if err != nil {
+		return 0
+	}
+	return int64(math.Sqrt(float64(len(*m))))
+}
+
+// Get sets the value v in row r and column c
+func (m *Matrix) Set(v, r, c int64) {
+	i := m.Dim()
+	(*m)[r*i+c] = v
+}
+
+// Get returns the value in row r and column c
+func (m *Matrix) Get(r, c int64) int64 {
+	i := m.Dim()
+	return (*m)[r*i+c]
 }
