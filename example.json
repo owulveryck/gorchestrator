@@ -1,0 +1,84 @@
+{
+    "name": "Valid",
+    "digraph": [
+      0, 1, 0, 0, 1, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 1, 0,
+      0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 1, 0, 0, 0, 1, 0,
+      0, 0, 0, 0, 0, 0, 0, 0,
+      1, 1, 1, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 1, 0
+    ],
+    "nodes": [
+      {
+        "id": 0,
+        "name": "a",
+        "engine": "shell",
+        "artifact": "example/script.sh",
+        "args": null,
+        "output": null
+      },
+      {
+        "id": 1,
+        "name": "b",
+        "engine": "shell",
+        "artifact": "myscript.sh",
+        "args": null,
+        "output": {
+          "output1": ""
+        }
+      },
+      {
+        "id": 2,
+        "name": "c",
+        "engine": "shell",
+        "artifact": "example/script.sh",
+        "args": [
+          "-e",
+          "get_attribute 1:output1"
+        ],
+        "output": null
+      },
+      {
+        "id": 3,
+        "name": "d",
+        "engine": "shell",
+        "artifact": "example/script.sh",
+        "args": null,
+        "output": null
+      },
+      {
+        "id": 4,
+        "name": "e",
+        "engine": "shell",
+        "artifact": "example/script.sh",
+        "args": null,
+        "output": null
+      },
+      {
+        "id": 5,
+        "name": "f",
+        "engine": "shell",
+        "artifact": "example/script.sh",
+        "args": null,
+        "output": null
+      },
+      {
+        "id": 6,
+        "name": "g",
+        "engine": "shell",
+        "artifact": "example/script.sh",
+        "args": null,
+        "output": null
+      },
+      {
+        "id": 7,
+        "name": "h",
+        "engine": "shell",
+        "artifact": "example/script.sh",
+        "args": null,
+        "output": null
+      }
+  ]
+}
