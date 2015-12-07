@@ -15,6 +15,7 @@ func (l *lock) Unlock() {
 	*l = 0
 }
 
+// Run executes the Input structure
 func (v *Input) Run() {
 	// Allocate a zeroed array of size 8×8
 	m := v.Digraph
