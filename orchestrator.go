@@ -9,10 +9,11 @@ import (
 )
 
 const (
-	ToRun   = 1
-	Running = 2
-	Success = 3
-	Failure = 4
+	ToRun       = 1
+	Running     = 2
+	Success     = 3
+	Failure     = 4
+	NotRunnable = 5
 )
 
 type Message struct {
@@ -65,7 +66,7 @@ func main() {
 		select {
 		case node := <-c:
 			if node.state >= Running {
-				fmt.Printf("%v has finished\n", node.id)
+				fmt.Printf("%v has finished (%v)\n", node.id, node.state)
 				// 0 its row in the matrix
 				for c := 0; c < n; c++ {
 					m.Set(node.id, c, int64(node.state))
@@ -96,14 +97,26 @@ func run(id int, duration time.Duration) <-chan Message {
 			s := m.Dim()
 			state = Running
 			for i := 0; i < s; i++ {
-				if m.At(i, id) != Success && m.At(i, id) != 0 {
+				if m.At(i, id) < Success && m.At(i, id) > 0 {
 					state = ToRun
+				} else if m.At(i, id) >= Failure {
+					state = NotRunnable
+					continue
 				}
+			}
+			if state == NotRunnable {
+				fmt.Printf("I am %v, and I cannot run\n", id)
+				c <- Message{id, state, waitForIt}
 			}
 			if state == Running {
 				fmt.Printf("I am %v, and I am running\n", id)
 				time.Sleep(duration)
-				state = Success
+				rand.Seed(time.Now().Unix())
+				if rand.Intn(100) < 50 {
+					state = Success
+				} else {
+					state = Failure
+				}
 				// Now send the message that I'm done...
 				c <- Message{id, state, waitForIt}
 			}
