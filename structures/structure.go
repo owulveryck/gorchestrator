@@ -4,12 +4,14 @@ import (
 	"encoding/json"
 )
 
+// Input is the input of the orchestrator
 type Input struct {
 	Name    string `json:"name",omitempty`
 	Digraph []int  `json:"digraph"`
 	Nodes   []Node `json:"nodes"`
 }
 
+// Node is a "runable" node description
 type Node struct {
 	ID       int               `json:"id"`
 	Name     string            `json:"name",omitempty`
@@ -19,6 +21,7 @@ type Node struct {
 	Outputs  map[string]string `json:"output",omitempty` // the key is the name of the parameter, the value its value (always a string)
 }
 
+// Error is a type used when any error related to the input or node structure occurs
 type Error struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
