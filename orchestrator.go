@@ -67,7 +67,6 @@ func main() {
 		case node := <-c:
 			if node.state >= Running {
 				fmt.Printf("%v has finished (%v)\n", node.id, node.state)
-				// 0 its row in the matrix
 				for c := 0; c < n; c++ {
 					m.Set(node.id, c, int64(node.state))
 				}
@@ -83,7 +82,6 @@ func main() {
 			}
 		}
 	}
-	fmt.Println("This is the end!")
 }
 
 func run(id int, duration time.Duration) <-chan Message {
