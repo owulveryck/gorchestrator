@@ -7,10 +7,17 @@ import (
 	"time"
 )
 
+const (
+	ToRun   = 1
+	Running = 2
+	Success = 3
+	Failure = 4
+)
+
 type Message struct {
-	id   int
-	run  bool
-	wait chan structure.Matrix
+	id    int
+	state int
+	wait  chan structure.Matrix
 }
 
 func main() {
@@ -42,18 +49,18 @@ func main() {
 	for {
 		select {
 		case node := <-c:
-			if node.run == true {
+			if node.state >= Running {
 				fmt.Printf("%v has finished\n", node.id)
 				// 0 its row in the matrix
 				for c := 0; c < n; c++ {
-					m.Set(node.id, c, int64(0))
+					m.Set(node.id, c, int64(node.state))
 				}
 			}
 		case <-timeout:
 			fmt.Println("Timeout")
 			return
 		default:
-			if m.Sum() == 0 {
+			if m.Sum() >= int64(Success*n*n) {
 				fmt.Println("All done!")
 				return
 			}
@@ -66,22 +73,23 @@ func run(id int, duration time.Duration) <-chan Message {
 	c := make(chan Message)
 	waitForIt := make(chan structure.Matrix) // Shared between all messages.
 	go func() {
-		run := false
-		for run == false {
-			c <- Message{id, run, waitForIt}
+		state := ToRun
+		for state <= ToRun {
+			c <- Message{id, state, waitForIt}
 			m := <-waitForIt
 			s := m.Dim()
-			run = true
+			state = Running
 			for i := 0; i < s; i++ {
-				if m.At(i, id) == 1 {
-					run = false
+				if m.At(i, id) != Success && m.At(i, id) != 0 {
+					state = ToRun
 				}
 			}
-			if run == true {
+			if state == Running {
 				fmt.Printf("I am %v, and I am running\n", id)
 				time.Sleep(duration)
+				state = Success
 				// Now send the message that I'm done...
-				c <- Message{id, run, waitForIt}
+				c <- Message{id, state, waitForIt}
 			}
 		}
 		close(c)
