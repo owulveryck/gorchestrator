@@ -55,22 +55,32 @@ func (m *Matrix) isValid() error {
 }
 
 // Dim returns the dimension of the matrix
-func (m *Matrix) Dim() int64 {
+func (m *Matrix) Dim() int {
 	err := m.isValid()
 	if err != nil {
 		return 0
 	}
-	return int64(math.Sqrt(float64(len(*m))))
+	return int(math.Sqrt(float64(len(*m))))
 }
 
 // Get sets the value v in row r and column c
-func (m *Matrix) Set(v, r, c int64) {
+func (m *Matrix) Set(v int64, r, c int) {
 	i := m.Dim()
 	(*m)[r*i+c] = v
 }
 
 // Get returns the value in row r and column c
-func (m *Matrix) Get(r, c int64) int64 {
+func (m *Matrix) At(r, c int) int64 {
 	i := m.Dim()
 	return (*m)[r*i+c]
+}
+
+func (m *Matrix) Sum() int64 {
+	var v int64
+	for r := 0; r < m.Dim(); r++ {
+		for c := 0; c < m.Dim(); c++ {
+			v = v + m.At(r, c)
+		}
+	}
+	return v
 }
