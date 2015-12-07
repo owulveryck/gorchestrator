@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-func ExampleInput() {
+func ExampleCheck() {
 	test := Input{"Test",
 		[]int{0, 1, 0, 0, 1, 0, 0, 0,
 			0, 0, 0, 0, 0, 0, 1, 0,
@@ -33,6 +33,10 @@ func ExampleInput() {
 			{6, "g", "ansible", "myplaybook6.yml", nil, nil},
 			{7, "h", "ansible", "myplaybook7.yml", nil, nil},
 		},
+	}
+	e := test.Check()
+	if e.Code != 0 {
+		panic(e.Error)
 	}
 	o, err := json.Marshal(test)
 	if err != nil {
