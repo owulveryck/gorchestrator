@@ -64,7 +64,7 @@ func (m *Matrix) Dim() int {
 }
 
 // Get sets the value v in row r and column c
-func (m *Matrix) Set(v int64, r, c int) {
+func (m *Matrix) Set(r, c int, v int64) {
 	i := m.Dim()
 	(*m)[r*i+c] = v
 }
