@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/owulveryck/gorchestrator/orchestrator"
 	"os"
+	"sync"
 	"time"
 )
 
@@ -17,11 +18,14 @@ func main() {
 
 	}
 
-	timeout := time.After(30 * time.Second)
+	timeout := time.After(3 * time.Second)
 
-	go v.Run(timeout)
-	for v.State < orchestrator.Success {
-		fmt.Println(v.Digraph)
-		time.Sleep(1 * time.Second)
-	}
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func(wg *sync.WaitGroup) {
+		v.Run(timeout)
+		wg.Done()
+	}(&wg)
+	fmt.Println("Waiting")
+	wg.Wait()
 }
