@@ -2,5 +2,5 @@ package http
 
 type jsonErr struct {
 	Code int    `json:"code"`
-	Text string `json:"text"`
+	Text string `json:"message"`
 }
