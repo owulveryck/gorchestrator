@@ -42,7 +42,7 @@ func (n *Node) Run() <-chan Message {
 			if state == Running {
 				c <- Message{n.ID, state, waitForIt}
 				//fmt.Printf("I am %v, and I am running: the module %v, with %v %v\n", n.ID, n.Engine, n.Artifact, n.Args)
-				time.Sleep(time.Duration(rand.Intn(1e4)) * time.Millisecond)
+				//time.Sleep(time.Duration(rand.Intn(1e4)) * time.Millisecond)
 				rand.Seed(time.Now().Unix())
 				state = Success
 				// Now send the message that I'm done...
