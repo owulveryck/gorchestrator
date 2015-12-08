@@ -30,14 +30,11 @@ func (n *Node) Run() <-chan Message {
 				c <- Message{n.ID, state, waitForIt}
 			}
 			if state == Running {
+				c <- Message{n.ID, state, waitForIt}
 				//fmt.Printf("I am %v, and I am running: the module %v, with %v %v\n", n.ID, n.Engine, n.Artifact, n.Args)
-				time.Sleep(time.Duration(rand.Intn(1e3)) * time.Millisecond)
+				time.Sleep(time.Duration(rand.Intn(1e4)) * time.Millisecond)
 				rand.Seed(time.Now().Unix())
-				if rand.Intn(100) < 50 {
-					state = Success
-				} else {
-					state = Failure
-				}
+				state = Success
 				// Now send the message that I'm done...
 				c <- Message{n.ID, state, waitForIt}
 			}
