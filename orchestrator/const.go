@@ -1,6 +1,7 @@
 package orchestrator
 
 const (
+	Initial     = 0
 	ToRun       = 1
 	Running     = 2
 	Success     = 3
