@@ -1,7 +1,7 @@
 package orchestrator
 
 import (
-	//"fmt"
+	"github.com/owulveryck/gorchestrator/structure"
 	"math/rand"
 	"time"
 )
@@ -9,7 +9,7 @@ import (
 // Run executes the artifact of a given node
 func (n *Node) Run() <-chan Message {
 	c := make(chan Message)
-	waitForIt := make(chan Matrix) // Shared between all messages.
+	waitForIt := make(chan structure.Matrix) // Shared between all messages.
 	go func() {
 		state := ToRun
 		for state <= ToRun {

@@ -2,14 +2,15 @@ package orchestrator
 
 import (
 	"encoding/json"
+	"github.com/owulveryck/gorchestrator/structure"
 )
 
 // Input is the input of the orchestrator
 type Input struct {
-	Name    string `json:"name",omitempty`
-	State   int    `json:"state"`
-	Digraph Matrix `json:"digraph"`
-	Nodes   []Node `json:"nodes"`
+	Name    string           `json:"name",omitempty`
+	State   int              `json:"state"`
+	Digraph structure.Matrix `json:"digraph"`
+	Nodes   []Node           `json:"nodes"`
 }
 
 // Node is a "runable" node description
@@ -21,11 +22,10 @@ type Node struct {
 	Args     []string          `json:"args",omitempty`   // the arguments of the artifact, if needed
 	Outputs  map[string]string `json:"output",omitempty` // the key is the name of the parameter, the value its value (always a string)
 }
-
 type Message struct {
 	ID    int
 	State int
-	Wait  chan Matrix
+	Wait  chan structure.Matrix
 }
 
 // Error is a type used when any error related to the input or node structure occurs
