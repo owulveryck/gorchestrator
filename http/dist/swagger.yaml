@@ -1,0 +1,114 @@
+swagger: '2.0'
+info:
+  title: OaaS API
+  description: Send a digraph and watch the magic
+  version: 1.0.0
+host: localhost:8080
+schemes:
+  - http
+basePath: /v1
+produces:
+  - application/json
+paths:
+  /tasks:
+    get:
+      summary: Digraph actions
+      description: |
+        Get the status of a blueprint.
+      parameters:
+        - name: id
+          in: query
+          description: The UUID of the task
+          required: true
+          type: string
+      tags:
+        - Digraph
+      responses:
+        '200':
+          description: The complete blueprint of the given task
+          schema:
+            $ref: '#/definitions/Blueprint'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: No task found
+    post:
+      summary: Digraph actions
+      description: |
+        Submit an orchestration blueprint.
+      parameters:
+        - name: id
+          in: query
+          description: The UUID of the task
+          required: true
+          type: string
+      tags:
+        - Digraph
+      responses:
+        '202':
+          description: The uuid of the task created
+          schema:
+            $ref: '#/definitions/Id'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+definitions:
+  Id:
+    type: object
+    properties:
+      id:
+        type: string
+  Blueprint:
+    type: object
+    description: 'A blueprint composed of the digraph and the node artifact definitions'
+    properties:
+      name:
+        type: string
+        description: 'A human readable name for the blueprint'
+      state: 
+        type: integer
+        format: int32
+        description: 'The execution state, 0 for initial'
+      digraph:
+        type: array
+        description: 'a list representing the adjacency matrix of the digraph'
+        items:
+          type: integer
+          format: int32
+      nodes:
+        type: array
+        description: 'an array of nodes'
+        items:
+          $ref: '#/definitions/Node'
+  Node:
+    type: object
+    description: 'A node representation'
+    properties:
+      id:
+        type: integer
+        format: int32
+        description: 'The index of the node in the adjacency matrix'
+      name:
+        type: string
+        description: 'an optional name for the node'
+      engine:
+        type: string
+        description: 'the name of the running egine (shell, ansible, nil)'
+      artifact:
+        type: string
+        description: 'the name of the shell or the playbook to execute'
+      args:
+        type: array
+        items:
+          type: string
+  Error:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string
