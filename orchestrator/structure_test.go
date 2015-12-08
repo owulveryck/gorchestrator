@@ -11,6 +11,7 @@ var notValid Input
 
 func init() {
 	valid = Input{"Valid",
+		"initial",
 		[]int64{0, 1, 0, 0, 1, 0, 0, 0,
 			0, 0, 0, 0, 0, 0, 1, 0,
 			0, 0, 0, 0, 0, 0, 0, 0,
@@ -40,6 +41,7 @@ func init() {
 	}
 
 	notValid = Input{"NotValid",
+		"initial",
 		[]int64{0, 1, 0, 0, 1, 0, 0, 0,
 			0, 0, 0, 0, 0, 0, 1, 0,
 			0, 0, 0, 0, 0, 0, 0, 0,
@@ -82,6 +84,7 @@ func TestCheck(t *testing.T) {
 
 func ExampleCheck() {
 	test := Input{"Test",
+		"initial",
 		[]int64{0, 1, 0, 0, 1, 0, 0, 0,
 			0, 0, 0, 0, 0, 0, 1, 0,
 			0, 0, 0, 0, 0, 0, 0, 0,

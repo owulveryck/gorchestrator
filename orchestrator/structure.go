@@ -7,6 +7,7 @@ import (
 // Input is the input of the orchestrator
 type Input struct {
 	Name    string `json:"name",omitempty`
+	State   int    `json:"state"`
 	Digraph Matrix `json:"digraph"`
 	Nodes   []Node `json:"nodes"`
 }
