@@ -36,7 +36,6 @@ func (v *Input) Run(stop <-chan time.Time) {
 		}()
 	}
 	c := fanIn(cs...)
-	timeout := time.After(50 * time.Second)
 	for {
 		select {
 		case node := <-c:
@@ -49,10 +48,6 @@ func (v *Input) Run(stop <-chan time.Time) {
 			}
 		case <-stop:
 			v.State = Canceled
-			return
-		case <-timeout:
-			v.State = Timeout
-			//fmt.Println("Timeout")
 			return
 		default:
 			switch {
