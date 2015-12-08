@@ -8,15 +8,21 @@ import (
 	"net/http"
 )
 
-func uuid() string {
+type Task struct {
+	ID string `json:"id"`
+}
+
+func uuid() Task {
+	var t Task
 	u := make([]byte, 16)
 	_, err := rand.Read(u)
 	if err != nil {
-		return ""
+		return t
 	}
 	u[8] = (u[8] | 0x80) & 0xBF // what does this do?
 	u[6] = (u[6] | 0x40) & 0x4F // what does this do?
-	return hex.EncodeToString(u)
+	t.ID = hex.EncodeToString(u)
+	return t
 }
 
 // This will hold all the requested tasks
