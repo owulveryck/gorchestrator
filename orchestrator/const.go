@@ -6,4 +6,5 @@ const (
 	Success     = 3
 	Failure     = 4
 	NotRunnable = 5
+	Timeout     = 10
 )

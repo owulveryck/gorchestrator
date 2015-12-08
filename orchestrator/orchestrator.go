@@ -17,6 +17,7 @@ func (l *lock) Unlock() {
 
 // Run executes the Input structure
 func (v *Input) Run() {
+	v.State = Running
 	m := v.Digraph
 
 	n := m.Dim()
@@ -48,11 +49,17 @@ func (v *Input) Run() {
 				co.Broadcast()
 			}
 		case <-timeout:
+			v.State = Timeout
 			//fmt.Println("Timeout")
 			return
 		default:
-			if m.Sum() >= int64(Success*n*n) {
+			switch {
+			case m.Sum() == int64(Success*n*n):
+				v.State = Success
+				return
+			case m.Sum() > int64(Success*n*n):
 				//fmt.Println("All done!")
+				v.State = Failure
 				return
 			}
 		}
