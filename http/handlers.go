@@ -57,6 +57,7 @@ func TaskCreate(w http.ResponseWriter, r *http.Request) {
 		if err := json.NewEncoder(w).Encode(err); err != nil {
 			panic(err)
 		}
+		return
 	}
 
 	uuid := uuid()
