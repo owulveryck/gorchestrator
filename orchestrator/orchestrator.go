@@ -1,7 +1,6 @@
 package orchestrator
 
 import (
-	//"fmt"
 	"sync"
 	"time"
 )
@@ -16,7 +15,7 @@ func (l *lock) Unlock() {
 }
 
 // Run executes the Input structure
-func (v *Input) Run() {
+func (v *Input) Run(stop <-chan time.Time) {
 	v.State = Running
 	m := v.Digraph
 
@@ -48,6 +47,9 @@ func (v *Input) Run() {
 				}
 				co.Broadcast()
 			}
+		case <-stop:
+			v.State = Canceled
+			return
 		case <-timeout:
 			v.State = Timeout
 			//fmt.Println("Timeout")

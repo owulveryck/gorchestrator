@@ -7,4 +7,5 @@ const (
 	Failure     = 4
 	NotRunnable = 5
 	Timeout     = 10
+	Canceled    = 11
 )

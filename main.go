@@ -17,9 +17,10 @@ func main() {
 
 	}
 
-	go v.Run()
-	n := v.Digraph.Dim()
-	for v.Digraph.Sum() < int64(orchestrator.Success*n*n) {
+	timeout := time.After(5 * time.Second)
+
+	go v.Run(timeout)
+	for v.State < orchestrator.Success {
 		fmt.Println(v.Digraph)
 		time.Sleep(1 * time.Second)
 	}
