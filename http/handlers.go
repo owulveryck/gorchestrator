@@ -35,8 +35,15 @@ func TaskCreate(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	v.Run(nil)
+	//uuid := uuid()
+	uuid := "blabla"
+	go v.Run(nil)
+	//tasks[uuid] = v
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusAccepted)
+	if err := json.NewEncoder(w).Encode(uuid); err != nil {
+		panic(err)
+	}
+	return
 }
