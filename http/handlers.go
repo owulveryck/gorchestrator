@@ -3,15 +3,39 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/gorilla/mux"
+	"github.com/owulveryck/gorchestrator/orchestrator"
 	"io"
 	"io/ioutil"
 	"net/http"
-
-	"github.com/owulveryck/gorchestrator/orchestrator"
 )
 
 func Index(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "Welcome!\n")
+}
+
+func TaskShow(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	var id string
+	id = vars["id"]
+	if v, ok := tasks[id]; ok {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		w.WriteHeader(http.StatusOK)
+		if err := json.NewEncoder(w).Encode(v); err != nil {
+			panic(err)
+
+		}
+		return
+	} else {
+
+		// If we didn't find it, 404
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		w.WriteHeader(http.StatusNotFound)
+		if err := json.NewEncoder(w).Encode(jsonErr{Code: http.StatusNotFound, Text: "Not Found"}); err != nil {
+			panic(err)
+
+		}
+	}
 }
 
 /*
@@ -35,10 +59,9 @@ func TaskCreate(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	//uuid := uuid()
-	uuid := "blabla"
+	uuid := uuid()
 	go v.Run(nil)
-	//tasks[uuid] = v
+	tasks[uuid.ID] = v
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusAccepted)

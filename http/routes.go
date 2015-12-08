@@ -23,5 +23,10 @@ var routes = Routes{
 		"POST",
 		"/v1/tasks",
 		TaskCreate,
+	}, Route{
+		"TaskShow",
+		"GET",
+		"/v1/tasks/{id}",
+		TaskShow,
 	},
 }
