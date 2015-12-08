@@ -26,11 +26,11 @@ func uuid() Task {
 }
 
 // This will hold all the requested tasks
-var tasks map[string]orchestrator.Input
+var tasks map[string]orchestrator.Graph
 
 func Run() {
 
-	tasks = make(map[string]orchestrator.Input, 0)
+	tasks = make(map[string]orchestrator.Graph, 0)
 	router := NewRouter()
 
 	log.Fatal(http.ListenAndServe(":8080", router))

@@ -43,7 +43,7 @@ Test with this curl command:
 
 */
 func TaskCreate(w http.ResponseWriter, r *http.Request) {
-	var v orchestrator.Input
+	var v orchestrator.Graph
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
 	if err != nil {
 		panic(err)

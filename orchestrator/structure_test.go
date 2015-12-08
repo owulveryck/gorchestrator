@@ -6,11 +6,11 @@ import (
 	"testing"
 )
 
-var valid Input
-var notValid Input
+var valid Graph
+var notValid Graph
 
 func init() {
-	valid = Input{"Valid",
+	valid = Graph{"Valid",
 		0,
 		[]int64{0, 1, 0, 0, 1, 0, 0, 0,
 			0, 0, 0, 0, 0, 0, 1, 0,
@@ -40,7 +40,7 @@ func init() {
 		},
 	}
 
-	notValid = Input{"NotValid",
+	notValid = Graph{"NotValid",
 		0,
 		[]int64{0, 1, 0, 0, 1, 0, 0, 0,
 			0, 0, 0, 0, 0, 0, 1, 0,
@@ -83,7 +83,7 @@ func TestCheck(t *testing.T) {
 }
 
 func ExampleCheck() {
-	test := Input{"Test",
+	test := Graph{"Test",
 		0,
 		[]int64{0, 1, 0, 0, 1, 0, 0, 0,
 			0, 0, 0, 0, 0, 0, 1, 0,
