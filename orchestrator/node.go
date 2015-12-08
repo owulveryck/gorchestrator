@@ -6,6 +6,16 @@ import (
 	"time"
 )
 
+// Node is a "runable" node description
+type Node struct {
+	ID       int               `json:"id"`
+	Name     string            `json:"name",omitempty`
+	Engine   string            `json:"engine",omitempty` // The execution engine (ie ansible, shell); aim to be like a shebang in a shell file
+	Artifact string            `json:"artifact"`
+	Args     []string          `json:"args",omitempty`   // the arguments of the artifact, if needed
+	Outputs  map[string]string `json:"output",omitempty` // the key is the name of the parameter, the value its value (always a string)
+}
+
 // Run executes the artifact of a given node
 func (n *Node) Run() <-chan Message {
 	c := make(chan Message)
