@@ -6,16 +6,16 @@ import (
 	"time"
 )
 
-// Input is the input of the orchestrator
-type Input struct {
+// Graph is the input of the orchestrator
+type Graph struct {
 	Name    string           `json:"name",omitempty`
 	State   int              `json:"state"`
 	Digraph structure.Matrix `json:"digraph"`
 	Nodes   []Node           `json:"nodes"`
 }
 
-// Run executes the Input structure
-func (v *Input) Run(stop <-chan time.Time) {
+// Run executes the Graph structure
+func (v *Graph) Run(stop <-chan time.Time) {
 	v.State = Running
 	m := v.Digraph
 
@@ -64,7 +64,7 @@ func (v *Input) Run(stop <-chan time.Time) {
 }
 
 // Check is the structure is coherent, (a squared matrix with as many nodes as needed)
-func (i *Input) Check() Error {
+func (i *Graph) Check() Error {
 	if len(i.Nodes)*len(i.Nodes) != len(i.Digraph) {
 		return Error{1, "Structure is not coherent"}
 	}

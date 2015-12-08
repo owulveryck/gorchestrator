@@ -11,7 +11,7 @@ import (
 
 func main() {
 
-	var v orchestrator.Input
+	var v orchestrator.Graph
 	dec := json.NewDecoder(os.Stdin)
 	if err := dec.Decode(&v); err != nil {
 		panic(err)

@@ -18,12 +18,12 @@ func BenchmarkRun(b *testing.B) {
 
 	var wg sync.WaitGroup
 	count := b.N
-	vs := make([]Input, count)
+	vs := make([]Graph, count)
 	wg.Add(count)
 	for i := 0; i < count; i++ {
 		vs[i] = valid
 		vs[i].Name = fmt.Sprintf("%v", i)
-		go func(v Input, wg *sync.WaitGroup) {
+		go func(v Graph, wg *sync.WaitGroup) {
 			v.Run(nil)
 			wg.Done()
 		}(vs[i], &wg)
