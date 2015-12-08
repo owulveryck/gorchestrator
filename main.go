@@ -19,7 +19,7 @@ func main() {
 
 	go v.Run()
 	n := v.Digraph.Dim()
-	for v.Digraph.Sum() <= int64(orchestrator.Success*n*n) {
+	for v.Digraph.Sum() < int64(orchestrator.Success*n*n) {
 		fmt.Println(v.Digraph)
 		time.Sleep(1 * time.Second)
 	}

@@ -36,7 +36,7 @@ func (v *Input) Run() {
 		}()
 	}
 	c := fanIn(cs...)
-	timeout := time.After(5 * time.Second)
+	timeout := time.After(50 * time.Second)
 	for {
 		select {
 		case node := <-c:
