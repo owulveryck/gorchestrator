@@ -23,6 +23,6 @@ func NewRouter() *mux.Router {
 
 	}
 
-	router.Methods("GET").PathPrefix("/apidocs").Name("Apidocs").Handler(http.StripPrefix("/apidocs", http.FileServer(http.Dir("./dist"))))
+	router.Methods("GET").PathPrefix("/apidocs").Name("Apidocs").Handler(http.StripPrefix("/apidocs", http.FileServer(http.Dir("./htdocs"))))
 	return router
 }
