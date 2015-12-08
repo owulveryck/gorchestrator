@@ -1,17 +1,17 @@
 package orchestrator
 
 import (
+	"github.com/owulveryck/gorchestrator/structure"
 	"sync"
 	"time"
 )
 
-type lock int
-
-func (l *lock) Lock() {
-	*l = 1
-}
-func (l *lock) Unlock() {
-	*l = 0
+// Input is the input of the orchestrator
+type Input struct {
+	Name    string           `json:"name",omitempty`
+	State   int              `json:"state"`
+	Digraph structure.Matrix `json:"digraph"`
+	Nodes   []Node           `json:"nodes"`
 }
 
 // Run executes the Input structure
@@ -63,15 +63,10 @@ func (v *Input) Run(stop <-chan time.Time) {
 	}
 }
 
-func fanIn(inputs ...<-chan Message) <-chan Message {
-	c := make(chan Message)
-	for i := range inputs {
-		input := inputs[i] // New instance of 'input' for each loop.
-		go func() {
-			for {
-				c <- <-input
-			}
-		}()
+// Check is the structure is coherent, (a squared matrix with as many nodes as needed)
+func (i *Input) Check() Error {
+	if len(i.Nodes)*len(i.Nodes) != len(i.Digraph) {
+		return Error{1, "Structure is not coherent"}
 	}
-	return c
+	return Error{0, ""}
 }
