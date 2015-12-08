@@ -17,7 +17,7 @@ func main() {
 
 	}
 
-	timeout := time.After(5 * time.Second)
+	timeout := time.After(30 * time.Second)
 
 	go v.Run(timeout)
 	for v.State < orchestrator.Success {
