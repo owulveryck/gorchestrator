@@ -1,4 +1,4 @@
-package main
+package http
 
 import (
 	"crypto/rand"
@@ -28,7 +28,7 @@ func uuid() Task {
 // This will hold all the requested tasks
 var tasks map[string]orchestrator.Input
 
-func main() {
+func Run() {
 
 	tasks = make(map[string]orchestrator.Input, 0)
 	router := NewRouter()
