@@ -1,7 +1,7 @@
 package orchestrator
 
 import (
-	"fmt"
+	//"fmt"
 	"math/rand"
 	"time"
 )
@@ -26,11 +26,11 @@ func (n *Node) Run() <-chan Message {
 				}
 			}
 			if state == NotRunnable {
-				fmt.Printf("I am %v, and I cannot run\n", n.ID)
+				//fmt.Printf("I am %v, and I cannot run\n", n.ID)
 				c <- Message{n.ID, state, waitForIt}
 			}
 			if state == Running {
-				fmt.Printf("I am %v, and I am running: the module %v, with %v %v\n", n.ID, n.Engine, n.Artifact, n.Args)
+				//fmt.Printf("I am %v, and I am running: the module %v, with %v %v\n", n.ID, n.Engine, n.Artifact, n.Args)
 				time.Sleep(time.Duration(rand.Intn(1e3)) * time.Millisecond)
 				rand.Seed(time.Now().Unix())
 				if rand.Intn(100) < 50 {

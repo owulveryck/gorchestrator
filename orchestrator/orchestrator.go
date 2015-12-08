@@ -1,7 +1,7 @@
 package orchestrator
 
 import (
-	"fmt"
+	//"fmt"
 	"sync"
 	"time"
 )
@@ -17,7 +17,6 @@ func (l *lock) Unlock() {
 
 // Run executes the Input structure
 func (v *Input) Run() {
-	// Allocate a zeroed array of size 8×8
 	m := v.Digraph
 
 	n := m.Dim()
@@ -42,18 +41,18 @@ func (v *Input) Run() {
 		select {
 		case node := <-c:
 			if node.State >= Running {
-				fmt.Printf("%v has finished (%v)\n", node.ID, node.State)
+				//fmt.Printf("%v has finished (%v)\n", node.ID, node.State)
 				for c := 0; c < n; c++ {
 					m.Set(node.ID, c, int64(node.State))
 				}
 				co.Broadcast()
 			}
 		case <-timeout:
-			fmt.Println("Timeout")
+			//fmt.Println("Timeout")
 			return
 		default:
 			if m.Sum() >= int64(Success*n*n) {
-				fmt.Println("All done!")
+				//fmt.Println("All done!")
 				return
 			}
 		}
