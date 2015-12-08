@@ -2,8 +2,10 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/owulveryck/gorchestrator/orchestrator"
 	"os"
+	"time"
 )
 
 func main() {
@@ -15,5 +17,10 @@ func main() {
 
 	}
 
-	v.Run()
+	go v.Run()
+	n := v.Digraph.Dim()
+	for v.Digraph.Sum() <= int64(orchestrator.Success*n*n) {
+		fmt.Println(v.Digraph)
+		time.Sleep(1 * time.Second)
+	}
 }
