@@ -10,14 +10,14 @@ basePath: /v1
 produces:
   - application/json
 paths:
-  /tasks:
+  /tasks/{id}:
     get:
       summary: Digraph actions
       description: |
-        Get the status of a blueprint.
+        Get the status of a single blueprint.
       parameters:
         - name: id
-          in: query
+          in: path
           description: The UUID of the task
           required: true
           type: string
@@ -34,16 +34,18 @@ paths:
             $ref: '#/definitions/Error'
         '404':
           description: No task found
+  /tasks:
     post:
       summary: Digraph actions
       description: |
         Submit an orchestration blueprint.
       parameters:
-        - name: id
-          in: query
-          description: The UUID of the task
+        - name: blueprint
+          in: body
           required: true
-          type: string
+          description: The blueprint of the tasks to run
+          schema:
+            $ref: '#/definitions/Blueprint'
       tags:
         - Digraph
       responses:
