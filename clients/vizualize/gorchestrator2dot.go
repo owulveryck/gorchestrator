@@ -12,6 +12,7 @@ import (
 func main() {
 	// Creates a new graph
 	g := gographviz.NewGraph()
+	g.AddAttr("", "rankdir", "LR")
 	// Now read the json input
 	var v orchestrator.Graph
 	dec := json.NewDecoder(os.Stdin)
