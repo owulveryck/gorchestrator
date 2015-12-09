@@ -57,7 +57,7 @@ func (v *Graph) Run(stop <-chan time.Time) {
 			for r := 0; r < n; r++ {
 				for c := 0; c < n; c++ {
 					switch {
-					case m.At(r, c) == Initial:
+					case m.At(r, c) == ToRun:
 						stop = false
 						v.State = Failure
 					case m.At(r, c) == Running:
