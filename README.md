@@ -24,6 +24,8 @@ It should start a http server listening on port 8080.
 
 The api is in developement and will be documented with swagger. The APIdoc will be included in the distribution.
 
+To see the API documentation, please go to [http://localhost:8080/apidocs/](http://localhost:8080/apidocs/)
+
 # AuthN and AuthZ
 
 The implementation is in the roadmap, and will be based on `oauth2`
