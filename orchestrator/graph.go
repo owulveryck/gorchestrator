@@ -52,13 +52,23 @@ func (v *Graph) Run(stop <-chan time.Time) {
 			v.State = Canceled
 			return
 		default:
-			switch {
-			case m.Sum() == int64(Success*n*n):
-				v.State = Success
-				return
-			case m.Sum() > int64(Success*n*n):
-				//fmt.Println("All done!")
-				v.State = Failure
+			stop := true
+			v.State = Success
+			for r := 0; r < n; r++ {
+				for c := 0; c < n; c++ {
+					switch {
+					case m.At(r, c) == Initial:
+						stop = false
+						v.State = Failure
+					case m.At(r, c) == Running:
+						stop = false
+						v.State = Failure
+					case m.At(r, c) > Success:
+						v.State = Failure
+					}
+				}
+			}
+			if stop {
 				return
 			}
 		}
