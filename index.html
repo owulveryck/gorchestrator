@@ -1,58 +1,81 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
-    <meta charset='utf-8'>
+    <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+    <title>Gorchestrator by owulveryck</title>
 
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/github-light.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-
-    <title>Gorchestrator by owulveryck</title>
   </head>
-
   <body>
-    <header>
-      <div class="inner">
-        <h1>Gorchestrator</h1>
-        <h2>Orchestrator as a Service - A RESTful Concurrent orchestrator in GO</h2>
-        <a href="https://github.com/owulveryck/gorchestrator" class="button"><small>View project on</small> GitHub</a>
-      </div>
-    </header>
+    <div class="wrapper">
+      <header>
+        <h1 class="header">Gorchestrator</h1>
+        <p class="header">Orchestrator as a Service - A RESTful Concurrent orchestrator in GO</p>
 
-    <div id="content-wrapper">
-      <div class="inner clearfix">
-        <section id="main-content">
-          <h1>
+        <ul>
+          <li class="download"><a class="buttons" href="https://github.com/owulveryck/gorchestrator/zipball/master">Download ZIP</a></li>
+          <li class="download"><a class="buttons" href="https://github.com/owulveryck/gorchestrator/tarball/master">Download TAR</a></li>
+          <li><a class="buttons github" href="https://github.com/owulveryck/gorchestrator">View On GitHub</a></li>
+        </ul>
+
+        <p class="header">This project is maintained by <a class="header name" href="https://github.com/owulveryck">owulveryck</a></p>
+
+
+      </header>
+      <section>
+        <h1>
 <a id="abstract" class="anchor" href="#abstract" aria-hidden="true"><span class="octicon octicon-link"></span></a>Abstract</h1>
 
 <p>A simple orchestrator that takes and adjacency matrix as input.</p>
 
-<p>This orchestrator is a webservice.
-The concurrency is implemented thanks to go routines (See this <a href="http://blog.owulveryck.info/2015/12/02/orchestrate-a-digraph-with-goroutine-a-concurrent-orchestrator/">post</a> for more information about the implementation)</p>
+<p>This orchestrator acts as a webservice.
+This means that you send a representation of your graph and nodes via an HTTP POST request to the engine, and:</p>
+
+<ul>
+<li>It decomposes the workflow</li>
+<li>Launch as many "processes" (actually goroutines) as nodes (see performances)</li>
+<li>Launch a conductor that acts as a communication vector for the running nodes</li>
+</ul>
+
+<p>OaaS is micro service oriented. Which means that it does not actually run the artifact of the node. Instead, It calls another web service that acts as a proxy for the execution task. The proxy may implement drivers as needed, such as a <code>shell</code> driver, an <code>ansible</code> driver, <code>docker</code>, ...</p>
+
+<p>The concurrency is implemented thanks to go routines (See this <a href="http://blog.owulveryck.info/2015/12/02/orchestrate-a-digraph-with-goroutine-a-concurrent-orchestrator/">post</a> for more information about the implementation)</p>
 
 <h1>
 <a id="getting-it-up-and-running" class="anchor" href="#getting-it-up-and-running" aria-hidden="true"><span class="octicon octicon-link"></span></a>Getting it up and running</h1>
 
-<pre><code>go get github.com/owulveryck/gorchestrator
-</code></pre>
+<p>The engine is written in pure go. The package is go-gettable. Assuming you have a GO environment up and running, the following tasks should be enough to enjoy the orchestrator:</p>
 
-<p>then </p>
+<ul>
+<li><code>go get github.com/owulveryck/gorchestrator</code></li>
+<li><code>cd $GOPATH/src/github.com/owulveryck/gorchestrator</code></li>
+<li><code>go run</code></li>
+</ul>
 
-<pre><code>go run main.go
-</code></pre>
-
-<p>It should start a http server listening on port 8080.</p>
+<p>then point your brother to <code>http://localhost:8080/</code></p>
 
 <h1>
 <a id="api" class="anchor" href="#api" aria-hidden="true"><span class="octicon octicon-link"></span></a>API</h1>
 
-<p>The api is in developement and will be documented with swagger. The APIdoc will be included in the distribution.</p>
+<p>The REST API is in developement but nearly stable. It is self documented with swagger. </p>
+
+<h2>
+<a id="apidoc" class="anchor" href="#apidoc" aria-hidden="true"><span class="octicon octicon-link"></span></a>APIDOC</h2>
+
+<p>The api doc is viewable</p>
+
+<ul>
+<li>live <a href="http://blog.owulveryck.info/gorchestrator/swagger/">here</a> for api documentation.</li>
+<li>In your own instance at <a href="http://localhost:8080/apidocs/">http://localhost:8080/apidocs/</a>
+</li>
+</ul>
 
 <h1>
 <a id="authn-and-authz" class="anchor" href="#authn-and-authz" aria-hidden="true"><span class="octicon octicon-link"></span></a>AuthN and AuthZ</h1>
@@ -75,26 +98,13 @@ ok      github.com/owulveryck/gorchestrator/orchestrator        3.882s
 <p>Which means that I can interpret and run 3000 times this digraph in 3.8s (excluding the actual execution time of the task)</p>
 
 <p><strong>Note</strong> : It is simply the execution workflow as all the nodes do not perform any action.</p>
-        </section>
-
-        <aside id="sidebar">
-          <a href="https://github.com/owulveryck/gorchestrator/zipball/master" class="button">
-            <small>Download</small>
-            .zip file
-          </a>
-          <a href="https://github.com/owulveryck/gorchestrator/tarball/master" class="button">
-            <small>Download</small>
-            .tar.gz file
-          </a>
-
-          <p class="repo-owner"><a href="https://github.com/owulveryck/gorchestrator"></a> is maintained by <a href="https://github.com/owulveryck">owulveryck</a>.</p>
-
-          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
-        </aside>
-      </div>
+      </section>
+      <footer>
+        <p><small>Hosted on <a href="https://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
+      </footer>
     </div>
-
-            <script type="text/javascript">
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+		          <script type="text/javascript">
             var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
             document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
           </script>
