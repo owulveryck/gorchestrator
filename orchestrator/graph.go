@@ -42,7 +42,9 @@ func (v *Graph) Run(stop <-chan time.Time) {
 			if node.State >= Running {
 				//fmt.Printf("%v has finished (%v)\n", node.ID, node.State)
 				for c := 0; c < n; c++ {
-					m.Set(node.ID, c, int64(node.State))
+					if m.At(node.ID, c) != 0 {
+						m.Set(node.ID, c, int64(node.State))
+					}
 				}
 				co.Broadcast()
 			}
