@@ -9,7 +9,7 @@ import (
 // Node is a "runable" node description
 type Node struct {
 	ID       int               `json:"id"`
-	State    int               `json:"n.State,omitempty"`
+	State    int               `json:"state,omitempty"`
 	Name     string            `json:"name",omitempty`
 	Engine   string            `json:"engine",omitempty` // The execution engine (ie ansible, shell); aim to be like a shebang in a shell file
 	Artifact string            `json:"artifact"`
