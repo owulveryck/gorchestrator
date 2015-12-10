@@ -18,18 +18,21 @@ func displayMain(w http.ResponseWriter, r *http.Request) {
 	var id string
 	id = vars["id"]
 
-	w.WriteHeader(http.StatusOK)
 	t := template.New("Main page")
 	t, err := t.ParseFiles("tmpl/index.tmpl")
 	if err != nil {
+		fmt.Println(err)
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(http.StatusNotFound)
-		if err := json.NewEncoder(w).Encode(jsonErr{Code: http.StatusNotFound, Msg: "Not Found"}); err != nil {
+		if err := json.NewEncoder(w).Encode(jsonErr{Code: http.StatusNotFound, Msg: fmt.Sprintf("%v", err)}); err != nil {
 			panic(err)
 		}
+		return
 	}
+	w.WriteHeader(http.StatusOK)
 	t.Execute(w, id)
 }
+
 func displaySvg(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	var id string
