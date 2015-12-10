@@ -21,31 +21,39 @@ func main() {
 	v.Nodes = make([]orchestrator.Node, s)
 	for i := 0; i < s; i++ {
 		v.Nodes[i].ID = i
-		// FIXME
 		n := t.GetNodeTemplateFromId(i)
+		// Fill in a map with method as key and artifact as value
+		interfaces := make(map[string]string, 0)
+		for _, intf := range n.Interfaces {
+			for val, _ := range intf {
+				interfaces[val] = "Found"
+
+			}
+		} // FIXME
 		var op string
 		switch i {
 		case n.GetConfigureIndex():
-			op = "Configure"
+			op = "configure"
 		case n.GetStartIndex():
-			op = "Start"
+			op = "start"
 		case n.GetStopIndex():
-			op = "Stop"
+			op = "stop"
 		case n.GetCreateIndex():
-			op = "Create"
+			op = "create"
 		case n.GetDeleteIndex():
-			op = "Delete"
+			op = "delete"
 		case n.GetInitialIndex():
-			op = "Initial"
+			op = "initial"
 		case n.GetPostConfigureSourceIndex():
-			op = "PostConfigureSource"
+			op = "postConfigureSource"
 		case n.GetPostConfigureTargetIndex():
-			op = "PostConfigureTarget"
+			op = "postConfigureTarget"
 		case n.GetPreConfigureSourceIndex():
-			op = "PreConfigureSource"
+			op = "preConfigureSource"
 		case n.GetPreConfigureTargetIndex():
-			op = "PreConfiguretarget"
+			op = "preConfiguretarget"
 		}
+		v.Nodes[i].Artifact = interfaces[op]
 
 		v.Nodes[i].Name = fmt.Sprintf("%v:%v", n.Name, op)
 		for j := 0; j < s; j++ {
