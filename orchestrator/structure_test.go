@@ -22,21 +22,21 @@ func init() {
 			0, 0, 0, 0, 0, 0, 1, 0,
 		},
 		[]Node{
-			{0, "a", "nil", "myplaybook.yml", nil, nil},
-			{1, "b", "shell", "myscript.sh", nil,
+			{0, 0, "a", "nil", "myplaybook.yml", nil, nil},
+			{1, 0, "b", "shell", "myscript.sh", nil,
 				map[string]string{
 					"output1": "",
 				},
 			},
-			{2, "c", "shell", "myscript2.sh",
+			{2, 0, "c", "shell", "myscript2.sh",
 				[]string{
 					"-e", "get_attribute 1:output1",
 				}, nil},
-			{3, "d", "nil", "myplaybook3.yml", nil, nil},
-			{4, "e", "nil", "myplaybook4.yml", nil, nil},
-			{5, "f", "nil", "myplaybook5.yml", nil, nil},
-			{6, "g", "nil", "myplaybook6.yml", nil, nil},
-			{7, "h", "nil", "myplaybook7.yml", nil, nil},
+			{3, 0, "d", "nil", "myplaybook3.yml", nil, nil},
+			{4, 0, "e", "nil", "myplaybook4.yml", nil, nil},
+			{5, 0, "f", "nil", "myplaybook5.yml", nil, nil},
+			{6, 0, "g", "nil", "myplaybook6.yml", nil, nil},
+			{7, 0, "h", "nil", "myplaybook7.yml", nil, nil},
 		},
 	}
 
@@ -52,21 +52,21 @@ func init() {
 			0, 0, 0, 0, 0, 0, 1, 0,
 		},
 		[]Node{
-			{0, "a", "nil", "myplaybook.yml", nil, nil},
-			{1, "b", "shell", "myscript.sh", nil,
+			{0, 0, "a", "nil", "myplaybook.yml", nil, nil},
+			{1, 0, "b", "shell", "myscript.sh", nil,
 				map[string]string{
 					"output1": "",
 				},
 			},
-			{2, "c", "shell", "myscript2.sh",
+			{2, 0, "c", "shell", "myscript2.sh",
 				[]string{
 					"-e", "get_attribute 1:output1",
 				}, nil},
-			{3, "d", "nil", "myplaybook3.yml", nil, nil},
-			{4, "e", "nil", "myplaybook4.yml", nil, nil},
-			{5, "f", "nil", "myplaybook5.yml", nil, nil},
-			{6, "g", "nil", "myplaybook6.yml", nil, nil},
-			{7, "h", "nil", "myplaybook7.yml", nil, nil},
+			{3, 0, "d", "nil", "myplaybook3.yml", nil, nil},
+			{4, 0, "e", "nil", "myplaybook4.yml", nil, nil},
+			{5, 0, "f", "nil", "myplaybook5.yml", nil, nil},
+			{6, 0, "g", "nil", "myplaybook6.yml", nil, nil},
+			{7, 0, "h", "nil", "myplaybook7.yml", nil, nil},
 		},
 	}
 }
@@ -95,21 +95,21 @@ func ExampleCheck() {
 			0, 0, 0, 0, 0, 0, 1, 0,
 		},
 		[]Node{
-			{0, "a", "nil", "myplaybook.yml", nil, nil},
-			{1, "b", "shell", "myscript.sh", nil,
+			{0, 0, "a", "nil", "myplaybook.yml", nil, nil},
+			{1, 0, "b", "shell", "myscript.sh", nil,
 				map[string]string{
 					"output1": "",
 				},
 			},
-			{2, "c", "shell", "myscript2.sh",
+			{2, 0, "c", "shell", "myscript2.sh",
 				[]string{
 					"-e", "get_attribute 1:output1",
 				}, nil},
-			{3, "d", "nil", "myplaybook3.yml", nil, nil},
-			{4, "e", "nil", "myplaybook4.yml", nil, nil},
-			{5, "f", "nil", "myplaybook5.yml", nil, nil},
-			{6, "g", "nil", "myplaybook6.yml", nil, nil},
-			{7, "h", "nil", "myplaybook7.yml", nil, nil},
+			{3, 0, "d", "nil", "myplaybook3.yml", nil, nil},
+			{4, 0, "e", "nil", "myplaybook4.yml", nil, nil},
+			{5, 0, "f", "nil", "myplaybook5.yml", nil, nil},
+			{6, 0, "g", "nil", "myplaybook6.yml", nil, nil},
+			{7, 0, "h", "nil", "myplaybook7.yml", nil, nil},
 		},
 	}
 	e := test.Check()

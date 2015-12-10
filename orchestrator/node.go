@@ -9,6 +9,7 @@ import (
 // Node is a "runable" node description
 type Node struct {
 	ID       int               `json:"id"`
+	State    int               `json:"n.State,omitempty"`
 	Name     string            `json:"name",omitempty`
 	Engine   string            `json:"engine",omitempty` // The execution engine (ie ansible, shell); aim to be like a shebang in a shell file
 	Artifact string            `json:"artifact"`
@@ -21,40 +22,40 @@ func (n *Node) Run() <-chan Message {
 	c := make(chan Message)
 	waitForIt := make(chan structure.Matrix) // Shared between all messages.
 	go func() {
-		state := ToRun
-		for state <= ToRun {
-			c <- Message{n.ID, state, waitForIt}
+		n.State = ToRun
+		for n.State <= ToRun {
+			c <- Message{n.ID, n.State, waitForIt}
 			m := <-waitForIt
 			s := m.Dim()
-			state = Running
+			n.State = Running
 			for i := 0; i < s; i++ {
 				if m.At(i, n.ID) < Success && m.At(i, n.ID) > 0 {
-					state = ToRun
+					n.State = ToRun
 				} else if m.At(i, n.ID) >= Failure {
-					state = NotRunnable
+					n.State = NotRunnable
 					continue
 				}
 			}
-			if state == NotRunnable {
+			if n.State == NotRunnable {
 				//fmt.Printf("I am %v, and I cannot run\n", n.ID)
-				c <- Message{n.ID, state, waitForIt}
+				c <- Message{n.ID, n.State, waitForIt}
 			}
-			if state == Running {
-				c <- Message{n.ID, state, waitForIt}
+			if n.State == Running {
+				c <- Message{n.ID, n.State, waitForIt}
 				switch n.Engine {
 				case "nil":
-					state = Success
+					n.State = Success
 				case "sleep": // For test purpose
 					//fmt.Printf("I am %v, and I am running: the module %v, with %v %v\n", n.ID, n.Engine, n.Artifact, n.Args)
 					time.Sleep(time.Duration(rand.Intn(1e4)) * time.Millisecond)
 					rand.Seed(time.Now().Unix())
-					state = Success
+					n.State = Success
 				default:
 					// Send the message to the appropriate backend
-					state = Success
+					n.State = Success
 
 				}
-				c <- Message{n.ID, state, waitForIt}
+				c <- Message{n.ID, n.State, waitForIt}
 			}
 		}
 		close(c)
