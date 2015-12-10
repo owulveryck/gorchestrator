@@ -93,6 +93,10 @@ definitions:
         type: integer
         format: int32
         description: 'The index of the node in the adjacency matrix'
+      state:
+        type: integer
+        format: int32
+        description: 'The execution state of the node'
       name:
         type: string
         description: 'an optional name for the node'
