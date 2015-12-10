@@ -129,25 +129,25 @@
             $.getJSON( "{{.Update}}", function() {
                 //console.log( "success!" );
                 }).done(function(data) {
-                    for (var i in data){
-                        console.log(data[i]);
-                        switch (data[i].state) {
+                    for (var i in data.nodes){
+                        //console.log(data.nodes[i].state);
+                        switch (data.nodes[i].state) {
                             case 0:
                                 color = 'rgba(34, 209, 23, 0.7)'
                                 break;
                             case 1:
-                                color = 'rgba(10, 0, 0, 0.5)'
+                                color = 'rgba(10, 0, 0, 0.7)'
                                 break;
                             case 2:
-                                color = 'rgba(73, 151, 41, 0.3)'
+                                color = 'rgba(73, 151, 41, 0.7)'
                                 break;
                             case 3:
-                                color = 'rgba(34, 131, 201, 0.3)'
+                                color = 'rgba(34, 131, 201, 0.7)'
                                 break;
                             default:
-                                color = 'rgba(230, 0, 0, 0.5)'
+                                color = 'rgba(230, 0, 0, 0.7)'
                         }
-                        $("#" + data[i].id,svgRoot).children("text").css({'fill': color});
+                        $("#" + data.nodes[i].id,svgRoot).children("text").css({'fill': color});
                         //$("#" + data[i].id,svgRoot).children("polygon").css({'fill': color});
                     }
                 });
