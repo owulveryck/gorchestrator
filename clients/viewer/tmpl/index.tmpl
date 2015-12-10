@@ -55,22 +55,21 @@
 
   <body>
 <div class="container-fluid">
-    <h2>Gorchestrator Execution Viewer</h2>
-  <ul class="nav nav-tabs">
-      <li><a data-toggle="tab" href="#eXecutionTable">The execution table</a></li>
-    <li><a data-toggle="tab" href="#executionGraph">The execution Graph</a></li>
-  </ul>
-    <div class="row">
+  <div class="row">
     <form role="form" action="/view/" method="GET" onsubmit="this.action = this.action + this.id.value">
 
             <span class="btn btn-default btn-file">
                 <input type="text" class="form-control" id="id" placeholder="id"/>
                 <!--<input type="file" name="gorch">-->
             </span>
-            <button type="submit" class="btn btn-default">Upload!</button>
+            <button type="submit" class="btn btn-default">View!</button>
         </form>
     </div>
-    <!--
+<ul class="nav nav-tabs">
+      <li><a data-toggle="tab" href="#eXecutionTable">The execution table</a></li>
+    <li><a data-toggle="tab" href="#executionGraph">The execution Graph</a></li>
+  </ul>
+        <!--
     <div class="row">
         <div class="col-sm-1">
             <div class="form-group">
@@ -87,12 +86,12 @@
             </form>
   <br/>
     </div>
+    -->
     <!--
   <div class="col-sm-11">
   <div class="tab-content">
     <div id="toscaSource" class="tab-pane fade">
         <div class="embed-responsive embed-responsive-16by9">
-            <!--
         <table data-toggle="table" data-url="/getstate.json" data-cache="false" data-height="299">
             <thead>
                 <tr>
@@ -102,12 +101,12 @@
                 </tr>
             </thead>
         </table>
-        -->
         </div> 
     </div>
+        -->
     <div id="executionGraph" class="tab-pane fade">
         <div class="embed-responsive embed-responsive-16by9">
-            <object class="embed-responsive-item" data="/graph/{{.}}.svg" type="image/svg+xml" id="graphSVG">blabla</object>
+            <object class="embed-responsive-item" data="/graph/{{.ID}}.svg" type="image/svg+xml" id="graphSVG">blabla</object>
         </div>
             <!--
         <img class="img-responsive" id="toscaSVG" src="/tosca.svg" alt="SVG Representation of the tosca file">
@@ -127,7 +126,7 @@
     <!-- update the color -->
     <script type="text/javascript">
         function updateGraph(svgRoot) {
-            $.getJSON( "/getstate.json", function() {
+            $.getJSON( "{{.Update}}", function() {
                 //console.log( "success!" );
                 }).done(function(data) {
                     for (var i in data){
