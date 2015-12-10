@@ -128,10 +128,10 @@
         function updateGraph(svgRoot) {
             $.getJSON( "{{.Update}}", function() {
                 //console.log( "success!" );
-                }).done(function(data) {
-                    for (var i in data){
+                }).done(function(nodes) {
+                    for (var i in nodes){
                         //console.log(data[i].state);
-                        switch (data[i].state) {
+                        switch (nodes[i].state) {
                             case 0:
                                 color = 'rgba(34, 209, 23, 0.7)'
                                 break;
