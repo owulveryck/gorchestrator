@@ -14,6 +14,24 @@ import (
 
 var svg map[string][]byte
 
+func getGraph(id string) (orchestrator.Graph, error) {
+	var g orchestrator.Graph
+
+	r, err := http.Get(fmt.Sprintf("http://localhost:8080/v1/tasks/%v", id))
+	if err != nil {
+		return g, err
+	}
+	defer r.Body.Close()
+	//body, err := ioutil.ReadAll(resp.Body)
+
+	dec := json.NewDecoder(r.Body)
+	if err := dec.Decode(&g); err != nil {
+		return g, err
+	}
+
+	return g, nil
+}
+
 func getSvg(id string) ([]byte, error) {
 	if b, ok := svg[id]; ok {
 		return b, nil
