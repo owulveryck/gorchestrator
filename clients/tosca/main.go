@@ -22,31 +22,32 @@ func main() {
 	for i := 0; i < s; i++ {
 		v.Nodes[i].ID = i
 		// FIXME
+		n := t.GetNodeTemplateFromId(i)
 		var op string
 		switch i {
-		case t.GetNodeTemplateFromId(i).GetConfigureIndex():
+		case n.GetConfigureIndex():
 			op = "Configure"
-		case t.GetNodeTemplateFromId(i).GetStartIndex():
+		case n.GetStartIndex():
 			op = "Start"
-		case t.GetNodeTemplateFromId(i).GetStopIndex():
+		case n.GetStopIndex():
 			op = "Stop"
-		case t.GetNodeTemplateFromId(i).GetCreateIndex():
+		case n.GetCreateIndex():
 			op = "Create"
-		case t.GetNodeTemplateFromId(i).GetDeleteIndex():
+		case n.GetDeleteIndex():
 			op = "Delete"
-		case t.GetNodeTemplateFromId(i).GetInitialIndex():
+		case n.GetInitialIndex():
 			op = "Initial"
-		case t.GetNodeTemplateFromId(i).GetPostConfigureSourceIndex():
+		case n.GetPostConfigureSourceIndex():
 			op = "PostConfigureSource"
-		case t.GetNodeTemplateFromId(i).GetPostConfigureTargetIndex():
+		case n.GetPostConfigureTargetIndex():
 			op = "PostConfigureTarget"
-		case t.GetNodeTemplateFromId(i).GetPreConfigureSourceIndex():
+		case n.GetPreConfigureSourceIndex():
 			op = "PreConfigureSource"
-		case t.GetNodeTemplateFromId(i).GetPreConfigureTargetIndex():
+		case n.GetPreConfigureTargetIndex():
 			op = "PreConfiguretarget"
 		}
 
-		v.Nodes[i].Name = fmt.Sprintf("%v:%v", t.GetNodeTemplateFromId(i).Name, op)
+		v.Nodes[i].Name = fmt.Sprintf("%v:%v", n.Name, op)
 		for j := 0; j < s; j++ {
 			v.Digraph[s*i+j] = int64(t.AdjacencyMatrix.At(i, j))
 		}
