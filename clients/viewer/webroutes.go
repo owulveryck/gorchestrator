@@ -20,10 +20,16 @@ func NewRouter() *mux.Router {
 	// Definition des routes
 	var routes = routes{
 		route{
-			"Tosca diagram",
+			"SVG diagram",
 			"GET",
 			"/graph/{id}.svg",
 			displaySvg,
+		},
+		route{
+			"Main page ",
+			"GET",
+			"/view/{id}",
+			displayMain,
 		},
 	}
 	router := mux.NewRouter().StrictSlash(true)
