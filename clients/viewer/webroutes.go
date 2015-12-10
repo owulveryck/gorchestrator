@@ -22,6 +22,12 @@ func NewRouter() *mux.Router {
 		route{
 			"SVG diagram",
 			"GET",
+			"/graph/{id}.json",
+			displaySvg,
+		},
+		route{
+			"SVG diagram",
+			"GET",
 			"/graph/{id}.svg",
 			displaySvg,
 		},
