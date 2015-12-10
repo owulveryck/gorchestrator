@@ -40,7 +40,7 @@
     <link href="/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Custom styles for this template -->
-    <link href="normalize.css" rel="stylesheet">
+    <link href="/normalize.css" rel="stylesheet">
 
     <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
     <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
@@ -128,10 +128,10 @@
         function updateGraph(svgRoot) {
             $.getJSON( "{{.Update}}", function() {
                 //console.log( "success!" );
-                }).done(function(nodes) {
-                    for (var i in nodes){
-                        //console.log(data[i].state);
-                        switch (nodes[i].state) {
+                }).done(function(data) {
+                    for (var i in data){
+                        console.log(data[i]);
+                        switch (data[i].state) {
                             case 0:
                                 color = 'rgba(34, 209, 23, 0.7)'
                                 break;
