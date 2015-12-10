@@ -28,6 +28,12 @@ func NewRouter() *mux.Router {
 		route{
 			"Main page ",
 			"GET",
+			"/view/",
+			displayMain,
+		},
+		route{
+			"Main page ",
+			"GET",
 			"/view/{id}",
 			displayMain,
 		},
