@@ -17,11 +17,14 @@ func displayMain(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	var id string
 	id = vars["id"]
+	type res struct {
+		ID     string
+		Update string
+	}
 
-	t := template.New("Main page")
+	t := template.New("index.tmpl")
 	t, err := t.ParseFiles("tmpl/index.tmpl")
 	if err != nil {
-		fmt.Println(err)
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(http.StatusNotFound)
 		if err := json.NewEncoder(w).Encode(jsonErr{Code: http.StatusNotFound, Msg: fmt.Sprintf("%v", err)}); err != nil {
@@ -29,8 +32,16 @@ func displayMain(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	w.WriteHeader(http.StatusOK)
-	t.Execute(w, id)
+	//w.WriteHeader(http.StatusOK)
+	err = t.Execute(w, res{id, fmt.Sprintf("http://localhost:8080/v1/tasks/%v", id)})
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		w.WriteHeader(http.StatusNotFound)
+		if err := json.NewEncoder(w).Encode(jsonErr{Code: http.StatusNotFound, Msg: fmt.Sprintf("%v", err)}); err != nil {
+			panic(err)
+		}
+		return
+	}
 }
 
 func displaySvg(w http.ResponseWriter, r *http.Request) {
