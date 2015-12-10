@@ -54,21 +54,15 @@
   </head>
 
   <body>
-<div class="container-fluid">
-  <div class="row">
-    <form role="form" action="/view/" method="GET" onsubmit="this.action = this.action + this.id.value">
 
-            <span class="btn btn-default btn-file">
-                <input type="text" class="form-control" id="id" placeholder="id"/>
-                <!--<input type="file" name="gorch">-->
-            </span>
-            <button type="submit" class="btn btn-default">View!</button>
-        </form>
+    <div class="row">
+        <div class="container-fluid">
+            <ul class="nav nav-tabs">
+                <li><a data-toggle="tab" href="#controlMenu">Control Menu</a></li>
+                <li><a data-toggle="tab" href="#executionGraph">The execution Graph</a></li>
+            </ul>
+        </div>
     </div>
-<ul class="nav nav-tabs">
-      <li><a data-toggle="tab" href="#eXecutionTable">The execution table</a></li>
-    <li><a data-toggle="tab" href="#executionGraph">The execution Graph</a></li>
-  </ul>
         <!--
     <div class="row">
         <div class="col-sm-1">
@@ -104,18 +98,37 @@
         </div> 
     </div>
         -->
-    <div id="executionGraph" class="tab-pane active">
-        <div class="embed-responsive embed-responsive-16by9">
-            <object class="embed-responsive-item" data="/graph/{{.ID}}.svg" type="image/svg+xml" id="graphSVG">Please provide an ID</object>
+    <div class="row">
+        <div id="controlMenu" class="tab-pane active">
+            <form role="form" action="/view/" method="GET" onsubmit="this.action = this.action + this.id.value">
+                <span class="btn btn-default btn-file">
+                    <input type="text" class="form-control" id="id" placeholder="id"/>
+                    <!--<input type="file" name="gorch">-->
+                </span>
+                <button type="submit" class="btn btn-default">View!</button>
+            </form>
+            <form role="form" action="/upload" method="POST" enctype="multipart/form-data">
+                <span class="btn btn-default btn-file">
+                    <input type="file" name="input">
+                    <input type="hidden" name="type" value="tosca">
+                </span>
+                <button type="submit" class="btn btn-default">Upload TOSCA file</button>
+            </form>
+            <form role="form" action="/upload" method="POST" enctype="multipart/form-data">
+                <span class="btn btn-default btn-file">
+                    <input type="file" name="input">
+                    <input type="hidden" name="type" value="gorch">
+                </span>
+                <button type="submit" class="btn btn-default">Upload Gorch json file</button>
+            </form>
         </div>
-            <!--
-        <img class="img-responsive" id="toscaSVG" src="/tosca.svg" alt="SVG Representation of the tosca file">
-            -->
+        <div id="executionGraph" class="tab-pane">
+            <div class="embed-responsive embed-responsive-16by9">
+                <object class="embed-responsive-item" data="/graph/{{.ID}}.svg" type="image/svg+xml" id="graphSVG">Please provide an ID</object>
+            </div>
+            <!-- <img class="img-responsive" id="toscaSVG" src="/tosca.svg" alt="SVG Representation of the tosca file"> -->
+        </div>
     </div>
-  </div>
-</div>
-  </div>
-</div>
 
 
     <!-- Bootstrap core JavaScript
