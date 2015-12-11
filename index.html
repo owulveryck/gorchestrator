@@ -48,8 +48,52 @@ This means that you send a representation of your graph and nodes via an HTTP PO
 
 <p>The concurrency is implemented thanks to go routines (See this <a href="http://blog.owulveryck.info/2015/12/02/orchestrate-a-digraph-with-goroutine-a-concurrent-orchestrator/">post</a> for more information about the implementation)</p>
 
+<h2>
+<a id="the-gorch" class="anchor" href="#the-gorch" aria-hidden="true"><span class="octicon octicon-link"></span></a>The Gorch</h2>
+
+<p><code>gorch</code> is the Graphical-Orchestration representation.</p>
+
+<p>It is a JSON representation of the graph.</p>
+
+<p>It is composed of and adjaceny matrix and a list of nodes.</p>
+
+<div class="highlight highlight-source-json"><pre>{
+    <span class="pl-s"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>string<span class="pl-pds">"</span></span>,
+    <span class="pl-s"><span class="pl-pds">"</span>state<span class="pl-pds">"</span></span>: <span class="pl-c1">0</span>,
+    <span class="pl-s"><span class="pl-pds">"</span>digraph<span class="pl-pds">"</span></span>: [
+        <span class="pl-c1">0</span>
+    ],
+    <span class="pl-s"><span class="pl-pds">"</span>nodes<span class="pl-pds">"</span></span>: [
+        {
+            <span class="pl-s"><span class="pl-pds">"</span>id<span class="pl-pds">"</span></span>: <span class="pl-c1">0</span>,
+            <span class="pl-s"><span class="pl-pds">"</span>state<span class="pl-pds">"</span></span>: <span class="pl-c1">0</span>,
+            <span class="pl-s"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>string<span class="pl-pds">"</span></span>,
+            <span class="pl-s"><span class="pl-pds">"</span>engine<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>string<span class="pl-pds">"</span></span>,
+            <span class="pl-s"><span class="pl-pds">"</span>artifact<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>string<span class="pl-pds">"</span></span>,
+            <span class="pl-s"><span class="pl-pds">"</span>args<span class="pl-pds">"</span></span>: [
+                <span class="pl-s"><span class="pl-pds">"</span>string<span class="pl-pds">"</span></span>
+            ]
+        }
+    ]
+
+}</pre></div>
+
+<h2>
+<a id="the-tools" class="anchor" href="#the-tools" aria-hidden="true"><span class="octicon octicon-link"></span></a>The tools</h2>
+
+<p>gorchestrator is composed of :</p>
+
+<ul>
+<li>orchestrator which is the main execution webservices</li>
+<li>sample clients to POST and GET queries and to display it (see the <code>web client</code> for example)</li>
+<li>an execution portal which is also a webservice aim to acutally run the engines and executes the artifacts.</li>
+</ul>
+
 <h1>
 <a id="getting-it-up-and-running" class="anchor" href="#getting-it-up-and-running" aria-hidden="true"><span class="octicon octicon-link"></span></a>Getting it up and running</h1>
+
+<h2>
+<a id="development" class="anchor" href="#development" aria-hidden="true"><span class="octicon octicon-link"></span></a>Development</h2>
 
 <p>The engine is written in pure go. The package is go-gettable. Assuming you have a GO environment up and running, the following tasks should be enough to enjoy the orchestrator:</p>
 
@@ -59,7 +103,17 @@ This means that you send a representation of your graph and nodes via an HTTP PO
 <li><code>go run</code></li>
 </ul>
 
-<p>then point your brother to <code>http://localhost:8080/</code></p>
+<h2>
+<a id="release" class="anchor" href="#release" aria-hidden="true"><span class="octicon octicon-link"></span></a>Release</h2>
+
+<p>See <a href="https://github.com/owulveryck/gorchestrator/releases">the github release page</a> for releases and binaries</p>
+
+<h2>
+<a id="testing-it" class="anchor" href="#testing-it" aria-hidden="true"><span class="octicon octicon-link"></span></a>Testing it</h2>
+
+<p>You can post a query as described in the example folder:</p>
+
+<div class="highlight highlight-source-shell"><pre><span class="pl-c"># curl -X POST -H 'Content-Type:application/json' -H 'Accept:application/json' -d @example.json -k http://localhost:8080/v1/tasks</span></pre></div>
 
 <h1>
 <a id="api" class="anchor" href="#api" aria-hidden="true"><span class="octicon octicon-link"></span></a>API</h1>
@@ -67,7 +121,7 @@ This means that you send a representation of your graph and nodes via an HTTP PO
 <p>The REST API is in developement but nearly stable. It is self documented with swagger. </p>
 
 <h2>
-<a id="apidoc" class="anchor" href="#apidoc" aria-hidden="true"><span class="octicon octicon-link"></span></a>APIDOC</h2>
+<a id="apidoc" class="anchor" href="#apidoc" aria-hidden="true"><span class="octicon octicon-link"></span></a>Apidoc</h2>
 
 <p>The api doc is viewable</p>
 
@@ -85,7 +139,7 @@ This means that you send a representation of your graph and nodes via an HTTP PO
 <h1>
 <a id="performances" class="anchor" href="#performances" aria-hidden="true"><span class="octicon octicon-link"></span></a>Performances</h1>
 
-<p>I did a <code>test</code> file to bench the orchestrator engine with the <code>go</code> mechanism. The example, is the simple one listed one my blog post.</p>
+<p>I did a <code>test</code> file to bench the orchestrator engine (and only the engine) with the <code>go</code> mechanism. The example, is the simple one listed one my blog post.</p>
 
 <p>Here are the results on my chromebook (which is small, with only 2 Gb of RAM)</p>
 
