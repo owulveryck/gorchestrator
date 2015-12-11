@@ -27,8 +27,14 @@ func main() {
 		interfaces := make(map[string]string, 0)
 		for _, intf := range n.Interfaces {
 			for val, vv := range intf {
-				fmt.Printf("%v is of type %v", vv, reflect.TypeOf(vv))
-				interfaces[val] = "Found"
+				switch reflect.TypeOf(vv).Kind() {
+				case reflect.String:
+					interfaces[val] = reflect.ValueOf(vv).String()
+				case reflect.Map:
+					interfaces[val] = fmt.Sprintf("%v", reflect.ValueOf(vv).MapIndex(reflect.ValueOf("implementation")))
+				default:
+					interfaces[val] = "Found"
+				}
 
 			}
 		} // FIXME
