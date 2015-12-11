@@ -6,6 +6,7 @@ import (
 	"github.com/owulveryck/gorchestrator/orchestrator"
 	"github.com/owulveryck/toscalib"
 	"os"
+	"reflect"
 )
 
 func main() {
@@ -25,7 +26,8 @@ func main() {
 		// Fill in a map with method as key and artifact as value
 		interfaces := make(map[string]string, 0)
 		for _, intf := range n.Interfaces {
-			for val, _ := range intf {
+			for val, vv := range intf {
+				fmt.Printf("%v is of type %v", vv, reflect.TypeOf(vv))
 				interfaces[val] = "Found"
 
 			}
