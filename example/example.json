@@ -15,7 +15,7 @@
       {
         "id": 0,
         "name": "a",
-        "engine": "shell",
+        "engine": "sleep",
         "artifact": "example/script.sh",
         "args": null,
         "output": null
@@ -23,7 +23,7 @@
       {
         "id": 1,
         "name": "b",
-        "engine": "shell",
+        "engine": "sleep",
         "artifact": "myscript.sh",
         "args": null,
         "output": {
@@ -33,7 +33,7 @@
       {
         "id": 2,
         "name": "c",
-        "engine": "shell",
+        "engine": "sleep",
         "artifact": "example/script.sh",
         "args": [
           "-e",
@@ -44,7 +44,7 @@
       {
         "id": 3,
         "name": "d",
-        "engine": "shell",
+        "engine": "sleep",
         "artifact": "example/script.sh",
         "args": null,
         "output": null
@@ -52,7 +52,7 @@
       {
         "id": 4,
         "name": "e",
-        "engine": "shell",
+        "engine": "sleep",
         "artifact": "example/script.sh",
         "args": null,
         "output": null
@@ -60,7 +60,7 @@
       {
         "id": 5,
         "name": "f",
-        "engine": "shell",
+        "engine": "sleep",
         "artifact": "example/script.sh",
         "args": null,
         "output": null
@@ -68,7 +68,7 @@
       {
         "id": 6,
         "name": "g",
-        "engine": "shell",
+        "engine": "sleep",
         "artifact": "example/script.sh",
         "args": null,
         "output": null
@@ -76,7 +76,7 @@
       {
         "id": 7,
         "name": "h",
-        "engine": "shell",
+        "engine": "sleep",
         "artifact": "example/script.sh",
         "args": null,
         "output": null
