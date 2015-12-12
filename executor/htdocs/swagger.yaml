@@ -1,0 +1,98 @@
+swagger: '2.0'
+info:
+  title: OaaS API
+  description: Send a digraph and watch the magic
+  version: 1.0.0
+host: localhost:8585
+schemes:
+  - http
+basePath: /v1
+produces:
+  - application/json
+paths:
+  /tasks/{id}:
+    get:
+      summary: Digraph actions
+      description: |
+        Get the status of a single blueprint.
+      parameters:
+        - name: id
+          in: path
+          description: The UUID of the task
+          required: true
+          type: string
+      tags:
+        - Digraph
+      responses:
+        '200':
+          description: The complete blueprint of the given task
+          schema:
+            $ref: '#/definitions/Node'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: No task found
+  /tasks:
+    post:
+      summary: Digraph actions
+      description: |
+        Submit an orchestration blueprint.
+      parameters:
+        - name: blueprint
+          in: body
+          required: true
+          description: The blueprint of the tasks to run
+          schema:
+            $ref: '#/definitions/Node'
+      tags:
+        - Digraph
+      responses:
+        '202':
+          description: The uuid of the task created
+          schema:
+            $ref: '#/definitions/Id'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+definitions:
+  Id:
+    type: object
+    properties:
+      id:
+        type: string
+  Node:
+    type: object
+    description: 'A node representation'
+    properties:
+      id:
+        type: integer
+        format: int32
+        description: 'The index of the node in the adjacency matrix'
+      state:
+        type: integer
+        format: int32
+        description: 'The execution state of the node'
+      name:
+        type: string
+        description: 'an optional name for the node'
+      engine:
+        type: string
+        description: 'the name of the running egine (shell, ansible, nil)'
+      artifact:
+        type: string
+        description: 'the name of the shell or the playbook to execute'
+      args:
+        type: array
+        items:
+          type: string
+  Error:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string

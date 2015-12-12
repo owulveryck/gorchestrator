@@ -19,33 +19,29 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 package executor
 
-import "net/http"
+import (
+	"net/http"
 
-type Route struct {
-	Name        string
-	Method      string
-	Pattern     string
-	HandlerFunc http.HandlerFunc
-}
+	"github.com/gorilla/mux"
+)
 
-type Routes []Route
+func NewRouter() *mux.Router {
 
-var routes = Routes{
-	Route{
-		"Index",
-		"GET",
-		"/",
-		Index,
-	},
-	Route{
-		"TaskCreate",
-		"POST",
-		"/v1/tasks",
-		TaskCreate,
-	}, Route{
-		"TaskShow",
-		"GET",
-		"/v1/tasks/{id}",
-		TaskShow,
-	},
+	router := mux.NewRouter().StrictSlash(true)
+	for _, route := range routes {
+		var handler http.Handler
+
+		handler = route.HandlerFunc
+		handler = Logger(handler, route.Name)
+
+		router.
+			Methods(route.Method).
+			Path(route.Pattern).
+			Name(route.Name).
+			Handler(handler)
+
+	}
+
+	router.Methods("GET").PathPrefix("/apidocs").Name("Apidocs").Handler(http.StripPrefix("/apidocs", http.FileServer(http.Dir("./htdocs"))))
+	return router
 }

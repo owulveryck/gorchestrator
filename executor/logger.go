@@ -19,33 +19,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 package executor
 
-import "net/http"
+import (
+	"log"
+	"net/http"
+	"time"
+)
 
-type Route struct {
-	Name        string
-	Method      string
-	Pattern     string
-	HandlerFunc http.HandlerFunc
-}
+func Logger(inner http.Handler, name string) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
 
-type Routes []Route
+		inner.ServeHTTP(w, r)
 
-var routes = Routes{
-	Route{
-		"Index",
-		"GET",
-		"/",
-		Index,
-	},
-	Route{
-		"TaskCreate",
-		"POST",
-		"/v1/tasks",
-		TaskCreate,
-	}, Route{
-		"TaskShow",
-		"GET",
-		"/v1/tasks/{id}",
-		TaskShow,
-	},
+		log.Printf(
+			"%s\t%s\t%s\t%s",
+			r.Method,
+			r.RequestURI,
+			name,
+			time.Since(start),
+		)
+	})
 }
