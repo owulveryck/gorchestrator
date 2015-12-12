@@ -43,17 +43,17 @@ type Node struct {
 func (n *Node) Execute() error {
 	var id int
 	var err error
-	for err != nil && n.State < Success {
+	for err == nil && n.State < Success {
 		r, err := http.Get(fmt.Sprintf("http://localhost:8585/v1/tasks/%v", id))
-		defer r.Body.Close()
 		if err != nil {
 			n.State = NotRunnable
 			return err
 		}
+		defer r.Body.Close()
 		dec := json.NewDecoder(r.Body)
 		if err := dec.Decode(&n); err != nil {
-			return err
 			n.State = Failure
+			return err
 		}
 		time.Sleep(1 * time.Second)
 	}
