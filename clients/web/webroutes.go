@@ -66,11 +66,14 @@ func NewRouter() *mux.Router {
 	router := mux.NewRouter().StrictSlash(true)
 	//router.Headers("Content-Type", "application/json", "X-Requested-With", "XMLHttpRequest")
 	for _, route := range routes {
+		var handler http.Handler
+		handler = route.HandlerFunc
+		handler = Logger(handler, route.Name)
 		router.
 			Methods(route.Method).
 			Path(route.Pattern).
 			Name(route.Name).
-			Handler(route.HandlerFunc)
+			Handler(handler)
 	}
 	// Define the access to the root of the web
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("htdocs/")))
