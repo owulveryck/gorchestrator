@@ -20,8 +20,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package orchestrator
 
 import (
+	"encoding/json"
 	"fmt"
 	"math/rand"
+	"net/http"
 	"regexp"
 	"time"
 )
@@ -39,6 +41,23 @@ type Node struct {
 
 // Actually executes the node (via the executor)
 func (n *Node) Execute() error {
+	var id int
+	var err error
+	for err != nil && n.State < Success {
+		r, err := http.Get(fmt.Sprintf("http://localhost:8585/v1/tasks/%v", id))
+		defer r.Body.Close()
+		if err != nil {
+			n.State = NotRunnable
+			return err
+		}
+		dec := json.NewDecoder(r.Body)
+		if err := dec.Decode(&n); err != nil {
+			return err
+			n.State = Failure
+		}
+		time.Sleep(1 * time.Second)
+	}
+	n.State = Success
 	return nil
 }
 
@@ -91,8 +110,7 @@ func (n *Node) Run() <-chan Message {
 					n.Outputs["result"] = fmt.Sprintf("%v_%v", n.Name, time.Now().Unix())
 				default:
 					// Send the message to the appropriate backend
-					n.State = Success
-
+					n.Execute()
 				}
 				c <- Message{n.ID, n.State, waitForIt}
 			}
