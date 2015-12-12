@@ -37,7 +37,12 @@ type Node struct {
 	Outputs  map[string]string `json:"output",omitempty` // the key is the name of the parameter, the value its value (always a string)
 }
 
-// Run executes the artifact of a given node
+// Actually executes the node (via the executor)
+func (n *Node) Execute() error {
+	return nil
+}
+
+// Run the node
 func (n *Node) Run() <-chan Message {
 	c := make(chan Message)
 	waitForIt := make(chan Graph) // Shared between all messages.
