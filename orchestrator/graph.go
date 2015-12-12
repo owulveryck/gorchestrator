@@ -32,6 +32,11 @@ type Graph struct {
 	Nodes   []Node           `json:"nodes"`
 }
 
+func (v *Graph) getNodeFromName(n string) (Node, error) {
+	var nn Node
+	return nn, nil
+}
+
 // Run executes the Graph structure
 func (v *Graph) Run(stop <-chan time.Time) {
 	v.State = Running

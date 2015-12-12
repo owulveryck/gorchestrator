@@ -25,6 +25,33 @@ import (
 	"testing"
 )
 
+func TestRun(t *testing.T) {
+	e := valid.Check()
+	if e.Code != 0 {
+		t.Errorf("Struct should be valid, error is: %v", e.Error())
+	}
+	e = notValid.Check()
+	if e.Code == 0 {
+		t.Errorf("Struct should not be valid, error is: %v", e.Error())
+	}
+
+	var wg sync.WaitGroup
+	count := 1
+	vs := make([]Graph, count)
+	wg.Add(count)
+	for i := 0; i < count; i++ {
+		vs[i] = valid
+		vs[i].Name = fmt.Sprintf("%v", i)
+		go func(v Graph, wg *sync.WaitGroup) {
+			v.Run(nil)
+			wg.Done()
+		}(vs[i], &wg)
+	}
+	wg.Wait()
+	for i := 0; i < count; i++ {
+		t.Log(vs[i])
+	}
+}
 func BenchmarkRun(b *testing.B) {
 	e := valid.Check()
 	if e.Code != 0 {
