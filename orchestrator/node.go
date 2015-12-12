@@ -20,7 +20,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package orchestrator
 
 import (
+	"fmt"
 	"math/rand"
+	"regexp"
 	"time"
 )
 
@@ -39,6 +41,8 @@ type Node struct {
 func (n *Node) Run() <-chan Message {
 	c := make(chan Message)
 	waitForIt := make(chan Graph) // Shared between all messages.
+	var ga = regexp.MustCompile(`^get_attribute (.+):(.+)$`)
+
 	go func() {
 		n.State = ToRun
 		for n.State <= ToRun {
@@ -60,6 +64,16 @@ func (n *Node) Run() <-chan Message {
 				c <- Message{n.ID, n.State, waitForIt}
 			}
 			if n.State == Running {
+				// Check and find the arguments
+				for i, arg := range n.Args {
+					// If argument is a get_attribute node:attribute
+					// Then substitute it to its actual value
+					subargs := ga.FindStringSubmatch(arg)
+					if len(subargs) == 4 {
+						nn, _ := g.getNodeFromName(subargs[2])
+						n.Args[i] = nn.Outputs[subargs[3]]
+					}
+				}
 				c <- Message{n.ID, n.State, waitForIt}
 				switch n.Engine {
 				case "nil":
@@ -69,6 +83,7 @@ func (n *Node) Run() <-chan Message {
 					time.Sleep(time.Duration(rand.Intn(1e4)) * time.Millisecond)
 					rand.Seed(time.Now().Unix())
 					n.State = Success
+					n.Outputs["result"] = fmt.Sprintf("%v_%v", n.Name, time.Now().Unix())
 				default:
 					// Send the message to the appropriate backend
 					n.State = Success
