@@ -20,7 +20,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package orchestrator
 
 import (
-	"github.com/owulveryck/gorchestrator/structure"
 	"math/rand"
 	"time"
 )
@@ -39,12 +38,13 @@ type Node struct {
 // Run executes the artifact of a given node
 func (n *Node) Run() <-chan Message {
 	c := make(chan Message)
-	waitForIt := make(chan structure.Matrix) // Shared between all messages.
+	waitForIt := make(chan Graph) // Shared between all messages.
 	go func() {
 		n.State = ToRun
 		for n.State <= ToRun {
 			c <- Message{n.ID, n.State, waitForIt}
-			m := <-waitForIt
+			g := <-waitForIt
+			m := g.Digraph
 			s := m.Dim()
 			n.State = Running
 			for i := 0; i < s; i++ {
