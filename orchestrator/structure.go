@@ -21,13 +21,12 @@ package orchestrator
 
 import (
 	"encoding/json"
-	"github.com/owulveryck/gorchestrator/structure"
 )
 
 type Message struct {
 	ID    int
 	State int
-	Wait  chan structure.Matrix
+	Wait  chan Graph
 }
 
 // Error is a type used when any error related to the input or node structure occurs

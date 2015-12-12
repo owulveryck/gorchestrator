@@ -46,7 +46,7 @@ func (v *Graph) Run(stop <-chan time.Time) {
 		node := <-cs[i]
 		go func() {
 			for {
-				node.Wait <- m
+				node.Wait <- *v
 				l.Lock()
 				defer l.Unlock()
 				co.Wait()
