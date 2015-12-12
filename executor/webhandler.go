@@ -17,77 +17,36 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package main
+package executor
 
 import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
-	"html/template"
+	"io"
+	"io/ioutil"
 	"net/http"
 )
 
-type jsonErr struct {
-	Code int    `json:"code"`
-	Msg  string `json:"msg"`
+func Index(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprint(w, "Welcome!\n")
 }
 
-func displayGraph(w http.ResponseWriter, r *http.Request) {
+func TaskShow(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	var id string
 	id = vars["id"]
-	g, err := getGraph(id)
-	if err != nil {
+	if v, ok := tasks[id]; ok {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.WriteHeader(http.StatusNotFound)
-		if err := json.NewEncoder(w).Encode(jsonErr{Code: http.StatusNotFound, Msg: fmt.Sprintf("%v", err)}); err != nil {
+		w.WriteHeader(http.StatusOK)
+		if err := json.NewEncoder(w).Encode(v); err != nil {
 			panic(err)
+
 		}
 		return
-	}
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	if err := json.NewEncoder(w).Encode(g); err != nil {
-		panic(err)
-	}
-}
+	} else {
 
-func displayMain(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	var id string
-	id = vars["id"]
-	type res struct {
-		ID     string
-		Update string
-	}
-
-	t := template.New("index.tmpl")
-	t, err := t.ParseFiles("tmpl/index.tmpl")
-	if err != nil {
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.WriteHeader(http.StatusNotFound)
-		if err := json.NewEncoder(w).Encode(jsonErr{Code: http.StatusNotFound, Msg: fmt.Sprintf("%v", err)}); err != nil {
-			panic(err)
-		}
-		return
-	}
-	//w.WriteHeader(http.StatusOK)
-	err = t.Execute(w, res{id, fmt.Sprintf("/graph/%v.json", id)})
-	if err != nil {
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.WriteHeader(http.StatusNotFound)
-		if err := json.NewEncoder(w).Encode(jsonErr{Code: http.StatusNotFound, Msg: fmt.Sprintf("%v", err)}); err != nil {
-			panic(err)
-		}
-		return
-	}
-}
-
-func displaySvg(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	var id string
-	id = vars["id"]
-	b, err := getSvg(id)
-	if err != nil {
+		// If we didn't find it, 404
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(http.StatusNotFound)
 		if err := json.NewEncoder(w).Encode(jsonErr{Code: http.StatusNotFound, Msg: "Not Found"}); err != nil {
@@ -95,7 +54,38 @@ func displaySvg(w http.ResponseWriter, r *http.Request) {
 
 		}
 	}
-	w.Header().Set("Content-Type", "image/svg+xml; charset=UTF-8")
-	//w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "%s", b)
+}
+
+/*
+Test with this curl command:
+
+*/
+func TaskCreate(w http.ResponseWriter, r *http.Request) {
+	var v node
+	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
+	if err != nil {
+		panic(err)
+	}
+	if err := r.Body.Close(); err != nil {
+		panic(err)
+	}
+	if err := json.Unmarshal(body, &v); err != nil {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		w.WriteHeader(http.StatusBadRequest) // unprocessable entity
+		if err := json.NewEncoder(w).Encode(err); err != nil {
+			panic(err)
+		}
+		return
+	}
+
+	uuid := uuid()
+	go v.Run()
+	tasks[uuid.ID] = v
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusAccepted)
+	if err := json.NewEncoder(w).Encode(uuid); err != nil {
+		panic(err)
+	}
+	return
 }

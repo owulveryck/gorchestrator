@@ -17,35 +17,13 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package executor
+package main
 
-import "net/http"
+import (
+	"github.com/owulveryck/gorchestrator/executor"
+)
 
-type Route struct {
-	Name        string
-	Method      string
-	Pattern     string
-	HandlerFunc http.HandlerFunc
-}
+func main() {
 
-type Routes []Route
-
-var routes = Routes{
-	Route{
-		"Index",
-		"GET",
-		"/",
-		Index,
-	},
-	Route{
-		"TaskCreate",
-		"POST",
-		"/v1/tasks",
-		TaskCreate,
-	}, Route{
-		"TaskShow",
-		"GET",
-		"/v1/tasks/{id}",
-		TaskShow,
-	},
+	http.Run()
 }
