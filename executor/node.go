@@ -11,5 +11,4 @@ type node orchestrator.Node
 func (n *node) Run() {
 	log.Printf("Running %v with engine %v, artifact %v and args %v", n.Name, n.Engine, n.Artifact, n.Args)
 	n.State = orchestrator.Success
-	log.Println(n.State)
 }

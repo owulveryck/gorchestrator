@@ -44,11 +44,11 @@ func uuid() Task {
 }
 
 // This will hold all the requested tasks
-var tasks map[string]node
+var tasks map[string](*node)
 
 func Run() {
 
-	tasks = make(map[string]node, 0)
+	tasks = make(map[string](*node), 0)
 	router := NewRouter()
 
 	log.Fatal(http.ListenAndServe(":8585", router))

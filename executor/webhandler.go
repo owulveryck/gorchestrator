@@ -39,7 +39,7 @@ func TaskShow(w http.ResponseWriter, r *http.Request) {
 	if v, ok := tasks[id]; ok {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(http.StatusOK)
-		if err := json.NewEncoder(w).Encode(v); err != nil {
+		if err := json.NewEncoder(w).Encode(*v); err != nil {
 			panic(err)
 		}
 		return
@@ -79,7 +79,7 @@ func TaskCreate(w http.ResponseWriter, r *http.Request) {
 
 	uuid := uuid()
 	go v.Run()
-	tasks[uuid.ID] = v
+	tasks[uuid.ID] = &v
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusAccepted)
