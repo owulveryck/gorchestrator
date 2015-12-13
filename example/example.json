@@ -33,7 +33,7 @@
       {
         "id": 2,
         "name": "c",
-        "engine": "sleep",
+        "engine": "shell",
         "artifact": "example/script.sh",
         "args": [
           "-e",
