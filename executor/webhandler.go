@@ -41,7 +41,6 @@ func TaskShow(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		if err := json.NewEncoder(w).Encode(v); err != nil {
 			panic(err)
-
 		}
 		return
 	} else {
