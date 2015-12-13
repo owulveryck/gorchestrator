@@ -18,3 +18,4 @@ tmux select-pane -t 2
 tmux send-keys "cd executor && go run cmd/*.go" 
 
 tmux select-pane -t 1
+tmux send-keys "cd example && curl  -X POST -H 'Content-Type:application/json' -H 'Accept:application/json' -d @example.json http://localhost:8080/v1/tasks" 
