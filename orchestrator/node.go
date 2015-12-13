@@ -77,12 +77,14 @@ func (n *Node) Execute() error {
 
 	// Now loop for the result
 	for err == nil && n.State < Success {
+		fmt.Println(n)
 		r, err := http.Get(fmt.Sprintf("%v/%v", url, id))
 		if err != nil {
 			n.State = NotRunnable
 			return err
 		}
 		defer r.Body.Close()
+		fmt.Println(r.Body)
 		dec := json.NewDecoder(r.Body)
 		if err := dec.Decode(&n); err != nil {
 			n.State = Failure
