@@ -20,7 +20,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package orchestrator
 
 import (
+	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"math/rand"
 	"net/http"
@@ -41,10 +43,41 @@ type Node struct {
 
 // Actually executes the node (via the executor)
 func (n *Node) Execute() error {
-	var id int
+	var id string
 	var err error
+	var t struct {
+		ID string `json:"id"`
+	}
+	url := "http://localhost:8585/v1/tasks"
+	b, _ := json.Marshal(*n)
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(b))
+	//req.Header.Set("X-Custom-Header", "myvalue")
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		n.State = NotRunnable
+		return err
+
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode >= http.StatusBadRequest {
+		n.State = NotRunnable
+		return errors.New("Error in the executor")
+
+	}
+	dec := json.NewDecoder(resp.Body)
+	if err := dec.Decode(&t); err != nil {
+		n.State = Failure
+		return err
+	}
+	id = t.ID
+
+	// Now loop for the result
 	for err == nil && n.State < Success {
-		r, err := http.Get(fmt.Sprintf("http://localhost:8585/v1/tasks/%v", id))
+		r, err := http.Get(fmt.Sprintf("%v/%v", url, id))
 		if err != nil {
 			n.State = NotRunnable
 			return err
@@ -74,6 +107,7 @@ func (n *Node) Run() <-chan Message {
 			g := <-waitForIt
 			m := g.Digraph
 			s := m.Dim()
+			n.Outputs = make(map[string]string, 0)
 			n.State = Running
 			for i := 0; i < s; i++ {
 				if m.At(i, n.ID) < Success && m.At(i, n.ID) > 0 {
@@ -99,6 +133,7 @@ func (n *Node) Run() <-chan Message {
 					}
 				}
 				c <- Message{n.ID, n.State, waitForIt}
+				//fmt.Printf("I am %v, and I am running: the module %v, with %v %v\n", n.ID, n.Engine, n.Artifact, n.Args)
 				switch n.Engine {
 				case "nil":
 					n.State = Success
