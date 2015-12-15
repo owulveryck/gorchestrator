@@ -26,6 +26,7 @@ import (
 	"github.com/owulveryck/gorchestrator/orchestrator"
 	"os"
 	"strconv"
+	"strings"
 )
 
 func main() {
@@ -46,6 +47,8 @@ func main() {
 	m := make(map[int]string)
 	// Now add every node
 	for _, n := range v.Nodes {
+		n.Name = strings.Replace(n.Name, "-", "_", -1)
+		n.Name = strings.Replace(n.Name, ":", "_Method", -1)
 		g.AddNode("G", n.Name,
 			map[string]string{
 				"id":    fmt.Sprintf("\"%v\"", strconv.Itoa(n.ID)),
