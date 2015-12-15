@@ -111,7 +111,7 @@ func main() {
 	}
 	// Fill the digraph
 	// Deal with the imports
-	for i, im := range t.Imports {
+	for _, im := range t.Imports {
 		log.Println("Importing ", im)
 		r, err := os.Open(im)
 		if err != nil {
@@ -121,9 +121,10 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		imports[i] = t
+		imports = append(imports, t)
 	}
 
+	log.Println(t.NodeTypes)
 	v = togorch(t)
 	// Convert it to gorch
 	r, _ := json.MarshalIndent(v, "  ", "  ")
