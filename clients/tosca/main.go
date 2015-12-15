@@ -75,15 +75,18 @@ func togorch(t toscalib.ToscaDefinition) orchestrator.Graph {
 		case n.GetPreConfigureTargetIndex():
 			op = "preConfiguretarget"
 		}
-		if interfaces[op] == "nil" {
+		if _, ok := interfaces[op]; !ok {
 			// Look for the implementation in the type
+			//log.Printf("Type: %v", t.NodeTypes[n.Type])
 			for _, intf := range t.NodeTypes[n.Type].Interfaces {
 				for val, vv := range intf {
 					switch reflect.TypeOf(vv).Kind() {
 					case reflect.String:
 						interfaces[val] = reflect.ValueOf(vv).String()
+						//log.Println("String: interface[%v] = %v ", val, interfaces[val])
 					case reflect.Map:
 						interfaces[val] = fmt.Sprintf("%v", reflect.ValueOf(vv).MapIndex(reflect.ValueOf("implementation")))
+						//log.Println("Map: interface[%v] = %v ", val, interfaces[val])
 					default:
 						interfaces[val] = "nil"
 					}
@@ -97,7 +100,6 @@ func togorch(t toscalib.ToscaDefinition) orchestrator.Graph {
 			v.Digraph[s*i+j] = int64(t.AdjacencyMatrix.At(i, j))
 		}
 	}
-
 	return v
 }
 
@@ -153,5 +155,5 @@ func main() {
 	v = togorch(t)
 	// Convert it to gorch
 	r, _ := json.MarshalIndent(v, "  ", "  ")
-	fmt.Print("%s\n", string(r))
+	fmt.Printf("%s\n", string(r))
 }
