@@ -41,15 +41,17 @@ func main() {
 		}
 	} else {
 		ts = make([]toscalib.ToscaDefinition, len(args))
-	}
-	for t, f := range args {
-		// Read the file and parses the graph
-		re, err := os.Open(f)
-		if err != nil {
-			log.Println(err)
-			continue
+		for t, f := range args {
+			// Read the file and parses the graph
+			re, err := os.Open(f)
+			if err != nil {
+				log.Println(err)
+				continue
+			}
+			ts[t].Parse(re)
 		}
-		ts[t].Parse(re)
+	}
+	for t, _ := range args {
 		// Fill the digraph
 		s, _ := ts[t].AdjacencyMatrix.Dims()
 		v.Digraph = make([]int64, s*s+s)
