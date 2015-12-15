@@ -47,10 +47,11 @@ func togorch(t toscalib.ToscaDefinition) orchestrator.Graph {
 				case reflect.Map:
 					interfaces[val] = fmt.Sprintf("%v", reflect.ValueOf(vv).MapIndex(reflect.ValueOf("implementation")))
 				default:
-					interfaces[val] = "Found"
+					interfaces[val] = "nil"
 				}
 			}
-		} // FIXME
+		}
+		// FIXME
 		var op string
 		switch i {
 		case n.GetConfigureIndex():
@@ -73,6 +74,21 @@ func togorch(t toscalib.ToscaDefinition) orchestrator.Graph {
 			op = "preConfigureSource"
 		case n.GetPreConfigureTargetIndex():
 			op = "preConfiguretarget"
+		}
+		if interfaces[op] == "nil" {
+			// Look for the implementation in the type
+			for _, intf := range t.NodeTypes[n.Type].Interfaces {
+				for val, vv := range intf {
+					switch reflect.TypeOf(vv).Kind() {
+					case reflect.String:
+						interfaces[val] = reflect.ValueOf(vv).String()
+					case reflect.Map:
+						interfaces[val] = fmt.Sprintf("%v", reflect.ValueOf(vv).MapIndex(reflect.ValueOf("implementation")))
+					default:
+						interfaces[val] = "nil"
+					}
+				}
+			}
 		}
 		v.Nodes[i].Artifact = interfaces[op]
 
@@ -112,19 +128,28 @@ func main() {
 	// Fill the digraph
 	// Deal with the imports
 	for _, im := range t.Imports {
+		var tt toscalib.ToscaDefinition
 		log.Println("Importing ", im)
 		r, err := os.Open(im)
 		if err != nil {
 			log.Fatal(err)
 		}
-		err = t.Parse(r)
+		err = tt.Parse(r)
 		if err != nil {
 			log.Fatal(err)
 		}
-		imports = append(imports, t)
+		imports = append(imports, tt)
 	}
 
-	log.Println(t.NodeTypes)
+	// Now reconstruct the global definition (only the types by now)
+	for _, i := range imports {
+		for key, m := range i.NodeTypes {
+			if _, ok := t.NodeTypes[key]; !ok {
+				t.NodeTypes[key] = m
+			}
+		}
+	}
+
 	v = togorch(t)
 	// Convert it to gorch
 	r, _ := json.MarshalIndent(v, "  ", "  ")
