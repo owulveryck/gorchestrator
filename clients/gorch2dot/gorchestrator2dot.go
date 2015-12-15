@@ -57,8 +57,9 @@ func main() {
 			})
 		m[n.ID] = n.Name
 	}
-	for r := 0; r < v.Digraph.Dim(); r++ {
-		for c := 0; c < v.Digraph.Dim(); c++ {
+	l := v.Digraph.Dim()
+	for r := 0; r < l; r++ {
+		for c := 0; c < l; c++ {
 			if v.Digraph.At(r, c) == 1 {
 				g.AddEdge(m[r], m[c], true, nil)
 			}
