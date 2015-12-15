@@ -24,69 +24,85 @@ import (
 	"fmt"
 	"github.com/owulveryck/gorchestrator/orchestrator"
 	"github.com/owulveryck/toscalib"
+	"log"
 	"os"
 	"reflect"
 )
 
 func main() {
-	var t toscalib.ToscaDefinition
+	var ts []toscalib.ToscaDefinition
 	var v orchestrator.Graph
-	err := t.Parse(os.Stdin)
-	if err != nil {
-		panic(err)
+	args := os.Args[1:]
+	if len(args) == 0 {
+		ts = make([]toscalib.ToscaDefinition, 1)
+		err := ts[0].Parse(os.Stdin)
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		ts = make([]toscalib.ToscaDefinition, len(args))
 	}
-	// Fill the digraph
-	s, _ := t.AdjacencyMatrix.Dims()
-	v.Digraph = make([]int64, s*s+s)
-	v.Nodes = make([]orchestrator.Node, s)
-	for i := 0; i < s; i++ {
-		v.Nodes[i].ID = i
-		n := t.GetNodeTemplateFromId(i)
-		// Fill in a map with method as key and artifact as value
-		interfaces := make(map[string]string, 0)
-		for _, intf := range n.Interfaces {
-			for val, vv := range intf {
-				switch reflect.TypeOf(vv).Kind() {
-				case reflect.String:
-					interfaces[val] = reflect.ValueOf(vv).String()
-				case reflect.Map:
-					interfaces[val] = fmt.Sprintf("%v", reflect.ValueOf(vv).MapIndex(reflect.ValueOf("implementation")))
-				default:
-					interfaces[val] = "Found"
+	for t, f := range args {
+		// Read the file and parses the graph
+		re, err := os.Open(f)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+		ts[t].Parse(re)
+		// Fill the digraph
+		s, _ := ts[t].AdjacencyMatrix.Dims()
+		v.Digraph = make([]int64, s*s+s)
+		v.Nodes = make([]orchestrator.Node, s)
+		for i := 0; i < s; i++ {
+			v.Nodes[i].ID = i
+			n := ts[t].GetNodeTemplateFromId(i)
+			// Fill in a map with method as key and artifact as value
+			interfaces := make(map[string]string, 0)
+			for _, intf := range n.Interfaces {
+				for val, vv := range intf {
+					switch reflect.TypeOf(vv).Kind() {
+					case reflect.String:
+						interfaces[val] = reflect.ValueOf(vv).String()
+					case reflect.Map:
+						interfaces[val] = fmt.Sprintf("%v", reflect.ValueOf(vv).MapIndex(reflect.ValueOf("implementation")))
+					default:
+						interfaces[val] = "Found"
+					}
 				}
+			} // FIXME
+			var op string
+			switch i {
+			case n.GetConfigureIndex():
+				op = "configure"
+			case n.GetStartIndex():
+				op = "start"
+			case n.GetStopIndex():
+				op = "stop"
+			case n.GetCreateIndex():
+				op = "create"
+			case n.GetDeleteIndex():
+				op = "delete"
+			case n.GetInitialIndex():
+				op = "initial"
+			case n.GetPostConfigureSourceIndex():
+				op = "postConfigureSource"
+			case n.GetPostConfigureTargetIndex():
+				op = "postConfigureTarget"
+			case n.GetPreConfigureSourceIndex():
+				op = "preConfigureSource"
+			case n.GetPreConfigureTargetIndex():
+				op = "preConfiguretarget"
 			}
-		} // FIXME
-		var op string
-		switch i {
-		case n.GetConfigureIndex():
-			op = "configure"
-		case n.GetStartIndex():
-			op = "start"
-		case n.GetStopIndex():
-			op = "stop"
-		case n.GetCreateIndex():
-			op = "create"
-		case n.GetDeleteIndex():
-			op = "delete"
-		case n.GetInitialIndex():
-			op = "initial"
-		case n.GetPostConfigureSourceIndex():
-			op = "postConfigureSource"
-		case n.GetPostConfigureTargetIndex():
-			op = "postConfigureTarget"
-		case n.GetPreConfigureSourceIndex():
-			op = "preConfigureSource"
-		case n.GetPreConfigureTargetIndex():
-			op = "preConfiguretarget"
-		}
-		v.Nodes[i].Artifact = interfaces[op]
+			v.Nodes[i].Artifact = interfaces[op]
 
-		v.Nodes[i].Name = fmt.Sprintf("%v:%v", n.Name, op)
-		for j := 0; j < s; j++ {
-			v.Digraph[s*i+j] = int64(t.AdjacencyMatrix.At(i, j))
+			v.Nodes[i].Name = fmt.Sprintf("%v:%v", n.Name, op)
+			for j := 0; j < s; j++ {
+				v.Digraph[s*i+j] = int64(ts[t].AdjacencyMatrix.At(i, j))
+			}
 		}
+
+		r, _ := json.MarshalIndent(v, "  ", "  ")
+		fmt.Print("%s\n", string(r))
 	}
-
-	r, _ := json.MarshalIndent(v, "  ", "  ")
-	fmt.Print("%s\n", string(r))
 }
