@@ -53,6 +53,7 @@ func main() {
 	}
 	for t, _ := range args {
 		// Fill the digraph
+		fmt.Println(ts[t].TopologyTemplate)
 		s, _ := ts[t].AdjacencyMatrix.Dims()
 		v.Digraph = make([]int64, s*s+s)
 		v.Nodes = make([]orchestrator.Node, s)
