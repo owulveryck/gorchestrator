@@ -29,44 +29,8 @@ import (
 	"reflect"
 )
 
-func main() {
-	var t toscalib.ToscaDefinition
-	var imports []toscalib.ToscaDefinition
-	imports = make([]toscalib.ToscaDefinition, 0)
+func togorch(t toscalib.ToscaDefinition) orchestrator.Graph {
 	var v orchestrator.Graph
-	args := os.Args[1:]
-	switch len(args) {
-	case 0:
-		err := t.Parse(os.Stdin)
-		if err != nil {
-			log.Fatal(err)
-		}
-	case 1:
-		r, err := os.Open(args[0])
-		if err != nil {
-			log.Fatal(err)
-		}
-		err = t.Parse(r)
-		if err != nil {
-			log.Fatal(err)
-		}
-	default:
-		log.Fatal("Too many arguments")
-	}
-	// Fill the digraph
-	// Deal with the imports
-	for i, im := range t.Imports {
-		log.Println("Importing ", im)
-		r, err := os.Open(im)
-		if err != nil {
-			log.Fatal(err)
-		}
-		err = t.Parse(r)
-		if err != nil {
-			log.Fatal(err)
-		}
-		imports[i] = t
-	}
 	s, _ := t.AdjacencyMatrix.Dims()
 	v.Digraph = make([]int64, s*s+s)
 	v.Nodes = make([]orchestrator.Node, s)
@@ -118,6 +82,50 @@ func main() {
 		}
 	}
 
+	return v
+}
+
+func main() {
+	var t toscalib.ToscaDefinition
+	var imports []toscalib.ToscaDefinition
+	imports = make([]toscalib.ToscaDefinition, 0)
+	var v orchestrator.Graph
+	args := os.Args[1:]
+	switch len(args) {
+	case 0:
+		err := t.Parse(os.Stdin)
+		if err != nil {
+			log.Fatal(err)
+		}
+	case 1:
+		r, err := os.Open(args[0])
+		if err != nil {
+			log.Fatal(err)
+		}
+		err = t.Parse(r)
+		if err != nil {
+			log.Fatal(err)
+		}
+	default:
+		log.Fatal("Too many arguments")
+	}
+	// Fill the digraph
+	// Deal with the imports
+	for i, im := range t.Imports {
+		log.Println("Importing ", im)
+		r, err := os.Open(im)
+		if err != nil {
+			log.Fatal(err)
+		}
+		err = t.Parse(r)
+		if err != nil {
+			log.Fatal(err)
+		}
+		imports[i] = t
+	}
+
+	v = togorch(t)
+	// Convert it to gorch
 	r, _ := json.MarshalIndent(v, "  ", "  ")
 	fmt.Print("%s\n", string(r))
 }
