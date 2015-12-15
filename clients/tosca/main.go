@@ -23,6 +23,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/owulveryck/gorchestrator/orchestrator"
+	//"github.com/owulveryck/gorchestrator/structure"
 	"github.com/owulveryck/toscalib"
 	"log"
 	"os"
@@ -31,6 +32,8 @@ import (
 
 func togorch(t toscalib.ToscaDefinition) orchestrator.Graph {
 	var v orchestrator.Graph
+	var exclusion []int
+	exclusion = make([]int, 0)
 	s, _ := t.AdjacencyMatrix.Dims()
 	v.Digraph = make([]int64, s*s)
 	v.Nodes = make([]orchestrator.Node, s)
@@ -39,6 +42,7 @@ func togorch(t toscalib.ToscaDefinition) orchestrator.Graph {
 		n := t.GetNodeTemplateFromId(i)
 		// Fill in a map with method as key and artifact as value
 		interfaces := make(map[string]string, 0)
+		//args := make(map[string]string, 0)
 		for _, intf := range n.Interfaces {
 			for val, vv := range intf {
 				switch reflect.TypeOf(vv).Kind() {
@@ -46,6 +50,8 @@ func togorch(t toscalib.ToscaDefinition) orchestrator.Graph {
 					interfaces[val] = reflect.ValueOf(vv).String()
 				case reflect.Map:
 					interfaces[val] = fmt.Sprintf("%v", reflect.ValueOf(vv).MapIndex(reflect.ValueOf("implementation")))
+					//args[val] = fmt.Sprintf("%v", reflect.ValueOf(vv).MapIndex(reflect.ValueOf("inputs")))
+					log.Println(reflect.ValueOf(vv).MapIndex(reflect.ValueOf("inputs")))
 				default:
 					interfaces[val] = "nil"
 				}
@@ -77,16 +83,14 @@ func togorch(t toscalib.ToscaDefinition) orchestrator.Graph {
 		}
 		if _, ok := interfaces[op]; !ok {
 			// Look for the implementation in the type
-			//log.Printf("Type: %v", t.NodeTypes[n.Type])
 			for _, intf := range t.NodeTypes[n.Type].Interfaces {
 				for val, vv := range intf {
 					switch reflect.TypeOf(vv).Kind() {
 					case reflect.String:
 						interfaces[val] = reflect.ValueOf(vv).String()
-						//log.Println("String: interface[%v] = %v ", val, interfaces[val])
 					case reflect.Map:
 						interfaces[val] = fmt.Sprintf("%v", reflect.ValueOf(vv).MapIndex(reflect.ValueOf("implementation")))
-						//log.Println("Map: interface[%v] = %v ", val, interfaces[val])
+						log.Println(reflect.ValueOf(vv).MapIndex(reflect.ValueOf("inputs")))
 					default:
 						interfaces[val] = "nil"
 					}
@@ -94,13 +98,55 @@ func togorch(t toscalib.ToscaDefinition) orchestrator.Graph {
 			}
 		}
 		v.Nodes[i].Artifact = interfaces[op]
+		//v.Nodes[i].Args = args[op]
 
-		v.Nodes[i].Name = fmt.Sprintf("%v:%v", n.Name, op)
+		if op != "" {
+			v.Nodes[i].Name = fmt.Sprintf("%v:%v", n.Name, op)
+			if interfaces[op] == "nil" || interfaces[op] == "" {
+				exclusion = append(exclusion, i)
+			}
+		} else {
+			v.Nodes[i].Name = fmt.Sprintf("%v", n.Name)
+		}
 		for j := 0; j < s; j++ {
 			v.Digraph[s*i+j] = int64(t.AdjacencyMatrix.At(i, j))
 		}
 	}
+	// now shrink the matrix... (remove the exclusion)
+	/*
+		for _, i := range exclusion {
+
+			l := v.Digraph.Dim()
+			//Remove the i-th line
+			//= copy all the values if pos-i%l!=0
+			target := make(structure.Matrix, l*l-l)
+			target2 := make(structure.Matrix, (l-1)*(l-1))
+			for pos := 0; pos < l; pos++ {
+				value := v.Digraph[pos]
+				if (pos-i)%l != 0 {
+					log.Printf("Pos: %v, value: %v, i:%v, l:%v", pos, value, i, l)
+					target = append(target, value)
+				}
+			}
+			// Remove the i-th column
+			for pos, value := range target {
+				if pos < i*(l-1) && pos > (i+1)*(l-1) {
+					target2 = append(target2, value)
+				}
+			}
+
+			// Now copy the new structure
+			v.Digraph = target2
+			// Now remove the node i
+
+			// And finally renum all the node > i to i-1
+		}
+	*/
 	return v
+}
+
+func shrink() {
+
 }
 
 func main() {
