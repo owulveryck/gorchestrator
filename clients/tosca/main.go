@@ -32,7 +32,7 @@ import (
 func togorch(t toscalib.ToscaDefinition) orchestrator.Graph {
 	var v orchestrator.Graph
 	s, _ := t.AdjacencyMatrix.Dims()
-	v.Digraph = make([]int64, s*s+s)
+	v.Digraph = make([]int64, s*s)
 	v.Nodes = make([]orchestrator.Node, s)
 	for i := 0; i < s; i++ {
 		v.Nodes[i].ID = i
