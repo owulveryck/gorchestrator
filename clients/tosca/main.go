@@ -43,29 +43,12 @@ func togorch(t toscalib.ToscaDefinition) orchestrator.Graph {
 		// Fill in a map with method as key and artifact as value
 		interfaces := make(map[string]string, 0)
 		//args := make(map[string]string, 0)
+		log.Println("MAIN")
 		for _, intf := range n.Interfaces {
-			for a, _ := range intf {
-				b, _ := intf.GetImplementation(a)
-				log.Printf("DEBUG: %v %v", a, b)
-
+			for method, interfaceDefinition := range intf {
+				interfaces[method] = interfaceDefinition.Implementation
 			}
 		}
-		/*
-			for _, intf := range n.Interfaces {
-				for val, vv := range intf {
-					switch reflect.TypeOf(vv).Kind() {
-					case reflect.String:
-						interfaces[val] = reflect.ValueOf(vv).String()
-					case reflect.Map:
-						interfaces[val] = fmt.Sprintf("%v", reflect.ValueOf(vv).MapIndex(reflect.ValueOf("implementation")))
-						//args[val] = fmt.Sprintf("%v", reflect.ValueOf(vv).MapIndex(reflect.ValueOf("inputs")))
-						log.Println("NODETEMPLATE:", reflect.ValueOf(vv).MapIndex(reflect.ValueOf("inputs")))
-					default:
-						interfaces[val] = "nil"
-					}
-				}
-			}
-		*/
 		// FIXME
 		var op string
 		switch i {
@@ -93,35 +76,10 @@ func togorch(t toscalib.ToscaDefinition) orchestrator.Graph {
 		if _, ok := interfaces[op]; !ok {
 			// Look for the implementation in the type
 			for _, intf := range t.NodeTypes[n.Type].Interfaces {
-				log.Println("DEBUG:", intf)
-			}
-			/*
-				for a, intf := range t.NodeTypes[n.Type].Interfaces {
-					log.Printf("DEBUG: %v %v", a, intf)
-					for val, vv := range intf {
-						switch reflect.TypeOf(vv).Kind() {
-						case reflect.String:
-							interfaces[val] = reflect.ValueOf(vv).String()
-						case reflect.Map:
-							//interfaces[val] = fmt.Sprintf("%v", reflect.ValueOf(vv).MapIndex(reflect.ValueOf("implementation")))
-							//log.Println("NODETYPE:", reflect.ValueOf(vv).MapIndex(reflect.ValueOf("inputs")))
-							for _, key := range reflect.ValueOf(vv).MapKeys() {
-								switch key.String() {
-								case "implementation":
-									interfaces[val] = fmt.Sprintf("%v", reflect.ValueOf(vv).MapIndex(reflect.ValueOf("implementation")))
-									log.Println("IMPLEMENTATION:", key)
-								case "inputs":
-									log.Println("INPUTS:", key)
-								default:
-
-								}
-							}
-						default:
-							interfaces[val] = "nil"
-						}
-					}
+				for method, interfaceDefinition := range intf {
+					interfaces[method] = interfaceDefinition.Implementation
 				}
-			*/
+			}
 		}
 		v.Nodes[i].Artifact = interfaces[op]
 		//v.Nodes[i].Args = args[op]
