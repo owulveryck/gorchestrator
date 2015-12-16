@@ -54,6 +54,8 @@ func togorch(t toscalib.ToscaDefinition) orchestrator.Graph {
 							args[method] = append(args[method], fmt.Sprintf("%v=%v", key, vv))
 						case "get_input":
 							args[method] = append(args[method], fmt.Sprintf("%v=%v", key, t.TopologyTemplate.Inputs[vv].Default))
+						default:
+							args[method] = append(args[method], fmt.Sprintf("%v=%v(%v)", key, v, vv))
 						}
 					}
 				}
@@ -88,6 +90,23 @@ func togorch(t toscalib.ToscaDefinition) orchestrator.Graph {
 			for _, intf := range t.NodeTypes[n.Type].Interfaces {
 				for method, interfaceDefinition := range intf {
 					interfaces[method] = interfaceDefinition.Implementation
+					// key holds the input name
+					for key, _ := range interfaceDefinition.Inputs {
+						if prop, ok := n.Properties[key]; !ok {
+							log.Println("No Value found for input", key)
+						} else {
+							for v, vv := range prop {
+								switch v {
+								case "value":
+									args[method] = append(args[method], fmt.Sprintf("%v=%v", key, vv))
+								case "get_input":
+									args[method] = append(args[method], fmt.Sprintf("%v=%v", key, t.TopologyTemplate.Inputs[vv].Default))
+								default:
+									args[method] = append(args[method], fmt.Sprintf("%v=%v(%v)", key, v, vv))
+								}
+							}
+						}
+					}
 				}
 			}
 		}
