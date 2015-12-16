@@ -42,11 +42,21 @@ func togorch(t toscalib.ToscaDefinition) orchestrator.Graph {
 		n := t.GetNodeTemplateFromId(i)
 		// Fill in a map with method as key and artifact as value
 		interfaces := make(map[string]string, 0)
-		//args := make(map[string]string, 0)
-		log.Println("MAIN")
+		args := make(map[string][]string, 0)
 		for _, intf := range n.Interfaces {
 			for method, interfaceDefinition := range intf {
 				interfaces[method] = interfaceDefinition.Implementation
+				// Fill the args
+				for key, value := range interfaceDefinition.Inputs {
+					for v, vv := range value {
+						switch v {
+						case "value":
+							args[method] = append(args[method], fmt.Sprintf("%v=%v", key, vv))
+						case "get_input":
+							args[method] = append(args[method], fmt.Sprintf("%v=%v", key, t.TopologyTemplate.Inputs[vv].Default))
+						}
+					}
+				}
 			}
 		}
 		// FIXME
@@ -82,6 +92,7 @@ func togorch(t toscalib.ToscaDefinition) orchestrator.Graph {
 			}
 		}
 		v.Nodes[i].Artifact = interfaces[op]
+		v.Nodes[i].Args = args[op]
 		//v.Nodes[i].Args = args[op]
 
 		if op != "" {
@@ -92,6 +103,7 @@ func togorch(t toscalib.ToscaDefinition) orchestrator.Graph {
 		} else {
 			v.Nodes[i].Name = fmt.Sprintf("%v", n.Name)
 		}
+		log.Printf("[%v] %v", v.Nodes[i].Name, interfaces[op])
 		for j := 0; j < s; j++ {
 			v.Digraph[s*i+j] = int64(t.AdjacencyMatrix.At(i, j))
 		}
@@ -184,7 +196,7 @@ func main() {
 
 	v = togorch(t)
 	// Convert it to gorch
-	r, _ := json.Marshal(v)
-	//r, _ := json.MarshalIndent(v, "  ", "  ")
+	//r, _ := json.Marshal(v)
+	r, _ := json.MarshalIndent(v, "  ", "  ")
 	fmt.Printf("%s\n", string(r))
 }
