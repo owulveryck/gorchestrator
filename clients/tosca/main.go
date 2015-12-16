@@ -129,21 +129,24 @@ func togorch(t toscalib.ToscaDefinition) orchestrator.Graph {
 	}
 	// now shrink the matrix... (remove the exclusion)
 	/*
+		log.Println("Exclusions", exclusion)
 		for _, i := range exclusion {
 
 			l := v.Digraph.Dim()
 			//Remove the i-th line
 			//= copy all the values if pos-i%l!=0
-			target := make(structure.Matrix, l*l-l)
-			target2 := make(structure.Matrix, (l-1)*(l-1))
+			target := make(structure.Matrix, 0)
+			target2 := make(structure.Matrix, 0)
+			var value int64
 			for pos := 0; pos < l; pos++ {
-				value := v.Digraph[pos]
+				value = v.Digraph[pos]
 				if (pos-i)%l != 0 {
 					log.Printf("Pos: %v, value: %v, i:%v, l:%v", pos, value, i, l)
 					target = append(target, value)
 				}
 			}
 			// Remove the i-th column
+			log.Println("TARGET", target)
 			for pos, value := range target {
 				if pos < i*(l-1) && pos > (i+1)*(l-1) {
 					target2 = append(target2, value)

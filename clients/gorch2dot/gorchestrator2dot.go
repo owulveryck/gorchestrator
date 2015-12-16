@@ -52,7 +52,7 @@ func main() {
 		g.AddNode("G", n.Name,
 			map[string]string{
 				"id":    fmt.Sprintf("\"%v\"", strconv.Itoa(n.ID)),
-				"label": fmt.Sprintf("\"%v|%v|%v\"", n.Name, n.Engine, n.Artifact),
+				"label": fmt.Sprintf("\"%v|%v|%v|%v\"", n.Name, n.Engine, n.Artifact, n.Args),
 				"shape": "\"record\"",
 			})
 		m[n.ID] = n.Name
