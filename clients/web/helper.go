@@ -97,7 +97,7 @@ func generateSvg(id string) ([]byte, error) {
 			sumr = sumr + v.Digraph.At(n.ID, r)
 			sumc = sumc + v.Digraph.At(r, n.ID)
 		}
-		if n.Engine == "" && n.Artifact == "" && sumr == 0 && sumc == 0 {
+		if n.Artifact == "" && sumr == 0 && sumc == 0 {
 			continue
 		}
 		tmp := make([]string, 2)

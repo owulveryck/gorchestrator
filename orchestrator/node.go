@@ -77,22 +77,22 @@ func (n *Node) Execute() error {
 
 	// Now loop for the result
 	for err == nil && n.State < Success {
-		fmt.Println(n)
+		var res Node
+		fmt.Println("N is", n)
 		r, err := http.Get(fmt.Sprintf("%v/%v", url, id))
 		if err != nil {
 			n.State = NotRunnable
 			return err
 		}
 		defer r.Body.Close()
-		fmt.Println(r.Body)
 		dec := json.NewDecoder(r.Body)
-		if err := dec.Decode(&n); err != nil {
+		if err := dec.Decode(&res); err != nil {
 			n.State = Failure
 			return err
 		}
+		*n = res
 		time.Sleep(1 * time.Second)
 	}
-	n.State = Success
 	return nil
 }
 
@@ -110,6 +110,9 @@ func (n *Node) Run() <-chan Message {
 			m := g.Digraph
 			s := m.Dim()
 			n.Outputs = make(map[string]string, 0)
+			if n.Artifact == "" && n.Engine == "" {
+				n.Engine = "nil"
+			}
 			n.State = Running
 			for i := 0; i < s; i++ {
 				if m.At(i, n.ID) < Success && m.At(i, n.ID) > 0 {
