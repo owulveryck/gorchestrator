@@ -19,4 +19,4 @@ tmux send-keys "cd executor && go run cmd/*.go"
 
 tmux select-pane -t 1
 #tmux send-keys "cd example && curl  -X POST -H 'Content-Type:application/json' -H 'Accept:application/json' -d @example.json http://localhost:8080/v1/tasks" 
-tmux send-keys "cd client/tosca/test && cat topology2.yaml | go run ../main.go | curl  -X POST -H 'Content-Type:application/json' -H 'Accept:application/json' -d@- http://localhost:8080/v1/tasks" 
+tmux send-keys "unset http_proxy && cd clients/tosca/test && cat topology2.yaml | go run ../main.go | curl  -X POST -H 'Content-Type:application/json' -H 'Accept:application/json' -d@- http://localhost:8080/v1/tasks" 
