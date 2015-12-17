@@ -89,13 +89,29 @@ func generateSvg(id string) ([]byte, error) {
 	g.SetDir(true)
 	m := make(map[int]string)
 	// Now add every node
+	// Hack: If node has no Engine and no Artiface, and if sum(row)=sum(col)=0, skip it
 	for _, n := range v.Nodes {
+		sumr := int64(0)
+		sumc := int64(0)
+		for r := 0; r < v.Digraph.Dim(); r++ {
+			sumr = sumr + v.Digraph.At(n.ID, r)
+			sumc = sumc + v.Digraph.At(r, n.ID)
+		}
+		if n.Engine == "" && n.Artifact == "" && sumr == 0 && sumc == 0 {
+			continue
+		}
+		tmp := make([]string, 2)
 		n.Name = strings.Replace(n.Name, "-", "_", -1)
-		n.Name = strings.Replace(n.Name, ":", "_Method", -1)
+		n.Name = strings.Replace(n.Name, ":", "_", -1)
+		tmp = strings.SplitAfter(n.Name, ":")
+		if len(tmp) != 2 {
+			tmp[0] = n.Name
+			tmp = append(tmp, "")
+		}
 		g.AddNode("G", n.Name,
 			map[string]string{
 				"id":    fmt.Sprintf("\"%v\"", strconv.Itoa(n.ID)),
-				"label": fmt.Sprintf("\"%v|%v|%v|%v\"", n.Name, n.Engine, n.Artifact, n.Args[:]),
+				"label": fmt.Sprintf("\"%v|%v|%v|%v|%v\"", tmp[0], tmp[1], n.Engine, n.Artifact, n.Args[:]),
 				"shape": "\"record\"",
 				"style": "\"rounded\"",
 			})
