@@ -29,6 +29,7 @@ import (
 	"os"
 	"os/exec"
 	"strconv"
+	"strings"
 )
 
 var svg map[string][]byte
@@ -89,11 +90,14 @@ func generateSvg(id string) ([]byte, error) {
 	m := make(map[int]string)
 	// Now add every node
 	for _, n := range v.Nodes {
+		n.Name = strings.Replace(n.Name, "-", "_", -1)
+		n.Name = strings.Replace(n.Name, ":", "_Method", -1)
 		g.AddNode("G", n.Name,
 			map[string]string{
 				"id":    fmt.Sprintf("\"%v\"", strconv.Itoa(n.ID)),
-				"label": fmt.Sprintf("\"%v|%v|%v\"", n.Name, n.Engine, n.Artifact),
+				"label": fmt.Sprintf("\"%v|%v|%v|%v\"", n.Name, n.Engine, n.Artifact, n.Args[:]),
 				"shape": "\"record\"",
+				"style": "\"rounded\"",
 			})
 		m[n.ID] = n.Name
 	}
