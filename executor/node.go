@@ -32,9 +32,10 @@ func (n *node) Run() {
 		d.Stderr = os.Stderr
 
 		// Actually run the dot subprocess
-		if err = d.Start(); err != nil { //Use start, not run
+		if err = d.Run(); err != nil { //Use start, not run
 			n.State = orchestrator.Failure
 			log.Println("An error occured: ", err) //replace with logger, or anything you want
+			return
 		}
 		//fmt.Fprintf(stdinOfDotProcess, s)
 		stdinOfDotProcess.Close()
@@ -42,7 +43,6 @@ func (n *node) Run() {
 		// Read from stdout and store it in the correct structure
 		var buf bytes.Buffer
 		buf.ReadFrom(readCloser)
-		d.Wait()
 		n.State = orchestrator.Success
 	}
 }
