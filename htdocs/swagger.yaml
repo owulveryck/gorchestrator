@@ -2,7 +2,7 @@ swagger: '2.0'
 info:
   title: OaaS API
   description: Send a digraph and watch the magic
-  version: 1.0.0
+  version: 0.1.0
 host: localhost:8080
 schemes:
   - http
