@@ -25,6 +25,7 @@ paths:
         - Digraph
       responses:
         '200':
+          description: The return code
         default:
           description: Unexpected error
           schema:
@@ -55,6 +56,21 @@ paths:
         '404':
           description: No task found
   /tasks:
+    get:
+      summary: Digraph actions
+      description: |
+        Get all tasks
+      tags:
+        - Digraph
+      responses:
+        '200':
+          description: The complete list of all tasks
+          schema:
+            $ref: '#/definitions/Tasks'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
     post:
       summary: Digraph actions
       description: |
@@ -78,6 +94,21 @@ paths:
           schema:
             $ref: '#/definitions/Error'
 definitions:
+  Tasks:
+    type: array
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+        id:
+          type: string
+        state:
+          type: string
+        start_date:
+          type: string
+        end_date:
+          type: string
   Id:
     type: object
     properties:
