@@ -30,6 +30,7 @@ type Graph struct {
 	State   int              `json:"state"`
 	Digraph structure.Matrix `json:"digraph"`
 	Nodes   []Node           `json:"nodes"`
+	Timeout <-chan time.Time
 }
 
 func (v *Graph) getNodeFromName(n string) (Node, error) {
@@ -38,7 +39,7 @@ func (v *Graph) getNodeFromName(n string) (Node, error) {
 }
 
 // Run executes the Graph structure
-func (v *Graph) Run(stop <-chan time.Time) {
+func (v *Graph) Run() {
 	v.State = Running
 	m := v.Digraph
 
@@ -63,7 +64,6 @@ func (v *Graph) Run(stop <-chan time.Time) {
 		select {
 		case node := <-c:
 			if node.State >= Running {
-				//fmt.Printf("%v has finished (%v)\n", node.ID, node.State)
 				for c := 0; c < n; c++ {
 					if m.At(node.ID, c) != 0 {
 						m.Set(node.ID, c, int64(node.State))
@@ -71,7 +71,7 @@ func (v *Graph) Run(stop <-chan time.Time) {
 				}
 				co.Broadcast()
 			}
-		case <-stop:
+		case <-v.Timeout:
 			v.State = Canceled
 			return
 		default:
