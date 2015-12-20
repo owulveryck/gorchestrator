@@ -11,6 +11,26 @@ produces:
   - application/json
 paths:
   /tasks/{id}:
+    delete:
+      summary: Remove a task
+      description: |
+        Delete a single task 
+      parameters:
+        - name: id
+          in: path
+          description: The UUID of the task
+          required: true
+          type: string
+      tags:
+        - Digraph
+      responses:
+        '200':
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: No task found
     get:
       summary: Digraph actions
       description: |
