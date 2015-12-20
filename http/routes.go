@@ -47,5 +47,10 @@ var routes = Routes{
 		"GET",
 		"/v1/tasks/{id}",
 		TaskShow,
+	}, Route{
+		"TaskDelete",
+		"DELETE",
+		"/v1/tasks/{id}",
+		TaskDelete,
 	},
 }
