@@ -35,19 +35,19 @@ func Index(w http.ResponseWriter, r *http.Request) {
 }
 
 func TaskList(w http.ResponseWriter, r *http.Request) {
-	type content struct {
-		name  string    `json:"name"`
-		state string    `json:"state"`
-		start time.Time `json:"start_date,omitempty"`
-		stop  time.Time `json:"stop_date,omitempty"`
+	type Content struct {
+		Name  string    `json:"name"`
+		State string    `json:"state"`
+		Start time.Time `json:"start_date,omitempty"`
+		Stop  time.Time `json:"stop_date,omitempty"`
 	}
 	type list struct {
-		id map[string]content `json:"id"`
+		Id map[string]Content `json:"id"`
 	}
 	var l list
-	v := make(map[string]content, len(tasks))
+	v := make(map[string]Content, len(tasks))
 	for id, task := range tasks {
-		c := content{
+		c := Content{
 			(task).Name,
 			orchestrator.States[(task).State],
 			time.Time{},
@@ -55,7 +55,7 @@ func TaskList(w http.ResponseWriter, r *http.Request) {
 		}
 		v[id] = c
 	}
-	l.id = v
+	l.Id = v
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(l); err != nil {
