@@ -43,7 +43,7 @@ func TestRun(t *testing.T) {
 		vs[i] = valid
 		vs[i].Name = fmt.Sprintf("%v", i)
 		go func(v Graph, wg *sync.WaitGroup) {
-			v.Run(nil)
+			v.Run()
 			wg.Done()
 		}(vs[i], &wg)
 	}
@@ -70,7 +70,7 @@ func BenchmarkRun(b *testing.B) {
 		vs[i] = valid
 		vs[i].Name = fmt.Sprintf("%v", i)
 		go func(v Graph, wg *sync.WaitGroup) {
-			v.Run(nil)
+			v.Run()
 			wg.Done()
 		}(vs[i], &wg)
 	}

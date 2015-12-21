@@ -57,6 +57,7 @@ func init() {
 			{6, 0, "g", "nil", "myplaybook6.yml", nil, nil},
 			{7, 0, "h", "nil", "myplaybook7.yml", nil, nil},
 		},
+		nil,
 	}
 
 	notValid = Graph{"NotValid",
@@ -87,6 +88,7 @@ func init() {
 			{6, 0, "g", "nil", "myplaybook6.yml", nil, nil},
 			{7, 0, "h", "nil", "myplaybook7.yml", nil, nil},
 		},
+		nil,
 	}
 }
 
@@ -130,6 +132,7 @@ func ExampleCheck() {
 			{6, 0, "g", "nil", "myplaybook6.yml", nil, nil},
 			{7, 0, "h", "nil", "myplaybook7.yml", nil, nil},
 		},
+		nil,
 	}
 	e := test.Check()
 	if e.Code != 0 {
