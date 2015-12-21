@@ -19,6 +19,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 package orchestrator
 
+var States = map[int]string{
+	Initial:     "initial",
+	ToRun:       "torun",
+	Running:     "running",
+	Success:     "success",
+	Failure:     "failure",
+	NotRunnable: "notrunnable",
+	Timeout:     "timeout",
+	Canceled:    "canceled",
+}
+
 const (
 	Initial     = 0
 	ToRun       = 1
