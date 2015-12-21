@@ -34,14 +34,43 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "Welcome!\n")
 }
 
-func TaskDelete(w http.ResponseWriter, r *http.Request) {
+func TaskList(w http.ResponseWriter, r *http.Request) {
+	type content struct {
+		name  string    `json:"name"`
+		state string    `json:"state"`
+		start time.Time `json:"start_date,omitempty"`
+		stop  time.Time `json:"stop_date,omitempty"`
+	}
+	type list struct {
+		id map[string]content `json:"id"`
+	}
+	var l list
+	v := make(map[string]content, len(tasks))
+	for id, task := range tasks {
+		c := content{
+			(task).Name,
+			orchestrator.States[(task).State],
+			time.Time{},
+			time.Time{},
+		}
+		v[id] = c
+	}
+	l.id = v
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(l); err != nil {
+		panic(err)
+	}
+}
+
+func TaskShow(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	var id string
 	id = vars["id"]
 	if v, ok := tasks[id]; ok {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(http.StatusOK)
-		if err := json.NewEncoder(w).Encode(v); err != nil {
+		if err := json.NewEncoder(w).Encode(*v); err != nil {
 			panic(err)
 
 		}
@@ -58,7 +87,7 @@ func TaskDelete(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func TaskShow(w http.ResponseWriter, r *http.Request) {
+func TaskDelete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	var id string
 	id = vars["id"]
@@ -66,6 +95,7 @@ func TaskShow(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(http.StatusOK)
 		v.Timeout = time.After(0)
+		delete(tasks, id)
 		return
 	} else {
 
@@ -74,7 +104,6 @@ func TaskShow(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		if err := json.NewEncoder(w).Encode(jsonErr{Code: http.StatusNotFound, Msg: "Not Found"}); err != nil {
 			panic(err)
-
 		}
 	}
 }
@@ -104,7 +133,7 @@ func TaskCreate(w http.ResponseWriter, r *http.Request) {
 	uuid := uuid()
 	go v.Run()
 	v.Timeout = time.After(5 * time.Minute)
-	tasks[uuid.ID] = v
+	tasks[uuid.ID] = &v
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusAccepted)
