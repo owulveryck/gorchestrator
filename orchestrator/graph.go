@@ -20,7 +20,7 @@ package orchestrator
 
 import (
 	"github.com/owulveryck/gorchestrator/structure"
-	"sync"
+	"log"
 	"time"
 )
 
@@ -45,36 +45,38 @@ func (v *Graph) Run() {
 
 	n := m.Dim()
 	cs := make([]<-chan Message, n)
-	l := new(lock)
-	co := sync.NewCond(l)
 	for i := 0; i < n; i++ {
 		cs[i] = v.Nodes[i].Run()
-		node := <-cs[i]
+	}
+	bcast := func() chan bool {
+		bcast := make(chan bool)
 		go func() {
 			for {
-				node.Wait <- *v
-				l.Lock()
-				defer l.Unlock()
-				co.Wait()
+				for i := 0; i < n; i++ {
+					node := <-cs[i]
+					go func() {
+						log.Println("Advertising ", node.ID)
+						node.Wait <- *v
+					}()
+				}
+				<-bcast
+				log.Println("Received an information on the broadcast channel")
 			}
 		}()
-	}
+		return bcast
+	}()
 	c := fanIn(cs...)
 	for {
 		select {
 		case node := <-c:
+			log.Println("Received a message")
 			if node.State >= Running {
 				for c := 0; c < n; c++ {
 					if m.At(node.ID, c) != 0 {
 						m.Set(node.ID, c, int64(node.State))
 					}
 				}
-				co.Broadcast()
 			}
-		case <-v.Timeout:
-			v.State = Canceled
-			return
-		default:
 			stop := true
 			v.State = Success
 			for r := 0; r < n; r++ {
@@ -94,6 +96,34 @@ func (v *Graph) Run() {
 			if stop {
 				return
 			}
+			log.Println("Sending true to the broadcast")
+			bcast <- true
+		case <-v.Timeout:
+			v.State = Canceled
+			return
+			/*
+				default:
+					log.Println("Defaut received")
+					stop := true
+					v.State = Success
+					for r := 0; r < n; r++ {
+						for c := 0; c < n; c++ {
+							switch {
+							case m.At(r, c) == ToRun:
+								stop = false
+								v.State = Failure
+							case m.At(r, c) == Running:
+								stop = false
+								v.State = Failure
+							case m.At(r, c) > Success:
+								v.State = Failure
+							}
+						}
+					}
+					if stop {
+						return
+					}
+			*/
 		}
 	}
 }
