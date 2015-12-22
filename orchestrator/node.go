@@ -24,6 +24,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"math/rand"
 	"net/http"
 	"regexp"
@@ -106,7 +107,9 @@ func (n *Node) Run() <-chan Message {
 		n.State = ToRun
 		for n.State <= ToRun {
 			c <- Message{n.ID, n.State, waitForIt}
+			log.Println("Waiting for a message", n.ID)
 			g := <-waitForIt
+			log.Println("Message received", n.ID)
 			m := g.Digraph
 			s := m.Dim()
 			n.Outputs = make(map[string]string, 0)
@@ -137,13 +140,14 @@ func (n *Node) Run() <-chan Message {
 						n.Args[i] = nn.Outputs[subargs[3]]
 					}
 				}
+				log.Println("BP3", n.ID)
 				c <- Message{n.ID, n.State, waitForIt}
-				//fmt.Printf("I am %v, and I am running: the module %v, with %v %v\n", n.ID, n.Engine, n.Artifact, n.Args)
+				log.Println("BP4", n.ID)
 				switch n.Engine {
 				case "nil":
 					n.State = Success
 				case "sleep": // For test purpose
-					//fmt.Printf("I am %v, and I am running: the module %v, with %v %v\n", n.ID, n.Engine, n.Artifact, n.Args)
+					log.Printf("I am %v, and I am running: the module %v, with %v %v\n", n.ID, n.Engine, n.Artifact, n.Args)
 					time.Sleep(time.Duration(rand.Intn(1e4)) * time.Millisecond)
 					rand.Seed(time.Now().Unix())
 					n.State = Success
@@ -153,6 +157,7 @@ func (n *Node) Run() <-chan Message {
 					n.Execute()
 				}
 				c <- Message{n.ID, n.State, waitForIt}
+				log.Println("Looping", n.ID)
 			}
 		}
 		close(c)
