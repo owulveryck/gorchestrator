@@ -106,7 +106,7 @@ func (n *Node) Run() <-chan Message {
 	var g Graph
 	go func() {
 		n.State = ToRun
-		for n.State <= ToRun && g.State <= ToRun {
+		for n.State <= ToRun || g.State <= ToRun {
 			c <- Message{n.ID, n.State, waitForIt}
 			log.Printf("[NODE %v/%v] Waiting for a message", n.ID, n.State)
 			g := <-waitForIt
@@ -162,7 +162,7 @@ func (n *Node) Run() <-chan Message {
 				log.Printf("[NODE %v/%v] loop finished, message sent", n.ID, n.State)
 			}
 		}
-		log.Println("Closing channel", n.ID)
+		log.Printf("[NODE %v%/%v] Closing channel (g.State=%v)", n.ID, n.State, g.State)
 		close(c)
 	}()
 	return c
