@@ -43,10 +43,11 @@ func TaskList(w http.ResponseWriter, r *http.Request) {
 		Stop  time.Time `json:"stop_date,omitempty"`
 	}
 	var l struct {
-		C []Content
+		C []Content `json:"tasks"`
 	}
 	co := make([]Content, len(tasks))
 
+	i := 0
 	for id, task := range tasks {
 		c := Content{
 			id,
@@ -55,7 +56,8 @@ func TaskList(w http.ResponseWriter, r *http.Request) {
 			time.Time{},
 			time.Time{},
 		}
-		co = append(co, c)
+		co[i] = c
+		i++
 	}
 	l.C = co
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
