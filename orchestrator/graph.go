@@ -45,31 +45,22 @@ func (v *Graph) Run() {
 
 	n := m.Dim()
 	cs := make([]<-chan Message, n)
+	cos := make([]chan<- Graph, n)
 	for i := 0; i < n; i++ {
 		cs[i] = v.Nodes[i].Run()
 	}
-	bcast := func() chan bool {
-		bcast := make(chan bool)
-		go func() {
-			for {
-				for i := 0; i < n; i++ {
-					node := <-cs[i]
-					go func() {
-						log.Println("Advertising ", node.ID)
-						node.Wait <- *v
-					}()
-				}
-				<-bcast
-				log.Println("Received an information on the broadcast channel")
-			}
-		}()
-		return bcast
-	}()
+	for i := 0; i < n; i++ {
+		node := <-cs[i]
+		cos[i] = node.Wait
+	}
+
+	co := fanOut(cos...)
 	c := fanIn(cs...)
+	co <- *v
 	for {
 		select {
 		case node := <-c:
-			log.Println("Received a message")
+			log.Println("Received a message from", node.ID)
 			if node.State >= Running {
 				for c := 0; c < n; c++ {
 					if m.At(node.ID, c) != 0 {
@@ -96,8 +87,8 @@ func (v *Graph) Run() {
 			if stop {
 				return
 			}
-			log.Println("Sending true to the broadcast")
-			bcast <- true
+			log.Println("Broadcasting...")
+			co <- *v
 		case <-v.Timeout:
 			v.State = Canceled
 			return
@@ -123,6 +114,7 @@ func (v *Graph) Run() {
 					if stop {
 						return
 					}
+					co <- *v
 			*/
 		}
 	}
