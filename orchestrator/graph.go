@@ -26,7 +26,7 @@ import (
 
 // Graph is the input of the orchestrator
 type Graph struct {
-	Name    string           `json:"name",omitempty`
+	Name    string           `json:"name,omitempty"`
 	State   int              `json:"state"`
 	Digraph structure.Matrix `json:"digraph"`
 	Nodes   []Node           `json:"nodes"`

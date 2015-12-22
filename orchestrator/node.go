@@ -34,11 +34,11 @@ import (
 type Node struct {
 	ID       int               `json:"id"`
 	State    int               `json:"state,omitempty"`
-	Name     string            `json:"name",omitempty`
-	Engine   string            `json:"engine",omitempty` // The execution engine (ie ansible, shell); aim to be like a shebang in a shell file
+	Name     string            `json:"name,omitempty"`
+	Engine   string            `json:"engine,omitempty"` // The execution engine (ie ansible, shell); aim to be like a shebang in a shell file
 	Artifact string            `json:"artifact"`
-	Args     []string          `json:"args",omitempty`   // the arguments of the artifact, if needed
-	Outputs  map[string]string `json:"output",omitempty` // the key is the name of the parameter, the value its value (always a string)
+	Args     []string          `json:"args,omitempty"`   // the arguments of the artifact, if needed
+	Outputs  map[string]string `json:"output,omitempty"` // the key is the name of the parameter, the value its value (always a string)
 }
 
 // Actually executes the node (via the executor)
