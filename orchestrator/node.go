@@ -103,13 +103,14 @@ func (n *Node) Run() <-chan Message {
 	waitForIt := make(chan Graph) // Shared between all messages.
 	var ga = regexp.MustCompile(`^get_attribute (.+):(.+)$`)
 
+	var g Graph
 	go func() {
 		n.State = ToRun
-		for n.State <= ToRun {
+		for n.State <= ToRun && g.State <= ToRun {
 			c <- Message{n.ID, n.State, waitForIt}
-			log.Println("Waiting for a message", n.ID)
+			log.Printf("[NODE %v/%v] Waiting for a message", n.ID, n.State)
 			g := <-waitForIt
-			log.Println("Message received", n.ID)
+			log.Printf("[NODE %v/%v] Message received", n.ID, n.State)
 			m := g.Digraph
 			s := m.Dim()
 			n.Outputs = make(map[string]string, 0)
@@ -126,7 +127,7 @@ func (n *Node) Run() <-chan Message {
 				}
 			}
 			if n.State == NotRunnable {
-				//fmt.Printf("I am %v, and I cannot run\n", n.ID)
+				fmt.Printf("I am %v, and I cannot run\n", n.ID)
 				c <- Message{n.ID, n.State, waitForIt}
 			}
 			if n.State == Running {
@@ -140,9 +141,9 @@ func (n *Node) Run() <-chan Message {
 						n.Args[i] = nn.Outputs[subargs[3]]
 					}
 				}
-				log.Println("BP3", n.ID)
+				log.Printf("[NODE %v/%v] About to run, sending message to the conductor", n.ID, n.State)
 				c <- Message{n.ID, n.State, waitForIt}
-				log.Println("BP4", n.ID)
+				log.Printf("[NODE %v/%v] message sent", n.ID, n.State)
 				switch n.Engine {
 				case "nil":
 					n.State = Success
@@ -156,10 +157,12 @@ func (n *Node) Run() <-chan Message {
 					// Send the message to the appropriate backend
 					n.Execute()
 				}
+				log.Printf("[NODE %v/%v] loop finished, sending message to the conductor", n.ID, n.State)
 				c <- Message{n.ID, n.State, waitForIt}
-				log.Println("Looping", n.ID)
+				log.Printf("[NODE %v/%v] loop finished, message sent", n.ID, n.State)
 			}
 		}
+		log.Println("Closing channel", n.ID)
 		close(c)
 	}()
 	return c

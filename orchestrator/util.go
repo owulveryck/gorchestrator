@@ -28,6 +28,18 @@ func (l *lock) Unlock() {
 	*l = 0
 }
 
+func fanOut(outputs ...chan<- Graph) chan<- Graph {
+	c := make(chan Graph)
+	for i := range outputs {
+		output := outputs[i] // New instance of 'input' for each loop.
+		go func() {
+			for {
+				output <- <-c
+			}
+		}()
+	}
+	return c
+}
 func fanIn(inputs ...<-chan Message) <-chan Message {
 	c := make(chan Message)
 	for i := range inputs {

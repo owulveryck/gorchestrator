@@ -42,12 +42,12 @@ func init() {
 		},
 		[]Node{
 			{0, 0, "a", "nil", "myplaybook.yml", nil, nil},
-			{1, 0, "b", "sleep", "myscript.sh", nil,
+			{1, 0, "b", "nil", "myscript.sh", nil,
 				map[string]string{
 					"result": "",
 				},
 			},
-			{2, 0, "c", "shell", "myscript2.sh",
+			{2, 0, "c", "nil", "myscript2.sh",
 				[]string{
 					"-e", "get_attribute b:result",
 				}, nil},
