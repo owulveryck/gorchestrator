@@ -23,6 +23,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"testing"
+	"time"
 )
 
 var valid Graph
@@ -57,7 +58,7 @@ func init() {
 			{6, 0, "g", "nil", "myplaybook6.yml", nil, nil},
 			{7, 0, "h", "nil", "myplaybook7.yml", nil, nil},
 		},
-		nil,
+		time.After(30 * time.Second),
 	}
 
 	notValid = Graph{"NotValid",

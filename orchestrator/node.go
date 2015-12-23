@@ -24,7 +24,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
+	//"log"
 	"math/rand"
 	"net/http"
 	"regexp"
@@ -107,10 +107,13 @@ func (n *Node) Run() <-chan Message {
 	go func() {
 		n.State = ToRun
 		for n.State <= ToRun || g.State <= ToRun {
+			//log.Printf("[NODE %v/%v] Begining of the loop n.State=%v g.State=%v", n.ID, n.State, n.State, g.State)
+			//log.Printf("[NODE %v/%v] Advertising that we are waiting for a message", n.ID, n.State)
+
 			c <- Message{n.ID, n.State, waitForIt}
-			log.Printf("[NODE %v/%v] Waiting for a message", n.ID, n.State)
-			g := <-waitForIt
-			log.Printf("[NODE %v/%v] Message received", n.ID, n.State)
+			//log.Printf("[NODE %v/%v] Waiting for a message", n.ID, n.State)
+			g = <-waitForIt
+			//log.Printf("[NODE %v/%v] Message received", n.ID, n.State)
 			m := g.Digraph
 			s := m.Dim()
 			n.Outputs = make(map[string]string, 0)
@@ -141,14 +144,14 @@ func (n *Node) Run() <-chan Message {
 						n.Args[i] = nn.Outputs[subargs[3]]
 					}
 				}
-				log.Printf("[NODE %v/%v] About to run, sending message to the conductor", n.ID, n.State)
+				//log.Printf("[NODE %v/%v] About to run, sending message to the conductor", n.ID, n.State)
 				c <- Message{n.ID, n.State, waitForIt}
-				log.Printf("[NODE %v/%v] message sent", n.ID, n.State)
+				//log.Printf("[NODE %v/%v] message sent", n.ID, n.State)
 				switch n.Engine {
 				case "nil":
 					n.State = Success
 				case "sleep": // For test purpose
-					log.Printf("I am %v, and I am running: the module %v, with %v %v\n", n.ID, n.Engine, n.Artifact, n.Args)
+					//log.Printf("I am %v, and I am running: the module %v, with %v %v\n", n.ID, n.Engine, n.Artifact, n.Args)
 					time.Sleep(time.Duration(rand.Intn(1e4)) * time.Millisecond)
 					rand.Seed(time.Now().Unix())
 					n.State = Success
@@ -157,12 +160,20 @@ func (n *Node) Run() <-chan Message {
 					// Send the message to the appropriate backend
 					n.Execute()
 				}
-				log.Printf("[NODE %v/%v] loop finished, sending message to the conductor", n.ID, n.State)
+				//log.Printf("[NODE %v/%v] loop finished, sending message to the conductor", n.ID, n.State)
 				c <- Message{n.ID, n.State, waitForIt}
-				log.Printf("[NODE %v/%v] loop finished, message sent", n.ID, n.State)
+				//log.Printf("[NODE %v/%v] loop finished, message sent", n.ID, n.State)
 			}
 		}
-		log.Printf("[NODE %v%/%v] Closing channel (g.State=%v)", n.ID, n.State, g.State)
+		for g.State <= ToRun {
+
+			//log.Printf("[NODE %v/%v] Waiting for a message outside of the loop", n.ID, n.State)
+			g = <-waitForIt
+			//log.Printf("[NODE %v/%v] Message received", n.ID, n.State)
+			//log.Printf("[NODE %v/%v] sending message to the conductor outside of the loop", n.ID, n.State)
+			c <- Message{n.ID, n.State, waitForIt}
+		}
+		//log.Printf("[NODE %v%/%v] Closing channel (g.State=%v)", n.ID, n.State, g.State)
 		close(c)
 	}()
 	return c
