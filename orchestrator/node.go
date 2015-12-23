@@ -165,14 +165,16 @@ func (n *Node) Run() <-chan Message {
 				//log.Printf("[NODE %v/%v] loop finished, message sent", n.ID, n.State)
 			}
 		}
-		for g.State <= ToRun {
+		/*
+			for g.State <= ToRun {
 
-			//log.Printf("[NODE %v/%v] Waiting for a message outside of the loop", n.ID, n.State)
-			g = <-waitForIt
-			//log.Printf("[NODE %v/%v] Message received", n.ID, n.State)
-			//log.Printf("[NODE %v/%v] sending message to the conductor outside of the loop", n.ID, n.State)
-			c <- Message{n.ID, n.State, waitForIt}
-		}
+				//log.Printf("[NODE %v/%v] Waiting for a message outside of the loop", n.ID, n.State)
+				g = <-waitForIt
+				//log.Printf("[NODE %v/%v] Message received", n.ID, n.State)
+				//log.Printf("[NODE %v/%v] sending message to the conductor outside of the loop", n.ID, n.State)
+				c <- Message{n.ID, n.State, waitForIt}
+			}
+		*/
 		//log.Printf("[NODE %v%/%v] Closing channel (g.State=%v)", n.ID, n.State, g.State)
 		close(c)
 	}()
