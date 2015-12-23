@@ -20,7 +20,6 @@ package orchestrator
 
 import (
 	"github.com/owulveryck/gorchestrator/structure"
-	//"log"
 	"time"
 )
 
@@ -59,7 +58,6 @@ func (v *Graph) Run() {
 	for {
 		select {
 		case node := <-c:
-			//log.Println("Received a message from", node.ID)
 			if node.State >= Running {
 				for c := 0; c < n; c++ {
 					if m.At(node.ID, c) != 0 {
@@ -86,17 +84,6 @@ func (v *Graph) Run() {
 			if stop {
 				return
 			}
-			//for nid, no := range v.Nodes {
-			//log.Printf("Broadcasting %v is in state %v", nid, no.State)
-			//}
-			co <- Graph{
-				(*v).Name,
-				(*v).State,
-				(*v).Digraph,
-				(*v).Nodes,
-				(*v).Timeout,
-			}
-			//log.Println("Broadcasting done...")
 		case <-v.Timeout:
 			co <- Graph{
 				(*v).Name,
@@ -113,37 +100,6 @@ func (v *Graph) Run() {
 			(*v).Nodes,
 			(*v).Timeout,
 		}:
-			/*
-				default:
-					//log.Println("Defaut received")
-					time.Sleep(10 * time.Millisecond)
-					stop := true
-					v.State = Success
-					for r := 0; r < n; r++ {
-						for c := 0; c < n; c++ {
-							switch {
-							case m.At(r, c) == ToRun:
-								stop = false
-								v.State = Failure
-							case m.At(r, c) == Running:
-								stop = false
-								v.State = Failure
-							case m.At(r, c) > Success:
-								v.State = Failure
-							}
-						}
-					}
-					if stop {
-						return
-					}
-					co <- Graph{
-						(*v).Name,
-						(*v).State,
-						(*v).Digraph,
-						(*v).Nodes,
-						(*v).Timeout,
-					}
-			*/
 		}
 	}
 }
