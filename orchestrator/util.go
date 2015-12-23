@@ -19,11 +19,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 package orchestrator
 
-import (
-	//"log"
-	"time"
-)
-
 type lock int
 
 func (l *lock) Lock() {
@@ -37,16 +32,11 @@ func fanOut(outputs ...chan<- Graph) chan<- Graph {
 	c := make(chan Graph)
 	for i := range outputs {
 		output := outputs[i] // New instance of 'input' for each loop.
-		go func() {
+		go func(i int) {
 			for {
-				//log.Println("loop")
-				select {
-				case output <- <-c:
-				default:
-					time.Sleep(10 * time.Millisecond)
-				}
+				output <- <-c
 			}
-		}()
+		}(i)
 	}
 	return c
 }
