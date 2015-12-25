@@ -20,6 +20,7 @@ package orchestrator
 
 import (
 	"github.com/owulveryck/gorchestrator/structure"
+	"sync"
 	"time"
 )
 
@@ -36,6 +37,8 @@ func (v *Graph) getNodeFromName(n string) (Node, error) {
 	var nn Node
 	return nn, nil
 }
+
+var mu sync.RWMutex
 
 // Run executes the Graph structure
 func (v *Graph) Run() {
@@ -61,7 +64,9 @@ func (v *Graph) Run() {
 			if node.State >= Running {
 				for c := 0; c < n; c++ {
 					if m.At(node.ID, c) != 0 {
+						mu.Lock()
 						m.Set(node.ID, c, int64(node.State))
+						mu.Unlock()
 					}
 				}
 			}
