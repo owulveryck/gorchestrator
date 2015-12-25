@@ -118,12 +118,14 @@ func (n *Node) Run() <-chan Message {
 			}
 			n.State = Running
 			for i := 0; i < s; i++ {
+				mu.RLock()
 				if m.At(i, n.ID) < Success && m.At(i, n.ID) > 0 {
 					n.State = ToRun
 				} else if m.At(i, n.ID) >= Failure {
 					n.State = NotRunnable
 					continue
 				}
+				mu.RUnlock()
 			}
 			if n.State == NotRunnable {
 				fmt.Printf("I am %v, and I cannot run\n", n.ID)
