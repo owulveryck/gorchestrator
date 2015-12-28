@@ -21,13 +21,10 @@ package orchestrator
 
 import (
 	"bytes"
-	"crypto/tls"
-	"crypto/x509"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/owulveryck/gorchestrator/structure"
-	"io/ioutil"
 	"log"
 	"math/rand"
 	"net/http"
@@ -47,50 +44,23 @@ type Node struct {
 }
 
 // Actually executes the node (via the executor)
-func (n *Node) Execute() error {
+func (n *Node) Execute(exe ExecutorBackend) error {
 	var id string
 	var err error
 	var t struct {
 		ID string `json:"id"`
 	}
-	log.Println("Entering Execute")
 	url := "https://localhost:8585/v1/tasks"
 	b, _ := json.Marshal(*n)
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(b))
 	//req.Header.Set("X-Custom-Header", "myvalue")
 	req.Header.Set("Content-Type", "application/json")
 
-	// Load client cert
-	cert, err := tls.LoadX509KeyPair("./security/certs/orchestrator/orchestrator.pem", "./security/certs/orchestrator/orchestrator_key.pem")
-	if err != nil {
-		log.Println(err)
-		return err
-	}
-
-	// Load CA cert
-	caCert, err := ioutil.ReadFile("./security/certs/executor/executor.pem")
-	if err != nil {
-		log.Println(err)
-		return err
-
-	}
-	caCertPool := x509.NewCertPool()
-	caCertPool.AppendCertsFromPEM(caCert)
-
-	// Setup HTTPS client
-	tlsConfig := &tls.Config{
-		Certificates: []tls.Certificate{cert},
-		RootCAs:      caCertPool,
-	}
-	tlsConfig.BuildNameToCertificate()
-	transport := &http.Transport{TLSClientConfig: tlsConfig}
-	client := &http.Client{Transport: transport}
-
 	//client := &http.Client{}
+	client := exe.Client
 	resp, err := client.Do(req)
 	if err != nil {
 		n.State = NotRunnable
-		log.Println(err)
 		return err
 
 	}
@@ -186,7 +156,16 @@ func (n *Node) Run() <-chan Message {
 					n.Outputs["result"] = fmt.Sprintf("%v_%v", n.Name, time.Now().Unix())
 				default:
 					// Send the message to the appropriate backend
-					err := n.Execute()
+					exe := ExecutorBackend{
+						"https://localhost:8585/v1",
+						"./security/certs/orchestrator/orchestrator.pem",
+						"./security/certs/orchestrator/orchestrator_key.pem",
+						"./security/certs/executor/executor.pem",
+						"/ping",
+						nil,
+					}
+					exe.init()
+					err := n.Execute(exe)
 					if err != nil {
 						n.State = Failure
 					}
