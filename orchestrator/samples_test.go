@@ -24,6 +24,7 @@ import (
 )
 
 var valid Graph
+var validAndTimeout Graph
 var validAndNoArtifact Graph
 var validAndFailed Graph
 var validAndSleep Graph
@@ -53,6 +54,30 @@ func init() {
 			{7, 0, "h", "", "", nil, nil},
 		},
 		time.After(30 * time.Second),
+	}
+
+	validAndTimeout = Graph{"ValidAndTimeout",
+		0,
+		[]int64{0, 1, 0, 0, 1, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 1, 0,
+			0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 1, 0, 0, 0, 1, 0,
+			0, 0, 0, 0, 0, 0, 0, 0,
+			1, 1, 1, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 1, 0,
+		},
+		[]Node{
+			{0, 0, "a", "sleep", "", nil, nil},
+			{1, 0, "b", "sleep", "", nil, nil},
+			{2, 0, "c", "sleep", "", nil, nil},
+			{3, 0, "d", "sleep", "", nil, nil},
+			{4, 0, "e", "sleep", "", nil, nil},
+			{5, 0, "f", "sleep", "", nil, nil},
+			{6, 0, "g", "sleep", "", nil, nil},
+			{7, 0, "h", "sleep", "", nil, nil},
+		},
+		time.After(1 * time.Millisecond),
 	}
 
 	validAndSleep = Graph{"ValidAndSleep",

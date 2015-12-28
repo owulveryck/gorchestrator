@@ -135,6 +135,9 @@ func (n *Node) Run(exe ExecutorBackend) <-chan Message {
 					continue
 				}
 				mu.RUnlock()
+				if n.State == NotRunnable {
+					continue
+				}
 			}
 			if n.State == NotRunnable {
 				fmt.Printf("I am %v, and I cannot run\n", n.ID)
