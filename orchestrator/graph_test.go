@@ -57,9 +57,6 @@ func TestRun(t *testing.T) {
 		}(vs[i], &wg)
 	}
 	wg.Wait()
-	//	for i := 0; i < count; i++ {
-	//		t.Log(vs[i])
-	//	}
 }
 func BenchmarkRun(b *testing.B) {
 	e := valid.Check()
