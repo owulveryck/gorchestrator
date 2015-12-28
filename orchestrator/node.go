@@ -101,7 +101,7 @@ func (n *Node) Execute(exe ExecutorBackend) error {
 }
 
 // Run the node
-func (n *Node) Run() <-chan Message {
+func (n *Node) Run(exe ExecutorBackend) <-chan Message {
 	c := make(chan Message)
 	waitForIt := make(chan Graph) // Shared between all messages.
 	var ga = regexp.MustCompile(`^get_attribute (.+):(.+)$`)
@@ -155,16 +155,6 @@ func (n *Node) Run() <-chan Message {
 					n.State = Success
 					n.Outputs["result"] = fmt.Sprintf("%v_%v", n.Name, time.Now().Unix())
 				default:
-					// Send the message to the appropriate backend
-					exe := ExecutorBackend{
-						"https://localhost:8585/v1",
-						"./security/certs/orchestrator/orchestrator.pem",
-						"./security/certs/orchestrator/orchestrator_key.pem",
-						"./security/certs/executor/executor.pem",
-						"/ping",
-						nil,
-					}
-					exe.init()
 					err := n.Execute(exe)
 					if err != nil {
 						n.State = Failure
