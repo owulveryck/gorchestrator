@@ -45,6 +45,12 @@ type Node struct {
 
 // Actually executes the node (via the executor)
 func (n *Node) Execute(exe ExecutorBackend) error {
+	if exe.Client == nil {
+		err := exe.Init()
+		if err != nil {
+			return err
+		}
+	}
 	var id string
 	var err error
 	var t struct {
