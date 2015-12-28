@@ -44,7 +44,7 @@ func TestRun(t *testing.T) {
 	}
 	exe.Init()
 
-	vs := []Graph{valid, validAndTimeout, validAndNoArtifact}
+	vs := []Graph{valid, validAndTimeout, validAndNoArtifact, validAndSleep}
 
 	for _, v := range vs {
 		v.Run(exe)
