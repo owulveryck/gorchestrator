@@ -3,6 +3,7 @@ package orchestrator
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 )
@@ -44,5 +45,11 @@ func (e *ExecutorBackend) Init() error {
 	client = &http.Client{Transport: transport}
 
 	e.Client = client
+	// Now check the ping url
+	_, err = client.Get(fmt.Sprintf("%v/%v", e.Url, e.Ping))
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
