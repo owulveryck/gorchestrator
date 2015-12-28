@@ -44,19 +44,11 @@ func TestRun(t *testing.T) {
 	}
 	exe.Init()
 
-	var wg sync.WaitGroup
-	count := 1
-	vs := make([]Graph, count)
-	wg.Add(count)
-	for i := 0; i < count; i++ {
-		vs[i] = valid
-		vs[i].Name = fmt.Sprintf("%v", i)
-		go func(v Graph, wg *sync.WaitGroup) {
-			v.Run(exe)
-			wg.Done()
-		}(vs[i], &wg)
+	vs := []Graph{valid, validAndNoArtifact, validAndSleep}
+
+	for _, v := range vs {
+		v.Run(exe)
 	}
-	wg.Wait()
 }
 func BenchmarkRun(b *testing.B) {
 	e := valid.Check()
