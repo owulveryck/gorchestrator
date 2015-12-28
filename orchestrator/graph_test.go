@@ -21,6 +21,8 @@ package orchestrator
 
 import (
 	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"sync"
 	"testing"
 )
@@ -34,11 +36,15 @@ func TestRun(t *testing.T) {
 	if e.Code == 0 {
 		t.Errorf("Struct should not be valid, error is: %v", e.Error())
 	}
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintln(w, "Hello, client")
+	}))
+	defer ts.Close()
 	exe := ExecutorBackend{
-		"https://localhost:8585/v1",
-		"./security/certs/orchestrator/orchestrator.pem",
-		"./security/certs/orchestrator/orchestrator_key.pem",
-		"./security/certs/executor/executor.pem",
+		ts.URL,
+		"./test/orchestrator.pem",
+		"./test/orchestrator_key.pem",
+		"./test/executor.pem",
 		"/ping",
 		nil,
 	}
