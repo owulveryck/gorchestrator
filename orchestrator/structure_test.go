@@ -23,75 +23,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"testing"
-	"time"
 )
-
-var valid Graph
-var notValid Graph
-
-func init() {
-	valid = Graph{"Valid",
-		0,
-		[]int64{0, 1, 0, 0, 1, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 1, 0,
-			0, 0, 0, 0, 0, 0, 0, 0,
-			0, 0, 1, 0, 0, 0, 1, 0,
-			0, 0, 0, 0, 0, 0, 0, 0,
-			1, 1, 1, 0, 0, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 1, 0,
-		},
-		[]Node{
-			{0, 0, "a", "nil", "myplaybook.yml", nil, nil},
-			{1, 0, "b", "nil", "myscript.sh", nil,
-				map[string]string{
-					"result": "",
-				},
-			},
-			{2, 0, "c", "nil", "myscript2.sh",
-				[]string{
-					"-e", "get_attribute b:result",
-				}, nil},
-			{3, 0, "d", "nil", "myplaybook3.yml", nil, nil},
-			{4, 0, "e", "nil", "myplaybook4.yml", nil, nil},
-			{5, 0, "f", "nil", "myplaybook5.yml", nil, nil},
-			{6, 0, "g", "nil", "myplaybook6.yml", nil, nil},
-			{7, 0, "h", "nil", "myplaybook7.yml", nil, nil},
-		},
-		time.After(30 * time.Second),
-	}
-
-	notValid = Graph{"NotValid",
-		0,
-		[]int64{0, 1, 0, 0, 1, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 1, 0,
-			0, 0, 0, 0, 0, 0, 0, 0,
-			0, 1, 0, 0, 0, 1, 0,
-			0, 0, 0, 0, 0, 0, 0, 0,
-			1, 1, 1, 0, 0, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 1, 0,
-		},
-		[]Node{
-			{0, 0, "a", "nil", "myplaybook.yml", nil, nil},
-			{1, 0, "b", "shell", "myscript.sh", nil,
-				map[string]string{
-					"output1": "",
-				},
-			},
-			{2, 0, "c", "shell", "myscript2.sh",
-				[]string{
-					"-e", "get_attribute 1:output1",
-				}, nil},
-			{3, 0, "d", "nil", "myplaybook3.yml", nil, nil},
-			{4, 0, "e", "nil", "myplaybook4.yml", nil, nil},
-			{5, 0, "f", "nil", "myplaybook5.yml", nil, nil},
-			{6, 0, "g", "nil", "myplaybook6.yml", nil, nil},
-			{7, 0, "h", "nil", "myplaybook7.yml", nil, nil},
-		},
-		nil,
-	}
-}
 
 func TestCheck(t *testing.T) {
 	e := valid.Check()
