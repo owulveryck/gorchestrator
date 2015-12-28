@@ -32,6 +32,17 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "Welcome!\n")
 }
 
+func Ping(w http.ResponseWriter, r *http.Request) {
+	type status struct {
+		Status string `json:"status"`
+	}
+	success := status{"success"}
+	if err := json.NewEncoder(w).Encode(success); err != nil {
+		panic(err)
+	}
+
+}
+
 func TaskShow(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	var id string

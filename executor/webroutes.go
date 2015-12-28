@@ -43,6 +43,11 @@ var routes = Routes{
 		"/v1/tasks",
 		TaskCreate,
 	}, Route{
+		"Ping",
+		"GET",
+		"/v1/ping",
+		Ping,
+	}, Route{
 		"TaskShow",
 		"GET",
 		"/v1/tasks/{id}",
