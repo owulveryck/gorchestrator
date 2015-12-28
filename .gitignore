@@ -27,3 +27,6 @@ _testmain.go
 clients/tosca/test
 
 dist/*
+orchestrator/coverage.out
+$
+
