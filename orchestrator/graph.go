@@ -41,7 +41,7 @@ func (v *Graph) getNodeFromName(n string) (Node, error) {
 var mu sync.RWMutex
 
 // Run executes the Graph structure
-func (v *Graph) Run() {
+func (v *Graph) Run(exe ExecutorBackend) {
 	v.State = Running
 	m := v.Digraph
 
@@ -49,7 +49,7 @@ func (v *Graph) Run() {
 	cs := make([]<-chan Message, n)
 	cos := make([]chan<- Graph, n)
 	for i := 0; i < n; i++ {
-		cs[i] = v.Nodes[i].Run()
+		cs[i] = v.Nodes[i].Run(exe)
 	}
 	for i := 0; i < n; i++ {
 		node := <-cs[i]

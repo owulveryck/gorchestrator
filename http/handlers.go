@@ -135,7 +135,17 @@ func TaskCreate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	uuid := uuid()
-	go v.Run()
+	exe := orchestrator.ExecutorBackend{
+		"https://localhost:8585/v1",
+		"./security/certs/orchestrator/orchestrator.pem",
+		"./security/certs/orchestrator/orchestrator_key.pem",
+		"./security/certs/executor/executor.pem",
+		"/ping",
+		nil,
+	}
+	exe.Init()
+
+	go v.Run(exe)
 	v.Timeout = time.After(5 * time.Minute)
 	tasks[uuid.ID] = &v
 

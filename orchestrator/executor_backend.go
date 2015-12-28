@@ -17,7 +17,7 @@ type ExecutorBackend struct {
 	Client      *http.Client
 }
 
-func (e *ExecutorBackend) init() error {
+func (e *ExecutorBackend) Init() error {
 	var client *http.Client
 	// Load client cert
 	cert, err := tls.LoadX509KeyPair(e.Certificate, e.Key)
