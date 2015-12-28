@@ -34,9 +34,6 @@ func TestInit(t *testing.T) {
 		nil,
 	}
 	err := exe.Init()
-	if err != nil {
-		t.Error(err)
-	}
 	exe = ExecutorBackend{
 		"https://localhost:8585/v1",
 		"./test/cert_nil.pem",
