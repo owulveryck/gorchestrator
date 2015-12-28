@@ -209,7 +209,7 @@ func TestRun(t *testing.T) {
 	ts.StartTLS()
 	defer ts.Close()
 	exe := ExecutorBackend{
-		ts.URL,
+		fmt.Sprintf("%v/v1", ts.URL),
 		"./test/orchestrator.pem",
 		"./test/orchestrator_key.pem",
 		"./test/executor.pem",
