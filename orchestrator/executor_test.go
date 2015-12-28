@@ -27,9 +27,9 @@ func TestInit(t *testing.T) {
 	// OK test
 	exe := ExecutorBackend{
 		"https://localhost:8585/v1",
-		"./test/cert.pem",
-		"./test/key.pem",
-		"./test/cert.pem",
+		"./test/orchestrator.pem",
+		"./test/orchestrator_key.pem",
+		"./test/executor.pem",
 		"/ping",
 		nil,
 	}
@@ -40,8 +40,8 @@ func TestInit(t *testing.T) {
 	exe = ExecutorBackend{
 		"https://localhost:8585/v1",
 		"./test/cert_nil.pem",
-		"./test/key.pem",
-		"./test/cert.pem",
+		"./test/orchestrator_key.pem",
+		"./test/executor.pem",
 		"/ping",
 		nil,
 	}
@@ -51,8 +51,8 @@ func TestInit(t *testing.T) {
 	}
 	exe = ExecutorBackend{
 		"https://localhost:8585/v1",
-		"./test/cert.pem",
-		"./test/key.pem",
+		"./test/orchestrator.pem",
+		"./test/orchestrator_key.pem",
 		"./test/cert_nil.pem",
 		"/ping",
 		nil,
