@@ -34,6 +34,15 @@ func TestRun(t *testing.T) {
 	if e.Code == 0 {
 		t.Errorf("Struct should not be valid, error is: %v", e.Error())
 	}
+	exe := ExecutorBackend{
+		"https://localhost:8585/v1",
+		"./security/certs/orchestrator/orchestrator.pem",
+		"./security/certs/orchestrator/orchestrator_key.pem",
+		"./security/certs/executor/executor.pem",
+		"/ping",
+		nil,
+	}
+	exe.Init()
 
 	var wg sync.WaitGroup
 	count := 1
@@ -43,7 +52,7 @@ func TestRun(t *testing.T) {
 		vs[i] = valid
 		vs[i].Name = fmt.Sprintf("%v", i)
 		go func(v Graph, wg *sync.WaitGroup) {
-			v.Run()
+			v.Run(exe)
 			wg.Done()
 		}(vs[i], &wg)
 	}
@@ -61,6 +70,15 @@ func BenchmarkRun(b *testing.B) {
 	if e.Code == 0 {
 		b.Errorf("Struct should not be valid, error is: %v", e.Error())
 	}
+	exe := ExecutorBackend{
+		"https://localhost:8585/v1",
+		"./security/certs/orchestrator/orchestrator.pem",
+		"./security/certs/orchestrator/orchestrator_key.pem",
+		"./security/certs/executor/executor.pem",
+		"/ping",
+		nil,
+	}
+	exe.Init()
 
 	var wg sync.WaitGroup
 	count := b.N
@@ -70,7 +88,7 @@ func BenchmarkRun(b *testing.B) {
 		vs[i] = valid
 		vs[i].Name = fmt.Sprintf("%v", i)
 		go func(v Graph, wg *sync.WaitGroup) {
-			v.Run()
+			v.Run(exe)
 			wg.Done()
 		}(vs[i], &wg)
 	}
