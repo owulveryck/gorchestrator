@@ -21,10 +21,14 @@ package orchestrator
 
 import (
 	"bytes"
+	"crypto/tls"
+	"crypto/x509"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/owulveryck/gorchestrator/structure"
+	"io/ioutil"
+	"log"
 	"math/rand"
 	"net/http"
 	"regexp"
@@ -49,21 +53,50 @@ func (n *Node) Execute() error {
 	var t struct {
 		ID string `json:"id"`
 	}
-	url := "http://localhost:8585/v1/tasks"
+	log.Println("Entering Execute")
+	url := "https://localhost:8585/v1/tasks"
 	b, _ := json.Marshal(*n)
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(b))
 	//req.Header.Set("X-Custom-Header", "myvalue")
 	req.Header.Set("Content-Type", "application/json")
 
-	client := &http.Client{}
+	// Load client cert
+	cert, err := tls.LoadX509KeyPair("./security/certs/orchestrator/orchestrator.pem", "./security/certs/orchestrator/orchestrator_key.pem")
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	// Load CA cert
+	caCert, err := ioutil.ReadFile("./security/certs/executor/executor.pem")
+	if err != nil {
+		log.Println(err)
+		return err
+
+	}
+	caCertPool := x509.NewCertPool()
+	caCertPool.AppendCertsFromPEM(caCert)
+
+	// Setup HTTPS client
+	tlsConfig := &tls.Config{
+		Certificates: []tls.Certificate{cert},
+		RootCAs:      caCertPool,
+	}
+	tlsConfig.BuildNameToCertificate()
+	transport := &http.Transport{TLSClientConfig: tlsConfig}
+	client := &http.Client{Transport: transport}
+
+	//client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
 		n.State = NotRunnable
+		log.Println(err)
 		return err
 
 	}
 	defer resp.Body.Close()
 
+	log.Println("Launched")
 	if resp.StatusCode >= http.StatusBadRequest {
 		n.State = NotRunnable
 		return errors.New("Error in the executor")
@@ -153,7 +186,11 @@ func (n *Node) Run() <-chan Message {
 					n.Outputs["result"] = fmt.Sprintf("%v_%v", n.Name, time.Now().Unix())
 				default:
 					// Send the message to the appropriate backend
-					n.Execute()
+					err := n.Execute()
+					if err != nil {
+						n.State = Failure
+					}
+
 				}
 				c <- Message{n.ID, n.State, waitForIt}
 			}
