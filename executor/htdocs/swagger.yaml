@@ -10,6 +10,15 @@ basePath: /v1
 produces:
   - application/json
 paths:
+  /ping:
+    get:
+      summary: A simple request to check the availability of the host
+      description: Simply returns the status success if success
+      responses:
+        '200':
+          description: The return code
+          schema:
+            $ref: '#/definitions/Status'
   /tasks/{id}:
     get:
       summary: Digraph actions
@@ -58,6 +67,11 @@ paths:
           schema:
             $ref: '#/definitions/Error'
 definitions:
+  Status:
+    type: object
+    properties:
+      status:
+        type: string
   Id:
     type: object
     properties:
