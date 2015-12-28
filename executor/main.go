@@ -21,7 +21,10 @@ package executor
 
 import (
 	"crypto/rand"
+	"crypto/tls"
+	"crypto/x509"
 	"encoding/hex"
+	"io/ioutil"
 	"log"
 	"net/http"
 )
@@ -51,5 +54,24 @@ func Run() {
 	tasks = make(map[string](*node), 0)
 	router := NewRouter()
 
-	log.Fatal(http.ListenAndServe(":8585", router))
+	caCert, err := ioutil.ReadFile("../security/certs/orchestrator/orchestrator.pem")
+	if err != nil {
+		log.Fatal(err)
+
+	}
+	caCertPool := x509.NewCertPool()
+	caCertPool.AppendCertsFromPEM(caCert)
+
+	server := &http.Server{
+		Addr:    ":8585",
+		Handler: router,
+		TLSConfig: &tls.Config{
+			ClientCAs:  caCertPool,
+			ClientAuth: tls.RequireAndVerifyClientCert,
+		},
+	}
+
+	log.Println("Starting server on port 8585")
+	log.Fatal(server.ListenAndServeTLS("../security/certs/executor/executor.pem", "../security/certs/executor/executor_key.pem"))
+	//log.Fatal(http.ListenAndServe(":8585", router))
 }
