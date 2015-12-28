@@ -132,7 +132,6 @@ func (n *Node) Run(exe ExecutorBackend) <-chan Message {
 					n.State = ToRun
 				} else if m.At(i, n.ID) >= Failure {
 					n.State = NotRunnable
-					continue
 				}
 				mu.RUnlock()
 				if n.State == NotRunnable {
@@ -140,7 +139,6 @@ func (n *Node) Run(exe ExecutorBackend) <-chan Message {
 				}
 			}
 			if n.State == NotRunnable {
-				fmt.Printf("I am %v, and I cannot run\n", n.ID)
 				c <- Message{n.ID, n.State, waitForIt}
 			}
 			if n.State == Running {
@@ -159,7 +157,7 @@ func (n *Node) Run(exe ExecutorBackend) <-chan Message {
 				case "nil":
 					n.State = Success
 				case "sleep": // For test purpose
-					time.Sleep(time.Duration(rand.Intn(1e4)) * time.Millisecond)
+					time.Sleep(time.Duration(rand.Intn(1e3)) * time.Millisecond)
 					rand.Seed(time.Now().Unix())
 					n.State = Success
 					n.Outputs["result"] = fmt.Sprintf("%v_%v", n.Name, time.Now().Unix())
