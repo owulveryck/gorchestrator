@@ -19,15 +19,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 package orchestrator
 
-type lock int
-
-func (l *lock) Lock() {
-	*l = 1
-}
-func (l *lock) Unlock() {
-	*l = 0
-}
-
 func fanOut(outputs ...chan<- Graph) chan<- Graph {
 	c := make(chan Graph)
 	for i := range outputs {
