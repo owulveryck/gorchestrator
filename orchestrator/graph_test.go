@@ -193,7 +193,7 @@ func TestRun(t *testing.T) {
 
 	tasks = make(map[string](*Node), 0)
 	router := NewRouter()
-	caCert, err := ioutil.ReadFile("./test/orchestrator.pem")
+	caCert, err := ioutil.ReadFile("./test/executor.pem")
 	if err != nil {
 		t.Fatal(err)
 
