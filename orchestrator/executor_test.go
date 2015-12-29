@@ -87,10 +87,9 @@ func TestInit(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// This test shoud not work because client has not the correct certificate
 	exe = ExecutorBackend{
 		fmt.Sprintf("%v/v1", ts.URL),
-		"./test/executor.pem",
+		"./test/orchestrator.pem",
 		"./test/orchestrator_key.pem",
 		"./test/executor.pem",
 		"/pong",
@@ -102,7 +101,7 @@ func TestInit(t *testing.T) {
 	}
 
 	exe = ExecutorBackend{
-		"https://localhost:8585/v1",
+		fmt.Sprintf("%v/v1", ts.URL),
 		"./test/cert_nil.pem",
 		"./test/orchestrator_key.pem",
 		"./test/executor.pem",
@@ -114,10 +113,22 @@ func TestInit(t *testing.T) {
 		t.Error(err)
 	}
 	exe = ExecutorBackend{
-		"https://localhost:8585/v1",
+		fmt.Sprintf("%v/v1", ts.URL),
 		"./test/orchestrator.pem",
 		"./test/orchestrator_key.pem",
 		"./test/cert_nil.pem",
+		"/ping",
+		nil,
+	}
+	err = exe.Init()
+	if err == nil {
+		t.Error(err)
+	}
+	exe = ExecutorBackend{
+		fmt.Sprintf("%v/v1", ts.URL),
+		"./test/orchestrator.pem",
+		"./test/orchestrator_key.pem",
+		"./dev/null",
 		"/ping",
 		nil,
 	}
