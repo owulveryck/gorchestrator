@@ -63,6 +63,7 @@ func (n *Node) Execute(exe ExecutorBackend) error {
 
 	//client := &http.Client{}
 	client := exe.Client
+	// Do a ping before for testing purpose
 	resp, err := client.Do(req)
 	if err != nil {
 		n.State = NotRunnable
@@ -86,7 +87,7 @@ func (n *Node) Execute(exe ExecutorBackend) error {
 	// Now loop for the result
 	for err == nil && n.State < Success {
 		var res Node
-		r, err := http.Get(fmt.Sprintf("%v/%v", url, id))
+		r, err := client.Get(fmt.Sprintf("%v/%v", url, id))
 		if err != nil {
 			n.State = NotRunnable
 			return err
