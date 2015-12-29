@@ -18,7 +18,7 @@ $(TARGET)/clients/web: clients/web/*.go clients/web/htdocs/* clients/web/tmpl/*
 	go build -o $(TARGET)/clients/web/webclient clients/web/*go
 	cp -r clients/web/htdocs clients/web/tmpl $(TARGET)/clients/web/
 
-$(TARGET)/orchestrator/orchestrator: orchestrator/*.go 
+$(TARGET)/orchestrator/orchestrator: orchestrator/*.go http/*.go
 	go build -o $(TARGET)/orchestrator/orchestrator main.go
 
 $(TARGET)/executor/executor: executor/*.go executor/cmd/*.go
