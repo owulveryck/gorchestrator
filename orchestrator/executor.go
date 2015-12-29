@@ -33,7 +33,10 @@ func (e *ExecutorBackend) Init() error {
 
 	}
 	caCertPool := x509.NewCertPool()
-	caCertPool.AppendCertsFromPEM(caCert)
+	r := caCertPool.AppendCertsFromPEM(caCert)
+	if r == false {
+		return fmt.Errorf("No certificate found in %v", e.CACert)
+	}
 
 	// Setup HTTPS client
 	tlsConfig := &tls.Config{
