@@ -54,13 +54,16 @@ func Run() {
 	tasks = make(map[string](*node), 0)
 	router := NewRouter()
 
-	caCert, err := ioutil.ReadFile("../security/certs/orchestrator/orchestrator.pem")
+	caCert, err := ioutil.ReadFile("orchestrator.pem")
 	if err != nil {
 		log.Fatal(err)
 
 	}
 	caCertPool := x509.NewCertPool()
-	caCertPool.AppendCertsFromPEM(caCert)
+	ret := caCertPool.AppendCertsFromPEM(caCert)
+	if ret == false {
+		log.Fatal("No certificate found in the client file")
+	}
 
 	server := &http.Server{
 		Addr:    ":8585",
@@ -72,6 +75,6 @@ func Run() {
 	}
 
 	log.Println("Starting server on port 8585")
-	log.Fatal(server.ListenAndServeTLS("../security/certs/executor/executor.pem", "../security/certs/executor/executor_key.pem"))
+	log.Fatal(server.ListenAndServeTLS("executor.pem", "executor_key.pem"))
 	//log.Fatal(http.ListenAndServe(":8585", router))
 }
