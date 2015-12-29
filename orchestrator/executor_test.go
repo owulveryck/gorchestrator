@@ -138,6 +138,22 @@ func TaskShow(w http.ResponseWriter, r *http.Request) {
 	var id string
 	id = vars["id"]
 	if v, ok := tasks[id]; ok {
+		switch v.Artifact {
+		case "success":
+			v.State = Success
+		case "notfound":
+			w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+			w.WriteHeader(http.StatusNotFound)
+			if err := json.NewEncoder(w).Encode(jsonErr{Code: http.StatusNotFound, Msg: "Not Found"}); err != nil {
+				panic(err)
+
+			}
+		case "failure":
+			v.State = Failure
+		default:
+			v.State = Success
+		}
+
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(http.StatusOK)
 		if err := json.NewEncoder(w).Encode(v); err != nil {
