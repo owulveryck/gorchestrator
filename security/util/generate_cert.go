@@ -29,6 +29,7 @@ import (
 
 var (
 	host       = flag.String("host", "", "Comma-separated hostnames and IPs to generate a certificate for")
+	target     = flag.String("target", "orchestrator", "Target of the certificate (orchestrator or executor)")
 	validFrom  = flag.String("start-date", "", "Creation date formatted as Jan 1 15:04:05 2011")
 	validFor   = flag.Duration("duration", 365*24*time.Hour, "Duration that certificate is valid for")
 	isCA       = flag.Bool("ca", false, "whether this cert should be its own Certificate Authority")
@@ -113,7 +114,7 @@ func main() {
 	template := x509.Certificate{
 		SerialNumber: serialNumber,
 		Subject: pkix.Name{
-			Organization: []string{"Acme Co"},
+			Organization: []string{"Gorchestrator"},
 		},
 		NotBefore: notBefore,
 		NotAfter:  notAfter,
@@ -142,20 +143,22 @@ func main() {
 		log.Fatalf("Failed to create certificate: %s", err)
 	}
 
-	certOut, err := os.Create("cert.pem")
+	certName := fmt.Sprintf("%v.pem", *target)
+	certOut, err := os.Create(certName)
 	if err != nil {
-		log.Fatalf("failed to open cert.pem for writing: %s", err)
+		log.Fatalf("failed to open %v for writing: %s", certName, err)
 	}
 	pem.Encode(certOut, &pem.Block{Type: "CERTIFICATE", Bytes: derBytes})
 	certOut.Close()
-	log.Print("written cert.pem\n")
+	log.Println("written ", certName)
 
-	keyOut, err := os.OpenFile("key.pem", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+	keyName := fmt.Sprintf("%v_key.pem", *target)
+	keyOut, err := os.OpenFile(keyName, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
-		log.Print("failed to open key.pem for writing:", err)
+		log.Printf("failed to open %v for writing:i%v", keyName, err)
 		return
 	}
 	pem.Encode(keyOut, pemBlockForKey(priv))
 	keyOut.Close()
-	log.Print("written key.pem\n")
+	log.Println("written ", keyName)
 }
