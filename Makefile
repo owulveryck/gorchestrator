@@ -61,8 +61,8 @@ testing: dist
 	tmux resize-pane -D 10
 	tmux send-keys "cd $(TARGET)/orchestrator && ./orchestrator" 
 	tmux select-pane -t 3
-	tmux send-keys "cd $(TARGET)/clients/web && ./webclient"
+	tmux send-keys "cd $(TARGET)/clients/web && ./webclient"
 	tmux select-pane -t 2
-	tmux send-keys "cd $(TARGET)/executor && ./executor"
+	tmux send-keys "cd $(TARGET)/executor && ./executor"
 	tmux select-pane -t 1
 	tmux send-keys "unset http_proxy && cd clients/tosca/test && cat topology2.yaml | ../../../$(TARGET)/clients/tosca/tosca2gorch | curl  -X POST -H 'Content-Type:application/json' -H 'Accept:application/json' -d@- http://localhost:8080/v1/tasks" 
