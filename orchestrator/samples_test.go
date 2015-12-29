@@ -29,6 +29,8 @@ var validAndNoArtifact Graph
 var validAndFailed Graph
 var validAndSleep Graph
 var validAndSleepAndFailed Graph
+var validAndExecSuccess Graph
+var validAndExecFailure Graph
 var notValid Graph
 
 func init() {
@@ -48,6 +50,52 @@ func init() {
 			{1, 0, "b", "", "nil", nil, nil},
 			{2, 0, "c", "", "", nil, nil},
 			{3, 0, "d", "", "", nil, nil},
+			{4, 0, "e", "", "", nil, nil},
+			{5, 0, "f", "", "", nil, nil},
+			{6, 0, "g", "", "", nil, nil},
+			{7, 0, "h", "", "", nil, nil},
+		},
+		time.After(30 * time.Second),
+	}
+	validAndExecSuccess = Graph{"ValidAndNoArtifact",
+		0,
+		[]int64{0, 1, 0, 0, 1, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 1, 0,
+			0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 1, 0, 0, 0, 1, 0,
+			0, 0, 0, 0, 0, 0, 0, 0,
+			1, 1, 1, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 1, 0,
+		},
+		[]Node{
+			{0, 0, "a", "shell", "success", nil, nil},
+			{1, 0, "b", "", "nil", nil, nil},
+			{2, 0, "c", "", "", nil, nil},
+			{3, 0, "d", "shell", "success", nil, nil},
+			{4, 0, "e", "", "", nil, nil},
+			{5, 0, "f", "", "", nil, nil},
+			{6, 0, "g", "", "", nil, nil},
+			{7, 0, "h", "", "", nil, nil},
+		},
+		time.After(30 * time.Second),
+	}
+	validAndExecFailure = Graph{"ValidAndNoArtifact",
+		0,
+		[]int64{0, 1, 0, 0, 1, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 1, 0,
+			0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 1, 0, 0, 0, 1, 0,
+			0, 0, 0, 0, 0, 0, 0, 0,
+			1, 1, 1, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 1, 0,
+		},
+		[]Node{
+			{0, 0, "a", "shell", "success", nil, nil},
+			{1, 0, "b", "", "nil", nil, nil},
+			{2, 0, "c", "", "", nil, nil},
+			{3, 0, "d", "shell", "failure", nil, nil},
 			{4, 0, "e", "", "", nil, nil},
 			{5, 0, "f", "", "", nil, nil},
 			{6, 0, "g", "", "", nil, nil},
