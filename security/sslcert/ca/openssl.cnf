@@ -1,0 +1,113 @@
+#
+# OpenSSL configuration file.
+#
+ 
+# Establish working directory.
+ 
+dir					= .
+ 
+[ ca ]
+default_ca				= CA_default
+ 
+[ CA_default ]
+serial					= $dir/serial
+database				= $dir/certindex.txt
+new_certs_dir			= $dir/certs
+certificate				= $dir/cacert.pem
+private_key				= $dir/private/cakey.pem
+default_days			= 365
+default_md				= sha256
+preserve				= no
+email_in_dn				= no
+nameopt					= default_ca
+certopt					= default_ca
+policy					= policy_match
+ 
+[ policy_match ]
+countryName				= match
+stateOrProvinceName		= match
+organizationName		= match
+organizationalUnitName	= optional
+commonName				= supplied
+emailAddress			= optional
+ 
+[ req ]
+default_bits			= 2048			# Size of keys
+default_keyfile			= key.pem		# name of generated keys
+default_md				= sha256				# message digest algorithm
+string_mask				= nombstr		# permitted characters
+distinguished_name		= req_distinguished_name
+req_extensions			= v3_req
+# Extension to add when the -x509 option is used.
+x509_extensions     = v3_ca
+ 
+[ req_distinguished_name ]
+# Variable name				Prompt string
+#-------------------------	  ----------------------------------
+0.organizationName			= Organization Name (company)
+organizationalUnitName		= Organizational Unit Name (department, division)
+emailAddress				= Email Address
+emailAddress_max			= 40
+localityName				= Locality Name (city, district)
+stateOrProvinceName			= State or Province Name (full name)
+countryName			    	= Country Name (2 letter code)
+countryName_min				= 2
+countryName_max				= 2
+commonName				    = Common Name (hostname, IP, or your name)
+commonName_max				= 64
+ 
+# Default values for the above, for consistency and less typing.
+# Variable name				Value
+#------------------------	  ------------------------------
+0.organizationName_default		= gorchestrator
+localityName_default			= Lille
+stateOrProvinceName_default		= Nord
+countryName_default			= Fr
+ 
+[ v3_ca ]
+basicConstraints			= CA:TRUE
+#authorityKeyIdentifier			= keyid:always,issuer:always
+# Extensions for a typical CA (`man x509v3_config`).
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid:always,issuer
+basicConstraints = critical, CA:true
+keyUsage = critical, digitalSignature, cRLSign, keyCertSign
+ 
+[ v3_req ]
+basicConstraints			= CA:FALSE
+subjectKeyIdentifier			= hash
+
+[ v3_intermediate_ca  ]
+# Extensions for a typical intermediate CA (`man x509v3_config`).
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid:always,issuer
+basicConstraints = critical, CA:true, pathlen:0
+keyUsage = critical, digitalSignature, cRLSign, keyCertSign
+
+[ usr_cert  ]
+# Extensions for client certificates (`man x509v3_config`).
+basicConstraints = CA:FALSE
+nsCertType = client, email
+nsComment = "OpenSSL Generated Client Certificate"
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid,issuer
+keyUsage = critical, nonRepudiation, digitalSignature, keyEncipherment
+extendedKeyUsage = clientAuth, emailProtection
+
+[ server_cert  ]
+# Extensions for server certificates (`man x509v3_config`).
+basicConstraints = CA:FALSE
+nsCertType = server
+nsComment = "OpenSSL Generated Server Certificate"
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid,issuer:always
+keyUsage = critical, digitalSignature, keyEncipherment
+extendedKeyUsage = serverAuth
+
+[ crl_ext  ]
+# Extension for CRLs (`man x509v3_config`).
+authorityKeyIdentifier=keyid:always
+
+[ crl_ext  ]
+# Extension for CRLs (`man x509v3_config`).
+authorityKeyIdentifier=keyid:always
