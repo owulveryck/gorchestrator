@@ -97,6 +97,7 @@ func (v *Graph) Run(exe ExecutorBackend) {
 				(*v).Nodes,
 				(*v).Timeout,
 			}
+			v.State = Timeout
 			return
 		case co <- Graph{
 			(*v).Name,
