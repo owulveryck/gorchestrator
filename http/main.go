@@ -52,5 +52,6 @@ func Run() {
 	tasks = make(map[string]*orchestrator.Graph, 0)
 	router := NewRouter()
 
+	log.Println("Starting Orchestrator: Listening on 880")
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
