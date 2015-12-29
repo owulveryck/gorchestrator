@@ -49,7 +49,7 @@ func (e *ExecutorBackend) Init() error {
 
 	e.Client = client
 	// Now check the ping url
-	_, err = client.Get(fmt.Sprintf("%v/%v", e.Url, e.Ping))
+	_, err = client.Get(fmt.Sprintf("%v%v", e.Url, e.Ping))
 	if err != nil {
 		return err
 	}
