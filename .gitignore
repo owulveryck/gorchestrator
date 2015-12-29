@@ -28,5 +28,5 @@ clients/tosca/test
 
 dist/*
 orchestrator/coverage.out
-$
 
+tests/binaries/*
