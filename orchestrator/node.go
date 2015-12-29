@@ -25,7 +25,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/owulveryck/gorchestrator/structure"
-	"log"
 	"math/rand"
 	"net/http"
 	"regexp"
@@ -56,7 +55,7 @@ func (n *Node) Execute(exe ExecutorBackend) error {
 	var t struct {
 		ID string `json:"id"`
 	}
-	url := "https://localhost:8585/v1/tasks"
+	url := fmt.Sprintf("%v/tasks", exe.Url)
 	b, _ := json.Marshal(*n)
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(b))
 	//req.Header.Set("X-Custom-Header", "myvalue")
@@ -72,7 +71,6 @@ func (n *Node) Execute(exe ExecutorBackend) error {
 	}
 	defer resp.Body.Close()
 
-	log.Println("Launched")
 	if resp.StatusCode >= http.StatusBadRequest {
 		n.State = NotRunnable
 		return errors.New("Error in the executor")
@@ -88,7 +86,6 @@ func (n *Node) Execute(exe ExecutorBackend) error {
 	// Now loop for the result
 	for err == nil && n.State < Success {
 		var res Node
-		fmt.Println("N is", n)
 		r, err := http.Get(fmt.Sprintf("%v/%v", url, id))
 		if err != nil {
 			n.State = NotRunnable
