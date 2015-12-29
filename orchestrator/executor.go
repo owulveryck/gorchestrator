@@ -49,9 +49,12 @@ func (e *ExecutorBackend) Init() error {
 
 	e.Client = client
 	// Now check the ping url
-	_, err = client.Get(fmt.Sprintf("%v%v", e.Url, e.Ping))
+	resp, err := client.Get(fmt.Sprintf("%v%v", e.Url, e.Ping))
 	if err != nil {
 		return err
+	}
+	if resp.StatusCode > 200 {
+		return fmt.Errorf("Ping not found")
 	}
 
 	return nil

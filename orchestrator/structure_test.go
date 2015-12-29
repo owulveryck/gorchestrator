@@ -25,6 +25,10 @@ import (
 	"testing"
 )
 
+func TestError(t *testing.T) {
+	e := Error{200, "dummy"}
+	e.Error()
+}
 func TestCheck(t *testing.T) {
 	e := valid.Check()
 	if e.Code != 0 {
