@@ -137,9 +137,9 @@ func TaskCreate(w http.ResponseWriter, r *http.Request) {
 	uuid := uuid()
 	exe := orchestrator.ExecutorBackend{
 		"https://localhost:8585/v1",
-		"./security/certs/orchestrator/orchestrator.pem",
-		"./security/certs/orchestrator/orchestrator_key.pem",
-		"./security/certs/executor/executor.pem",
+		"orchestrator.pem",
+		"orchestrator_key.pem",
+		"executor.pem",
 		"/ping",
 		nil,
 	}
