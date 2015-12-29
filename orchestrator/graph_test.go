@@ -193,7 +193,14 @@ func TestRun(t *testing.T) {
 
 	tasks = make(map[string](*Node), 0)
 	router := NewRouter()
-	caCert, err := ioutil.ReadFile("./test/executor.pem")
+	// Load client cert
+	cert, err := tls.LoadX509KeyPair("./test/executor.pem", "./test/executor_key.pem")
+	if err != nil {
+		t.Fatal(err)
+
+	}
+
+	caCert, err := ioutil.ReadFile("./test/orchestrator.pem")
 	if err != nil {
 		t.Fatal(err)
 
@@ -203,8 +210,9 @@ func TestRun(t *testing.T) {
 
 	ts := httptest.NewUnstartedServer(router)
 	ts.TLS = &tls.Config{
-		ClientCAs:  caCertPool,
-		ClientAuth: tls.RequireAndVerifyClientCert,
+		ClientCAs:    caCertPool,
+		Certificates: []tls.Certificate{cert},
+		ClientAuth:   tls.RequireAndVerifyClientCert,
 	}
 	ts.StartTLS()
 	defer ts.Close()
