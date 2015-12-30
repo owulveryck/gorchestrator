@@ -62,16 +62,18 @@
 
       <div class="tab-content">
         <div id="executionTable" class="tab-pane fade in active">
-            <table class="table table-striped" id="execTable">
-                <tbody>
-                    <th>Action</th><th>Engine</th><th>Artifact</th><th>Args</th><th>Output</th><th>State</th>
-                    {{range .Nodes}}
-                    <tr id="{{.ID}}">
-                        <td>{{.Name}}</td><td>{{.Engine}}</td><td>{{.Artifact}}</td><td>{{.Args}}</td><td>{{.Outputs}}</td><td>{{.State}}</td>
-                    </tr>
-                    {{end}}
-                </tbody>
-            </table>
+            <div class="table-responsive">
+                <table class="table table-striped" id="execTable">
+                    <tbody>
+                        <th>Action</th><th>Engine</th><th>Artifact</th><th>Args</th><th>Output</th><th>State</th>
+                        {{range .Nodes}}
+                        <tr id="{{.ID}}">
+                            <td id="name">{{.Name}}</td><td>{{.Engine}}</td><td>{{.Artifact}}</td><td>{{.Args}}</td><td>{{.Outputs}}</td><td id="state">{{.State}}</td>
+                        </tr>
+                        {{end}}
+                    </tbody>
+                </table>
+            </div>
         </div>
         <div id="executionGraph" class="tab-pane fade">
             <div class="embed-responsive embed-responsive-16by9">
@@ -105,28 +107,30 @@
 
                         switch (data.nodes[i].state) {
                             case 0:
-                                color = 'rgba(0, 0, 0, 0.7)'
+                                color = 'rgba(0, 0, 0, 0.3)'
                                 break;
                             case 1:
-                                color = 'rgba(0, 0, 255, 0.7)'
+                                color = 'rgba(0, 0, 255, 0.3)'
                                 break;
                             case 2:
-                                color = 'rgba(255,255,0,0.7)'
+                                color = 'rgba(255,255,0,0.3)'
                                 break;
                             case 3:
-                                color = 'rgba(0, 255, 0, 0.7)'
+                                color = 'rgba(0, 255, 0, 0.3)'
                                 break;
                             case 4:
-                                color = 'rgba(255, 0, 0, 0.7)'
+                                color = 'rgba(255, 0, 0, 0.3)'
                                 break;
                             case 5:
-                                color = 'rgba(192, 192, 192, 0.7)'
+                                color = 'rgba(192, 192, 192, 0.3)'
                                 break;
                             default:
-                                color = 'rgba(230, 0, 0, 0.7)'
+                                color = 'rgba(230, 0, 0, 0.3)'
                         }
-                        $("#" + data.nodes[i].id,svgRoot).children("text").css({'fill': color});
+                        //$("#" + data.nodes[i].id,svgRoot).children("text").css({'fill': color});
+                        $("#" + data.nodes[i].id,svgRoot).children("path").css({'fill': color});
                         $("#" + data.nodes[i].id,execTable).css({'background-color': color});
+                        //$("#" + data.nodes[i].id,execTable).children("td").css({'background-color':'green'}) ;
                         //$("#" + data[i].id,svgRoot).children("polygon").css({'fill': color});
                     }
                 });
