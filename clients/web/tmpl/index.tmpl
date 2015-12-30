@@ -58,76 +58,26 @@
     <div class="row">
         <div class="container-fluid">
             <ul class="nav nav-tabs">
-                <li><a data-toggle="tab" href="#controlMenu">Control Menu</a></li>
+                <li><a data-toggle="tab" href="#executionTable">The execution table</a></li>
                 <li><a data-toggle="tab" href="#executionGraph">The execution Graph</a></li>
             </ul>
         </div>
     </div>
-        <!--
+
     <div class="row">
-        <div class="col-sm-1">
-            <div class="form-group">
-                <br/>
-            </div>
-                <form role="form" action="null">
-            <div class="form-group">
-                <input type="login" class="form-control" id="email" placeholder="Login">
-            </div>
-            <div class="form-group">
-                <input type="password" class="form-control" id="pwd" placeholder="Password">
-            </div>
-                <button type="submit" class="btn btn-default">Run the file</button>
-            </form>
-  <br/>
-    </div>
-    -->
-    <!--
-  <div class="col-sm-11">
-  <div class="tab-content">
-    <div id="toscaSource" class="tab-pane fade">
-        <div class="embed-responsive embed-responsive-16by9">
-        <table data-toggle="table" data-url="/getstate.json" data-cache="false" data-height="299">
-            <thead>
-                <tr>
-                    <th data-field="id">Item ID</th>
-                    <th data-field="name">Item Name</th>
-                    <th data-field="price">Item Price</th>
-                </tr>
-            </thead>
-        </table>
-        </div> 
-    </div>
-        -->
-    <div class="row">
-        <div id="controlMenu" class="tab-pane active">
-            <form role="form" action="/view/" method="GET" onsubmit="this.action = this.action + this.id.value">
-                <span class="btn btn-default btn-file">
-                    <input type="text" class="form-control" id="id" placeholder="id"/>
-                    <!--<input type="file" name="gorch">-->
-                </span>
-                <button type="submit" class="btn btn-default">View!</button>
-            </form>
-            <form role="form" action="/upload" method="POST" enctype="multipart/form-data">
-                <span class="btn btn-default btn-file">
-                    <input type="file" name="input">
-                    <input type="hidden" name="type" value="tosca">
-                </span>
-                <button type="submit" class="btn btn-default">Upload TOSCA file</button>
-            </form>
-            <form role="form" action="/upload" method="POST" enctype="multipart/form-data">
-                <span class="btn btn-default btn-file">
-                    <input type="file" name="input">
-                    <input type="hidden" name="type" value="gorch">
-                </span>
-                <button type="submit" class="btn btn-default">Upload Gorch json file</button>
-            </form>
+      <div class="tab-content">
+        <div id="executionTable" class="tab-pane">
+            <table class="table table-striped" id="executionTable">
+                <tbody>
+                </tbody>
+            </table>
         </div>
         <div id="executionGraph" class="tab-pane">
             <div class="embed-responsive embed-responsive-16by9">
                 <object class="embed-responsive-item" data="/graph/{{.ID}}.svg" type="image/svg+xml" id="graphSVG">Please provide an ID</object>
             </div>
-            <!-- <img class="img-responsive" id="toscaSVG" src="/tosca.svg" alt="SVG Representation of the tosca file"> -->
         </div>
+      </div>
     </div>
 
 
@@ -169,6 +119,14 @@
                     }, 2000)
         }
         $(document).ready(function(){
+            var data = ["foo","bar"];
+            $(document).ready(function(){
+                $.each(data, function(i,item){
+                                    $('#my-table > tbody:last').append('<tr><td>'+item+'</td></tr>');
+                                            
+                });
+
+            });
             var a = document.getElementById("graphSVG");
 
             // Some help from http://stackoverflow.com/questions/6793312/how-to-use-jquery-in-svg-scalable-vector-graphics
