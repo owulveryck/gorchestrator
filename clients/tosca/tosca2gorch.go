@@ -30,7 +30,7 @@ import (
 	//"reflect"
 )
 
-func togorch(t toscalib.ToscaDefinition) orchestrator.Graph {
+func togorch(t toscalib.ServiceTemplateDefinition) orchestrator.Graph {
 	var v orchestrator.Graph
 	var exclusion []int
 	exclusion = make([]int, 0)
@@ -168,9 +168,9 @@ func shrink() {
 }
 
 func main() {
-	var t toscalib.ToscaDefinition
-	var imports []toscalib.ToscaDefinition
-	imports = make([]toscalib.ToscaDefinition, 0)
+	var t toscalib.ServiceTemplateDefinition
+	var imports []toscalib.ServiceTemplateDefinition
+	imports = make([]toscalib.ServiceTemplateDefinition, 0)
 	var v orchestrator.Graph
 	args := os.Args[1:]
 	switch len(args) {
@@ -194,7 +194,7 @@ func main() {
 	// Fill the digraph
 	// Deal with the imports
 	for _, im := range t.Imports {
-		var tt toscalib.ToscaDefinition
+		var tt toscalib.ServiceTemplateDefinition
 		log.Println("Importing ", im)
 		r, err := os.Open(im)
 		if err != nil {
