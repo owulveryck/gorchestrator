@@ -1,0 +1,10 @@
+digraph G {
+    node [shape=box style=rounded]
+    OaaS [shape=record, label="{ Orchestration | as a | Service  }"]
+    G -> GO
+    G -> Graphical
+    Graphical -> Orchestrator
+    GO -> Orchestrator
+    Orchestrator -> Gorchestrator
+    Executor -> Gorchestrator
+}

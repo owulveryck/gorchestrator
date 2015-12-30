@@ -54,81 +54,44 @@
   </head>
 
   <body>
-
-    <div class="row">
-        <div class="container-fluid">
+<!--
             <ul class="nav nav-tabs">
-                <li><a data-toggle="tab" href="#controlMenu">Control Menu</a></li>
+                <li><a data-toggle="tab" href="#executionTable">The execution table</a></li>
                 <li><a data-toggle="tab" href="#executionGraph">The execution Graph</a></li>
             </ul>
-        </div>
-    </div>
+-->
+<!--
+
+      <div class="tab-content">
+        <div id="executionTable" class="tab-pane fade in active">
+-->
+            <div class="col-md-8">
+                <div class="table-responsive">
+                    <table class="table table-condensed" id="execTable">
+                        <tbody>
+                            <th>Action</th><th>Engine</th><th>Artifact</th><th>Args</th><th>Output</th><th>State</th>
+                            {{range .Nodes}}
+                            <tr id="{{.ID}}">
+                                <td id="name">{{.Name}}</td><td>{{.Engine}}</td><td>{{.Artifact}}</td><td>{{.Args}}</td><td>{{.Outputs}}</td><td id="state">{{.State}}</td>
+                            </tr>
+                            {{end}}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="embed-responsive embed-responsive-4by3">
+                    <object class="embed-responsive-item" data="/graph/{{.ID}}.svg" type="image/svg+xml" id="graphSVG">Please provide an ID</object>
+                </div>
+            </div>
         <!--
-    <div class="row">
-        <div class="col-sm-1">
-            <div class="form-group">
-                <br/>
-            </div>
-                <form role="form" action="null">
-            <div class="form-group">
-                <input type="login" class="form-control" id="email" placeholder="Login">
-            </div>
-            <div class="form-group">
-                <input type="password" class="form-control" id="pwd" placeholder="Password">
-            </div>
-                <button type="submit" class="btn btn-default">Run the file</button>
-            </form>
-  <br/>
-    </div>
-    -->
-    <!--
-  <div class="col-sm-11">
-  <div class="tab-content">
-    <div id="toscaSource" class="tab-pane fade">
-        <div class="embed-responsive embed-responsive-16by9">
-        <table data-toggle="table" data-url="/getstate.json" data-cache="false" data-height="299">
-            <thead>
-                <tr>
-                    <th data-field="id">Item ID</th>
-                    <th data-field="name">Item Name</th>
-                    <th data-field="price">Item Price</th>
-                </tr>
-            </thead>
-        </table>
-        </div> 
-    </div>
-        -->
-    <div class="row">
-        <div id="controlMenu" class="tab-pane active">
-            <form role="form" action="/view/" method="GET" onsubmit="this.action = this.action + this.id.value">
-                <span class="btn btn-default btn-file">
-                    <input type="text" class="form-control" id="id" placeholder="id"/>
-                    <!--<input type="file" name="gorch">-->
-                </span>
-                <button type="submit" class="btn btn-default">View!</button>
-            </form>
-            <form role="form" action="/upload" method="POST" enctype="multipart/form-data">
-                <span class="btn btn-default btn-file">
-                    <input type="file" name="input">
-                    <input type="hidden" name="type" value="tosca">
-                </span>
-                <button type="submit" class="btn btn-default">Upload TOSCA file</button>
-            </form>
-            <form role="form" action="/upload" method="POST" enctype="multipart/form-data">
-                <span class="btn btn-default btn-file">
-                    <input type="file" name="input">
-                    <input type="hidden" name="type" value="gorch">
-                </span>
-                <button type="submit" class="btn btn-default">Upload Gorch json file</button>
-            </form>
-        </div>
-        <div id="executionGraph" class="tab-pane">
+        <div id="executionGraph" class="tab-pane fade">
             <div class="embed-responsive embed-responsive-16by9">
                 <object class="embed-responsive-item" data="/graph/{{.ID}}.svg" type="image/svg+xml" id="graphSVG">Please provide an ID</object>
             </div>
-            <!-- <img class="img-responsive" id="toscaSVG" src="/tosca.svg" alt="SVG Representation of the tosca file"> -->
         </div>
-    </div>
+      </div>
+        -->
 
 
     <!-- Bootstrap core JavaScript
@@ -138,29 +101,47 @@
     <script src="/bootstrap/3.3.4/js/bootstrap.min.js"></script>
     <!-- update the color -->
     <script type="text/javascript">
-        function updateGraph(svgRoot) {
+        function updateGraph(svgRoot,execTable) {
             $.getJSON( "{{.Update}}", function() {
                 //console.log( "success!" );
                 }).done(function(data) {
                     for (var i in data.nodes){
                         //console.log(data.nodes[i].state);
+                        //Initial     = 0
+                        //ToRun       = 1
+                        //Running     = 2
+                        //Success     = 3
+                        //Failure     = 4
+                        //NotRunnable = 5
+                        //Timeout     = 10
+                        //Canceled    = 11
+
                         switch (data.nodes[i].state) {
                             case 0:
-                                color = 'rgba(34, 209, 23, 0.7)'
+                                color = 'rgba(0, 0, 0, 0.3)'
                                 break;
                             case 1:
-                                color = 'rgba(10, 0, 0, 0.7)'
+                                color = 'rgba(0, 0, 255, 0.3)'
                                 break;
                             case 2:
-                                color = 'rgba(73, 151, 41, 0.7)'
+                                color = 'rgba(255,255,0,0.3)'
                                 break;
                             case 3:
-                                color = 'rgba(34, 131, 201, 0.7)'
+                                color = 'rgba(0, 255, 0, 0.3)'
+                                break;
+                            case 4:
+                                color = 'rgba(255, 0, 0, 0.3)'
+                                break;
+                            case 5:
+                                color = 'rgba(192, 192, 192, 0.3)'
                                 break;
                             default:
-                                color = 'rgba(230, 0, 0, 0.7)'
+                                color = 'rgba(230, 0, 0, 0.3)'
                         }
-                        $("#" + data.nodes[i].id,svgRoot).children("text").css({'fill': color});
+                        //$("#" + data.nodes[i].id,svgRoot).children("text").css({'fill': color});
+                        $("#" + data.nodes[i].id,svgRoot).children("path").css({'fill': color});
+                        $("#" + data.nodes[i].id,execTable).css({'background-color': color});
+                        //$("#" + data.nodes[i].id,execTable).children("td").css({'background-color':'green'}) ;
                         //$("#" + data[i].id,svgRoot).children("polygon").css({'fill': color});
                     }
                 });
@@ -176,7 +157,7 @@
             a.addEventListener("load",function(){
                 var svgDoc = a.contentDocument; //get the inner DOM of alpha.svg
                 var svgRoot  = svgDoc.documentElement;
-                updateGraph(svgRoot);
+                updateGraph(svgRoot,execTable);
                 //now we can query stuff with jquery like this
                 //note that we pass in the svgRoot as the context node!
             },false);
