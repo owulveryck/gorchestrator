@@ -126,6 +126,7 @@
                                 color = 'rgba(230, 0, 0, 0.7)'
                         }
                         $("#" + data.nodes[i].id,svgRoot).children("text").css({'fill': color});
+                        $("#" + data.nodes[i].id,execTable).css({'background-color': color});
                         //$("#" + data[i].id,svgRoot).children("polygon").css({'fill': color});
                     }
                 });
@@ -133,12 +134,7 @@
                             updateGraph(svgRoot);
                     }, 2000)
         }
-        var data = ["foo","bar"];
         $(document).ready(function(){
-            $.each(data, function(i,item){
-                                $('#execTable > tbody:last').append('<tr><td>'+item+'</td></tr>');
-                                        
-            });
             var a = document.getElementById("graphSVG");
 
             // Some help from http://stackoverflow.com/questions/6793312/how-to-use-jquery-in-svg-scalable-vector-graphics
