@@ -23,6 +23,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/owulveryck/gorchestrator/orchestrator"
 	"html/template"
 	"net/http"
 )
@@ -55,13 +56,23 @@ func displayMain(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	var id string
 	id = vars["id"]
+	g, err := getGraph(id)
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		w.WriteHeader(http.StatusNotFound)
+		if err := json.NewEncoder(w).Encode(jsonErr{Code: http.StatusNotFound, Msg: fmt.Sprintf("%v", err)}); err != nil {
+			panic(err)
+		}
+		return
+	}
 	type res struct {
 		ID     string
 		Update string
+		Nodes  []orchestrator.Node
 	}
 
-	t := template.New("index.tmpl")
-	t, err := t.ParseFiles("tmpl/index.tmpl")
+	t := template.New("template.tmpl")
+	t, err = t.ParseFiles("tmpl/template.tmpl", "tmpl/viewgraph.tmpl")
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(http.StatusNotFound)
@@ -71,7 +82,13 @@ func displayMain(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//w.WriteHeader(http.StatusOK)
-	err = t.Execute(w, res{id, fmt.Sprintf("/graph/%v.json", id)})
+	var nodes []orchestrator.Node
+	for _, node := range g.Nodes {
+		if node.Artifact != "" || node.Engine != "nil" {
+			nodes = append(nodes, node)
+		}
+	}
+	err = t.Execute(w, res{id, fmt.Sprintf("/graph/%v.json", id), nodes})
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(http.StatusNotFound)

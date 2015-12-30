@@ -53,7 +53,7 @@ func NewRouter() *mux.Router {
 		route{
 			"Main page ",
 			"GET",
-			"/view/{id}",
+			"/{id}",
 			displayMain,
 		},
 		route{

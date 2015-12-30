@@ -68,7 +68,7 @@ func getSvg(id string) ([]byte, error) {
 func generateSvg(id string) ([]byte, error) {
 	// Creates a new graph
 	g := gographviz.NewGraph()
-	g.AddAttr("", "rankdir", "LR")
+	//g.AddAttr("", "rankdir", "LR")
 	// Now read the json input
 	var v orchestrator.Graph
 
@@ -102,8 +102,8 @@ func generateSvg(id string) ([]byte, error) {
 		}
 		tmp := make([]string, 2)
 		n.Name = strings.Replace(n.Name, "-", "_", -1)
-		n.Name = strings.Replace(n.Name, ":", "_", -1)
 		tmp = strings.SplitAfter(n.Name, ":")
+		n.Name = strings.Replace(n.Name, ":", "_", -1)
 		if len(tmp) != 2 {
 			tmp[0] = n.Name
 			tmp = append(tmp, "")
@@ -111,7 +111,8 @@ func generateSvg(id string) ([]byte, error) {
 		g.AddNode("G", n.Name,
 			map[string]string{
 				"id":    fmt.Sprintf("\"%v\"", strconv.Itoa(n.ID)),
-				"label": fmt.Sprintf("\"%v|%v|%v|%v|%v\"", tmp[0], tmp[1], n.Engine, n.Artifact, n.Args[:]),
+				"label": fmt.Sprintf("\"%v|%v\"", tmp[0], tmp[1]),
+				//"label": fmt.Sprintf("\"%v|%v|%v|%v|%v\"", tmp[0], tmp[1], n.Engine, n.Artifact, n.Args[:]),
 				"shape": "\"record\"",
 				"style": "\"rounded\"",
 			})
