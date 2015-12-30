@@ -71,8 +71,8 @@ func displayMain(w http.ResponseWriter, r *http.Request) {
 		Nodes  []orchestrator.Node
 	}
 
-	t := template.New("index.tmpl")
-	t, err = t.ParseFiles("tmpl/index.tmpl")
+	t := template.New("template.tmpl")
+	t, err = t.ParseFiles("tmpl/template.tmpl", "tmpl/viewgraph.tmpl")
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(http.StatusNotFound)
