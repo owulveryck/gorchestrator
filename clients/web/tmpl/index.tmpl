@@ -54,33 +54,44 @@
   </head>
 
   <body>
-
+<!--
             <ul class="nav nav-tabs">
                 <li><a data-toggle="tab" href="#executionTable">The execution table</a></li>
                 <li><a data-toggle="tab" href="#executionGraph">The execution Graph</a></li>
             </ul>
+-->
+<!--
 
       <div class="tab-content">
         <div id="executionTable" class="tab-pane fade in active">
-            <div class="table-responsive">
-                <table class="table table-striped" id="execTable">
-                    <tbody>
-                        <th>Action</th><th>Engine</th><th>Artifact</th><th>Args</th><th>Output</th><th>State</th>
-                        {{range .Nodes}}
-                        <tr id="{{.ID}}">
-                            <td id="name">{{.Name}}</td><td>{{.Engine}}</td><td>{{.Artifact}}</td><td>{{.Args}}</td><td>{{.Outputs}}</td><td id="state">{{.State}}</td>
-                        </tr>
-                        {{end}}
-                    </tbody>
-                </table>
+-->
+            <div class="col-md-8">
+                <div class="table-responsive">
+                    <table class="table table-condensed" id="execTable">
+                        <tbody>
+                            <th>Action</th><th>Engine</th><th>Artifact</th><th>Args</th><th>Output</th><th>State</th>
+                            {{range .Nodes}}
+                            <tr id="{{.ID}}">
+                                <td id="name">{{.Name}}</td><td>{{.Engine}}</td><td>{{.Artifact}}</td><td>{{.Args}}</td><td>{{.Outputs}}</td><td id="state">{{.State}}</td>
+                            </tr>
+                            {{end}}
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
+            <div class="col-md-4">
+                <div class="embed-responsive embed-responsive-4by3">
+                    <object class="embed-responsive-item" data="/graph/{{.ID}}.svg" type="image/svg+xml" id="graphSVG">Please provide an ID</object>
+                </div>
+            </div>
+        <!--
         <div id="executionGraph" class="tab-pane fade">
             <div class="embed-responsive embed-responsive-16by9">
                 <object class="embed-responsive-item" data="/graph/{{.ID}}.svg" type="image/svg+xml" id="graphSVG">Please provide an ID</object>
             </div>
         </div>
       </div>
+        -->
 
 
     <!-- Bootstrap core JavaScript
