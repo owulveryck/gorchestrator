@@ -24,7 +24,7 @@ import (
 	"fmt"
 	"github.com/owulveryck/gorchestrator/orchestrator"
 	//"github.com/owulveryck/gorchestrator/structure"
-	"github.com/owulveryck/toscalib"
+	"github.com/owulveryck/gorchestrator/Godeps/_workspace/src/github.com/owulveryck/toscalib"
 	"log"
 	"os"
 	//"reflect"

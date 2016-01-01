@@ -22,7 +22,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/awalterschulze/gographviz"
+	"github.com/owulveryck/gorchestrator/Godeps/_workspace/src/github.com/awalterschulze/gographviz"
 	"github.com/owulveryck/gorchestrator/orchestrator"
 	"os"
 	"strconv"

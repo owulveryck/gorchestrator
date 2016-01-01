@@ -22,7 +22,7 @@ package http
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gorilla/mux"
+	"github.com/owulveryck/gorchestrator/Godeps/_workspace/src/github.com/gorilla/mux"
 	"github.com/owulveryck/gorchestrator/orchestrator"
 	"io"
 	"io/ioutil"
