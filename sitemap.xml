@@ -2,12 +2,20 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>http://replace-this-with-your-hugo-site.com/</loc>
+    <loc>http://gorchestrator.owulveryck.info/</loc>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>http://replace-this-with-your-hugo-site.com/_index/</loc>
+    <loc>http://gorchestrator.owulveryck.info/_index/</loc>
+  </url>
+  
+  <url>
+    <loc>http://gorchestrator.owulveryck.info/</loc>
+  </url>
+  
+  <url>
+    <loc>http://gorchestrator.owulveryck.info/about/</loc>
   </url>
   
 </urlset>
