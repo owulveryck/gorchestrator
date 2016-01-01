@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Gorchestrator</title>
+    <link>http://localhost:1313/</link>
+    <description>Recent content on Gorchestrator</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>Copyright (c) 2016, Olivier Wulveryck; All rights reserved.</copyright>
+    <atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title></title>
+      <link>http://localhost:1313/_index/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://localhost:1313/_index/</guid>
+      <description>
+
+&lt;h1 id=&#34;abstract:3976528693a0108357f4928017600865&#34;&gt;Abstract&lt;/h1&gt;
+
+&lt;p&gt;A simple orchestrator that takes and adjacency matrix as input.&lt;/p&gt;
+
+&lt;p&gt;This orchestrator acts as a webservice.
+This means that you send a representation of your graph and nodes via an HTTP POST request to the engine, and:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;It decomposes the workflow&lt;/li&gt;
+&lt;li&gt;Launch as many &amp;ldquo;processes&amp;rdquo; (actually goroutines) as nodes (see performances)&lt;/li&gt;
+&lt;li&gt;Launch a conductor that acts as a communication vector for the running nodes&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;OaaS is micro service oriented. Which means that it does not actually run the artifact of the node. Instead, It calls another web service that acts as a proxy for the execution task. The proxy may implement drivers as needed, such as a &lt;code&gt;shell&lt;/code&gt; driver, an &lt;code&gt;ansible&lt;/code&gt; driver, &lt;code&gt;docker&lt;/code&gt;, &amp;hellip;&lt;/p&gt;
+
+&lt;p&gt;The concurrency is implemented thanks to go routines (See this &lt;a href=&#34;http://blog.owulveryck.info/2015/12/02/orchestrate-a-digraph-with-goroutine-a-concurrent-orchestrator/&#34;&gt;post&lt;/a&gt; for more information about the implementation)&lt;/p&gt;
+
+&lt;h2 id=&#34;the-gorch:3976528693a0108357f4928017600865&#34;&gt;The Gorch&lt;/h2&gt;
+
+&lt;p&gt;&lt;code&gt;gorch&lt;/code&gt; is the Graphical-Orchestration representation.&lt;/p&gt;
+
+&lt;p&gt;It is a JSON representation of the graph.&lt;/p&gt;
+
+&lt;p&gt;It is composed of and adjaceny matrix and a list of nodes.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-JSON&#34;&gt;{
+    &amp;quot;name&amp;quot;: &amp;quot;string&amp;quot;,
+    &amp;quot;state&amp;quot;: 0,
+    &amp;quot;digraph&amp;quot;: [
+        0
+    ],
+    &amp;quot;nodes&amp;quot;: [
+        {
+            &amp;quot;id&amp;quot;: 0,
+            &amp;quot;state&amp;quot;: 0,
+            &amp;quot;name&amp;quot;: &amp;quot;string&amp;quot;,
+            &amp;quot;engine&amp;quot;: &amp;quot;string&amp;quot;,
+            &amp;quot;artifact&amp;quot;: &amp;quot;string&amp;quot;,
+            &amp;quot;args&amp;quot;: [
+                &amp;quot;string&amp;quot;
+            ]
+        }
+    ]
+
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;the-tools:3976528693a0108357f4928017600865&#34;&gt;The tools&lt;/h2&gt;
+
+&lt;p&gt;gorchestrator is composed of :&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;orchestrator which is the main execution webservices&lt;/li&gt;
+&lt;li&gt;sample clients to POST and GET queries and to display it (see the &lt;code&gt;web client&lt;/code&gt; for example)&lt;/li&gt;
+&lt;li&gt;an execution portal which is also a webservice aim to acutally run the engines and executes the artifacts.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&#34;getting-it-up-and-running:3976528693a0108357f4928017600865&#34;&gt;Getting it up and running&lt;/h1&gt;
+
+&lt;p&gt;The engine is written in pure go. The package is go-gettable. Assuming you have a GO environment up and running, the following tasks should be enough to enjoy the orchestrator:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;go get github.com/owulveryck/gorchestrator&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;cd $GOPATH/src/github.com/owulveryck/gorchestrator&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;go run&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Then you can post a query as described in the example folder:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;# curl -X POST -H &#39;Content-Type:application/json&#39; -H &#39;Accept:application/json&#39; -d @example.json -k http://localhost:8080/v1/tasks
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;api:3976528693a0108357f4928017600865&#34;&gt;API&lt;/h1&gt;
+
+&lt;p&gt;The REST API is in developement but nearly stable. It is self documented with swagger.&lt;/p&gt;
+
+&lt;h2 id=&#34;apidoc:3976528693a0108357f4928017600865&#34;&gt;Apidoc&lt;/h2&gt;
+
+&lt;p&gt;The api doc is viewable&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;live &lt;a href=&#34;http://blog.owulveryck.info/gorchestrator/swagger/&#34;&gt;here&lt;/a&gt; for api documentation.&lt;/li&gt;
+&lt;li&gt;In your own instance at &lt;a href=&#34;http://localhost:8080/apidocs/&#34;&gt;http://localhost:8080/apidocs/&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&#34;authn-and-authz:3976528693a0108357f4928017600865&#34;&gt;AuthN and AuthZ&lt;/h1&gt;
+
+&lt;p&gt;The implementation is in the roadmap, and will be based on &lt;code&gt;oauth2&lt;/code&gt;&lt;/p&gt;
+
+&lt;h1 id=&#34;performances:3976528693a0108357f4928017600865&#34;&gt;Performances&lt;/h1&gt;
+
+&lt;p&gt;I did a &lt;code&gt;test&lt;/code&gt; file to bench the orchestrator engine (and only the engine) with the &lt;code&gt;go&lt;/code&gt; mechanism. The example, is the simple one listed one my blog post.&lt;/p&gt;
+
+&lt;p&gt;Here are the results on my chromebook (which is small, with only 2 Gb of RAM)&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;orchestrator git:(master)go test -bench . -cpu 1
+PASS
+BenchmarkRun        3000            981423 ns/op
+ok      github.com/owulveryck/gorchestrator/orchestrator        3.882s
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Which means that I can interpret and run 3000 times this digraph in 3.8s (excluding the actual execution time of the task)&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Note&lt;/strong&gt; : It is simply the execution workflow as all the nodes do not perform any action.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

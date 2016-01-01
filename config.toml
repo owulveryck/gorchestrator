@@ -1,3 +1,14 @@
-baseurl = "http://replace-this-with-your-hugo-site.com/"
+baseurl = "http://gorchestrator.owulveryck.info"
 languageCode = "en-us"
-title = "My New Hugo Site"
+title = "Gorchestrator"
+
+# Theme to use (located in /themes/THEMENAME/)
+theme = "bootie-docs"
+copyright = "Copyright (c) 2016, Olivier Wulveryck; All rights reserved."
+
+
+# example of config.toml
+[params]
+  description = "Gorchestrator: Orchestrator as a Service"
+  repositoryUrl = "https://github.com/owulveryck/gorchestrator"
+  mainMenu = ["about", "usage"]
