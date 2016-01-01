@@ -22,7 +22,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gorilla/mux"
+	"github.com/owulveryck/gorchestrator/Godeps/_workspace/src/github.com/gorilla/mux"
 	"html/template"
 	"net/http"
 )

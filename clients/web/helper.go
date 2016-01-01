@@ -23,7 +23,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/awalterschulze/gographviz"
+	"github.com/owulveryck/gorchestrator/Godeps/_workspace/src/github.com/awalterschulze/gographviz"
 	"github.com/owulveryck/gorchestrator/orchestrator"
 	"net/http"
 	"os"
