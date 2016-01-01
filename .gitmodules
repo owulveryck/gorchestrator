@@ -1,0 +1,3 @@
+[submodule "themes/bootie-docs"]
+	path = themes/bootie-docs
+	url = https://github.com/key-amb/hugo-theme-bootie-docs.git
