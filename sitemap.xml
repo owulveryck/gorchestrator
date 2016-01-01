@@ -2,20 +2,20 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>http://gorchestrator.owulveryck.info/</loc>
+    <loc>http://dev.owulveryck.info/gorchestrator/</loc>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>http://gorchestrator.owulveryck.info/_index/</loc>
+    <loc>http://dev.owulveryck.info/gorchestrator/_index/</loc>
   </url>
   
   <url>
-    <loc>http://gorchestrator.owulveryck.info/</loc>
+    <loc>http://dev.owulveryck.info/gorchestrator/about/</loc>
   </url>
   
   <url>
-    <loc>http://gorchestrator.owulveryck.info/about/</loc>
+    <loc>http://dev.owulveryck.info/gorchestrator/</loc>
   </url>
   
 </urlset>
