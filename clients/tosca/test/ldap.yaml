@@ -1,0 +1,19 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+template_name: LDAP
+template_version: 2.0.0-SNAPSHOT
+template_author: Société Générale
+description: TOSCA LDAP
+
+imports:
+  - weblogic_server.yaml
+
+node_types:
+  sg.nodes.LDAP:
+    derived_from: tosca.nodes.SoftwareComponent
+    description: A connection to a LDAP
+    tags:
+      icon: /images/phone-book.jpg
+    requirements:
+      - host: sg.capabilities.LDAPHosting
+        lower_bound: 1
+        upper_bound: 1

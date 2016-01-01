@@ -1,0 +1,74 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+template_name: WeblogicDomain
+template_version: 2.0.0-SNAPSHOT
+template_author: Société Générale
+description: TOSCA Weblogic Domain without servers
+
+imports:
+    - weblogic_binaries-type.yaml
+
+node_types:
+  sg.nodes.WeblogicDomain:
+    derived_from: tosca.nodes.SoftwareComponent
+    description: The TOSCA Weblogic Domain Node Type represents a Weblogic Server domain configuration
+    requirements:
+      - host: sg.capabilities.WeblogicDomainHosting
+        lower_bound: 1
+        upper_bound: 1
+    tags:
+      icon: /images/oracle.png
+    attributes:
+      domain_name: { get_operation_output: [ SELF, Standard, create, DOMAIN_NAME ] }
+      working_dir: { get_operation_output: [ SELF, Standard, create, WORKING_DIR ] }
+      template_scp_command: { get_operation_output: [ SELF, Standard, create, TEMPLATE_SCP_COMMAND ] }
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            pa_url:
+              type: string
+              description: "URL to EAR and plan.xml through Package built by ICPL"
+            conf_url:
+              type: string
+              description: "URL to XML files describing the Domain configuration"
+            log_level:
+              type: string
+              description: "Level of trace for logs DEV or PROD"
+              default: PROD
+            dry_run:
+              type: boolean
+              description: "Test mode only"
+              default: false
+          implementation: scripts/shell/create.sh
+        delete:
+          inputs:
+            domain_name:
+              type: string
+            dry_run:
+              type: boolean
+              description: "Test mode only"
+              default: false
+          implementation: scripts/shell/delete.sh
+    artifacts:
+      - tools: tools.zip
+        type: tosca.artifacts.Root
+    capabilities:
+        wls_host:
+          type: sg.capabilities.WeblogicServerHosting
+          upper_bound: unbounded
+        nm_host:
+          type: sg.capabilities.WeblogicNodeManagerHosting
+          upper_bound: unbounded
+
+capability_types:
+  sg.capabilities.WeblogicServerHosting:
+    derived_from: tosca.capabilities.Container
+  sg.capabilities.WeblogicNodeManagerHosting:
+    derived_from: tosca.capabilities.Container
+
+relationship_types:
+  sg.relationships.HostedOnWeblogicDomain:
+    derived_from: tosca.relationships.HostedOn
+    description: Relationship that allows to configure a Weblogic Server based on Weblogic domain.
+    valid_sources: [ sg.capabilities.WeblogicServerHosting, sg.capabilities.WeblogicNodeManagerHosting ]
+    valid_targets: [ sg.capabilities.WeblogicServerHosting, sg.capabilities.WeblogicNodeManagerHosting ]

@@ -1,0 +1,23 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+template_name: SMA
+template_version: 2.0.0-SNAPSHOT
+template_author: Société Générale
+description: TOSCA SMA
+
+imports:
+  - weblogic_server.yaml
+
+node_types:
+  sg.nodes.SMA:
+    derived_from: tosca.nodes.SoftwareComponent
+    description: A connection to a SMA
+    tags:
+      icon: /images/ws.png
+    requirements:
+      - host: sg.capabilities.SMAHosting
+        lower_bound: 1
+        upper_bound: 1
+    interfaces:
+      Standard:
+        start:
+          implementation: scripts/shell/test_sma.sh

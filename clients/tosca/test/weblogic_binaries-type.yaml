@@ -1,0 +1,42 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+template_name: WeblogicBinaries
+template_version: 2.0.0-SNAPSHOT
+template_author: Société Générale
+description: TOSCA Weblogic binaries without domain
+
+node_types:
+  sg.nodes.WeblogicBinaries:
+    derived_from: tosca.nodes.SoftwareComponent
+    description: >
+      The TOSCA WeblogicBinaries Node Type represents a Weblogic binaries installation, it does not include a Domain
+    tags:
+      icon: /images/oracle.png
+    capabilities:
+        domain_host:
+          type: sg.capabilities.WeblogicDomainHosting
+          upper_bound: unbounded
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            wls_home:
+              type: string
+              description: "Path to Weblogic Server home directory."
+            wls_version:
+              type: string
+              description: "Version of Weblogic Server."
+            wls_patches:
+              type: string
+              description: "List of patches required, separated by semicolon ';'."
+          implementation: scripts/weblogic_install.sh
+
+capability_types:
+  sg.capabilities.WeblogicDomainHosting:
+    derived_from: tosca.capabilities.Container
+
+relationship_types:
+  sg.relationships.HostedOnWeblogicBinaries:
+    derived_from: tosca.relationships.HostedOn
+    description: Relationship that allows to configure a Weblogic Domain based on Weblogic binaries.
+    valid_sources: [ sg.capabilities.WeblogicDomainHosting ]
+    valid_targets: [ sg.capabilities.WeblogicDomainHosting ]

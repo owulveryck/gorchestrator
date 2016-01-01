@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico">
+    <style type="text/css" media="all">
+        .map svg {
+            height: auto;
+            width: 650px;
+        }
+        .map g {
+            fill: #ccc;
+            stroke: #333;
+            stroke-width: 1;
+        }
+	.blink {
+		animation: blink 1s steps(5, start) infinite;
+		-webkit-animation: blink 1s steps(5, start) infinite;
+	}
+	@keyframes blink {
+		to {
+			visibility: hidden;
+		}
+	}
+	@-webkit-keyframes blink {
+		to {
+			visibility: hidden;
+		}
+	}
+    </style>
+
+    <title>Graph result for tosca template</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="/normalize.css" rel="stylesheet">
+
+    <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+    <!--<script src="../../assets/js/ie-emulation-modes-warning.js"></script>-->
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+<!--
+            <ul class="nav nav-tabs">
+                <li><a data-toggle="tab" href="#executionTable">The execution table</a></li>
+                <li><a data-toggle="tab" href="#executionGraph">The execution Graph</a></li>
+            </ul>
+-->
+<!--
+
+      <div class="tab-content">
+        <div id="executionTable" class="tab-pane fade in active">
+-->
+            <div class="col-md-8">
+                <div class="table-responsive">
+                    <table class="table table-condensed" id="execTable">
+                        <tbody>
+                            <th>Action</th><th>Engine</th><th>Artifact</th><th>Args</th><th>Output</th><th>State</th>
+                            {{range .Nodes}}
+                            <tr id="{{.ID}}">
+                                <td id="name">{{.Name}}</td><td>{{.Engine}}</td><td>{{.Artifact}}</td><td>{{.Args}}</td><td>{{.Outputs}}</td><td id="state">{{.State}}</td>
+                            </tr>
+                            {{end}}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="embed-responsive embed-responsive-4by3">
+                    <object class="embed-responsive-item" data="/graph/{{.ID}}.svg" type="image/svg+xml" id="graphSVG">Please provide an ID</object>
+                </div>
+            </div>
+        <!--
+        <div id="executionGraph" class="tab-pane fade">
+            <div class="embed-responsive embed-responsive-16by9">
+                <object class="embed-responsive-item" data="/graph/{{.ID}}.svg" type="image/svg+xml" id="graphSVG">Please provide an ID</object>
+            </div>
+        </div>
+      </div>
+        -->
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="/jquery.min.js"></script>
+    <script src="/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+    <!-- update the color -->
+    <script type="text/javascript">
+        function updateGraph(svgRoot,execTable) {
+            $.getJSON( "{{.Update}}", function() {
+                //console.log( "success!" );
+                }).done(function(data) {
+                    for (var i in data.nodes){
+                        //console.log(data.nodes[i].state);
+                        //Initial     = 0
+                        //ToRun       = 1
+                        //Running     = 2
+                        //Success     = 3
+                        //Failure     = 4
+                        //NotRunnable = 5
+                        //Timeout     = 10
+                        //Canceled    = 11
+
+                        switch (data.nodes[i].state) {
+                            case 0:
+                                color = 'rgba(0, 0, 0, 0.3)'
+                                break;
+                            case 1:
+                                color = 'rgba(0, 0, 255, 0.3)'
+                                break;
+                            case 2:
+                                color = 'rgba(255,255,0,0.3)'
+                                break;
+                            case 3:
+                                color = 'rgba(0, 255, 0, 0.3)'
+                                break;
+                            case 4:
+                                color = 'rgba(255, 0, 0, 0.3)'
+                                break;
+                            case 5:
+                                color = 'rgba(192, 192, 192, 0.3)'
+                                break;
+                            default:
+                                color = 'rgba(230, 0, 0, 0.3)'
+                        }
+                        //$("#" + data.nodes[i].id,svgRoot).children("text").css({'fill': color});
+                        $("#" + data.nodes[i].id,svgRoot).children("path").css({'fill': color});
+                        $("#" + data.nodes[i].id,execTable).css({'background-color': color});
+                        //$("#" + data.nodes[i].id,execTable).children("td").css({'background-color':'green'}) ;
+                        //$("#" + data[i].id,svgRoot).children("polygon").css({'fill': color});
+                    }
+                });
+                    setTimeout(function() {
+                            updateGraph(svgRoot);
+                    }, 2000)
+        }
+        $(document).ready(function(){
+            var a = document.getElementById("graphSVG");
+
+            // Some help from http://stackoverflow.com/questions/6793312/how-to-use-jquery-in-svg-scalable-vector-graphics
+            //it's important to add an load event listener to the object, as it will load the svg doc asynchronously
+            a.addEventListener("load",function(){
+                var svgDoc = a.contentDocument; //get the inner DOM of alpha.svg
+                var svgRoot  = svgDoc.documentElement;
+                updateGraph(svgRoot,execTable);
+                //now we can query stuff with jquery like this
+                //note that we pass in the svgRoot as the context node!
+            },false);
+        })
+    </script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->    <!--<script src="../../assets/js/ie10-viewport-bug-workaround.js"></script>-->
+  </body>
+</html>

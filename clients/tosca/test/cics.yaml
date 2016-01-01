@@ -1,0 +1,27 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+template_name: CICS
+template_version: 2.0.0-SNAPSHOT
+template_author: Société Générale
+description: TOSCA CICS
+
+imports:
+  - weblogic_server.yaml
+
+node_types:
+  sg.nodes.CICS:
+    derived_from: tosca.nodes.SoftwareComponent
+    description: A connection to a CICS
+    tags:
+      icon: /images/mainframe.jpg
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            ip_port_adress:
+              description: Check for opening flows
+              type: string
+          implementation: scripts/go/routetest.sh
+    requirements:
+      - host: sg.capabilities.CICSHosting
+        lower_bound: 1
+        upper_bound: 1

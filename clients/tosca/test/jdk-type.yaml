@@ -1,0 +1,33 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+template_name: JDK
+template_version: 2.0.0-SNAPSHOT
+template_author: Société Générale
+
+node_types:
+  tosca.nodes.SoftwareComponent.sg.itim.JDK:
+    derived_from: tosca.nodes.SoftwareComponent
+    description: >
+      The TOSCA JDK Node Type represents a JDK installation
+    requirements:
+      - host: tosca.nodes.Compute
+        type: tosca.relationships.HostedOn
+    tags:
+      icon: /images/jdk.png
+    properties:
+      version:
+        type: string
+        description: JDK version
+        default: "jdk-8u45-linux-x64"
+        constraints:
+        - valid_values: [ "jdk-8u45-linux-x64" ]
+      jdk_home:
+        type: string
+        required: true
+    capabilities:
+        java:
+          type: tosca.capabilities.sg.itim.Java
+          upper_bound: unbounded
+
+capability_types:
+  tosca.capabilities.sg.itim.Java:
+    derived_from: tosca.capabilities.Container

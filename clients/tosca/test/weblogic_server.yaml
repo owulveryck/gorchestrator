@@ -1,0 +1,102 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+template_name: WeblogicServer
+template_version: 2.0.0-SNAPSHOT
+template_author: Société Générale
+description: TOSCA Weblogic Application server without binaries
+
+imports:
+  - weblogic_domain.yaml
+
+node_types:
+  sg.nodes.WeblogicServer:
+    derived_from: tosca.nodes.WebServer
+    description: The TOSCA Weblogic Server Node Type represents a Weblogic Server Application
+    requirements:
+      - host: sg.capabilities.WeblogicServerHosting
+        lower_bound: 1
+        upper_bound: 1
+    tags:
+      icon: /images/oracle.png
+    capabilities:
+      file_host:
+        type: sg.capabilities.FileHosting
+        upper_bound: unbounded
+      ear_host:
+        type: sg.capabilities.EarHosting
+        upper_bound: unbounded
+      data_source_host:
+        type: sg.capabilities.DataSourceHosting
+        upper_bound: unbounded
+      ws_host:
+        type: sg.capabilities.WebServiceHosting
+        upper_bound: unbounded
+      safe_host:
+        type: sg.capabilities.SAFEHosting
+        upper_bound: unbounded
+      sma_host:
+        type: sg.capabilities.SMAHosting
+        upper_bound: unbounded
+      cics_host:
+        type: sg.capabilities.CICSHosting
+        upper_bound: unbounded
+      ldap_host:
+        type: sg.capabilities.LDAPHosting
+        upper_bound: unbounded
+    interfaces:
+      Standard:
+        start:
+          inputs:
+            server_name:
+              type: string
+              description: "Server name"
+            log_level:
+              type: string
+              description: "Level of trace for logs DEV or PROD"
+              default: PROD
+            domain_name:
+              type: string
+            working_dir:
+              type: string
+          implementation: scripts/shell/start.sh
+        stop:
+          inputs:
+            server_name:
+              type: string
+              description: "Server name"
+            log_level:
+              type: string
+              description: "Level of trace for logs DEV or PROD"
+              default: PROD
+            domain_name:
+              type: string
+            working_dir:
+              type: string
+          implementation: scripts/shell/stop.sh
+    artifacts:
+      - tools: tools.zip
+        type: tosca.artifacts.Root
+
+capability_types:
+  sg.capabilities.FileHosting:
+    derived_from: tosca.capabilities.Container
+  sg.capabilities.EarHosting:
+    derived_from: tosca.capabilities.Container
+  sg.capabilities.DataSourceHosting:
+    derived_from: tosca.capabilities.Container
+  sg.capabilities.WebServiceHosting:
+    derived_from: tosca.capabilities.Container
+  sg.capabilities.SAFEHosting:
+    derived_from: tosca.capabilities.Container
+  sg.capabilities.SMAHosting:
+    derived_from: tosca.capabilities.Container
+  sg.capabilities.CICSHosting:
+    derived_from: tosca.capabilities.Container
+  sg.capabilities.LDAPHosting:
+    derived_from: tosca.capabilities.Container
+
+relationship_types:
+  sg.relationships.HostedOnWeblogicServer:
+    derived_from: tosca.relationships.HostedOn
+    description: Relationship that allows to represent a specific configuration on a Weblogic server.
+    valid_sources: [ sg.capabilities.FileHosting, sg.capabilities.EarHosting, sg.capabilities.DataSourceHosting, sg.capabilities.WebServiceHosting, sg.capabilities.SAFEHosting, sg.capabilities.SMAHosting, sg.capabilities.CICSHosting, sg.capabilities.LDAPHosting ]
+    valid_targets: [ sg.capabilities.FileHosting, sg.capabilities.EarHosting, sg.capabilities.DataSourceHosting, sg.capabilities.WebServiceHosting, sg.capabilities.SAFEHosting, sg.capabilities.SMAHosting, sg.capabilities.CICSHosting, sg.capabilities.LDAPHosting ]

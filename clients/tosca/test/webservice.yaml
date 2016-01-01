@@ -1,0 +1,27 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+template_name: WebService
+template_version: 2.0.0-SNAPSHOT
+template_author: Société Générale
+description: TOSCA WebService
+
+imports:
+  - weblogic_server.yaml
+
+node_types:
+  sg.nodes.WebService:
+    derived_from: tosca.nodes.SoftwareComponent
+    description: A connection to a WebService
+    tags:
+      icon: /images/ws.png
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            ip_port_adress:
+              description: Check for opening flows 
+              type: string
+          implementation: bin/routetest
+    requirements:
+      - host: sg.capabilities.WebServiceHosting
+        lower_bound: 1
+        upper_bound: 1

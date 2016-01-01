@@ -1,0 +1,62 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+template_name: WeblogicNodeManager
+template_version: 2.0.0-SNAPSHOT
+template_author: Société Générale
+description: TOSCA Weblogic Node Manager without binaries
+
+imports:
+  - weblogic_domain.yaml
+
+node_types:
+  sg.nodes.WeblogicNodeManager:
+    derived_from: tosca.nodes.WebServer
+    description: The TOSCA Weblogic Node Manager Node Type represents a Weblogic Node Manager
+    requirements:
+      - host: sg.capabilities.WeblogicNodeManagerHosting
+        lower_bound: 1
+        upper_bound: 1
+    tags:
+      icon: /images/oracle.png
+    properties:
+      log_level:
+        type: string
+        description: "Level of trace for logs DEV or PROD"
+        default: PROD
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            working_dir:
+              type: string
+            domain_name:
+              type: string
+            log_level:
+              type: string
+            template_scp_command:
+              type: string
+          implementation: scripts/shell/create.sh
+        start:
+          inputs:
+            working_dir:
+              type: string
+            domain_name:
+              type: string
+            log_level:
+              type: string
+          implementation: scripts/shell/start.sh
+        stop:
+          inputs:
+            working_dir:
+              type: string
+            domain_name:
+              type: string
+            log_level:
+              type: string
+          implementation: scripts/shell/stop.sh
+    artifacts:
+      - tools: tools.zip
+        type: tosca.artifacts.Root
+    capabilities:
+        wls_host:
+          type: sg.capabilities.WeblogicServerHosting
+          upper_bound: unbounded

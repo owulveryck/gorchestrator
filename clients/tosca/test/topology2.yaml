@@ -1,0 +1,170 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+description: Template for IMD
+template_name: IMD-template
+template_version: 1.0.0-SNAPSHOT
+template_author: Société Générale
+
+imports:
+  - datasource.yaml
+  - weblogic_binaries-type.yaml
+  - weblogic_domain.yaml
+  - weblogic_server.yaml
+  - ear.yaml
+  - sma.yaml
+  - cics.yaml
+  - webservice.yaml
+
+topology_template:
+  inputs:
+    conf_url:
+      type: string
+      required: true
+      description: URL to XML files describing the Domain
+      default: http://spice.outil.si.socgen/nexus/content/repositories/snapshots-spice/fr/cdn/integrationmetier/imd-paap/9.99.99-SNAPSHOT/imd-paap-9.99.99-20151110.092910-2.zip
+    pa_url:
+      type: string
+      required: true
+      description: URL to PA file
+      default: http://spice.outil.si.socgen/jenkins/job/CPL_PREASSEMBLAGE_DEV/1499/artifact/1499/target/IMC_01.01.02.zip
+  node_templates:
+    SSOP:
+      type: sg.nodes.WebService
+      requirements:
+        - host:
+            node: appServer1
+            capability: sg.capabilities.WebServiceHosting
+            relationship: sg.relationships.HostedOnWeblogicServer
+    SMA:
+      type: sg.nodes.SMA
+      requirements:
+        - host:
+            node: DIMDLX02
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+    CICS:
+      type: sg.nodes.CICS
+      requirements:
+        - host:
+            node: appServer1
+            capability: sg.capabilities.CICSHosting
+            relationship: sg.relationships.HostedOnWeblogicServer
+    imd-ear:
+      type: sg.nodes.Ear
+      properties:
+        health_check_url: "http://dimdlx02.dns21.socgen:7101/imd/HealthCheck"
+      requirements:
+        - host:
+            node: appServer1
+            capability: sg.capabilities.EarHosting
+            relationship: sg.relationships.HostedOnWeblogicServer
+    DSHIB:
+      type: sg.nodes.DataSource
+      requirements:
+        - host:
+            node: appServer1
+            capability: sg.capabilities.DataSourceHosting
+            relationship: sg.relationships.HostedOnWeblogicServer
+    DSPRD:
+      type: sg.nodes.DataSource
+      requirements:
+        - host:
+            node: appServer1
+            capability: sg.capabilities.DataSourceHosting
+            relationship: sg.relationships.HostedOnWeblogicServer
+    DSAXE:
+      type: sg.nodes.DataSource
+      requirements:
+        - host:
+            node: appServer1
+            capability: sg.capabilities.DataSourceHosting
+            relationship: sg.relationships.HostedOnWeblogicServer
+    AdminServer:
+      type: sg.nodes.WeblogicServer
+      properties:
+        server_name: AdminServer
+        log_dir: /tmp
+        log_level: PROD
+      requirements:
+        - host:
+            node: Domain-01
+            capability: sg.capabilities.WeblogicServerHosting
+            relationship: sg.relationships.HostedOnWeblogicDomain
+    appServer1:
+      type: sg.nodes.WeblogicServer
+      properties:
+        server_name: appServer1
+        log_dir: /tmp
+        log_level: PROD
+      requirements:
+        - host:
+            node: Domain-02
+            capability: sg.capabilities.WeblogicServerHosting
+            relationship: sg.relationships.HostedOnWeblogicDomain
+        - dependency:
+            node: AdminServer
+            capability: tosca.capabilities.Endpoint
+            relationship: tosca.relationships.ConnectsTo
+    Domain-01:
+      type: sg.nodes.WeblogicDomain
+      properties:
+        pa_url: { get_input: pa_url }
+        conf_url: { get_input: conf_url }
+        log_dir: /tmp
+        log_level: PROD
+        dry_run: false
+      requirements:
+        - host:
+            node: WeblogicBinaries-01
+            capability: sg.capabilities.WeblogicDomainHosting
+            relationship: sg.relationships.HostedOnWeblogicBinaries
+    Domain-02:
+      type: sg.nodes.WeblogicDomain
+      properties:
+        pa_url: { get_input: pa_url }
+        conf_url: { get_input: conf_url }
+        log_dir: /tmp
+        log_level: PROD
+        dry_run: false
+      requirements:
+        - host:
+            node: WeblogicBinaries-02
+            capability: sg.capabilities.WeblogicDomainHosting
+            relationship: sg.relationships.HostedOnWeblogicBinaries
+    WeblogicBinaries-01:
+      type: sg.nodes.WeblogicBinaries
+      requirements:
+        - host:
+            node: DIMDLX01
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+    WeblogicBinaries-02:
+      type: sg.nodes.WeblogicBinaries
+      requirements:
+        - host:
+            node: DIMDLX02
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+    DIMDLX01:
+      type: tosca.nodes.Compute
+      properties:
+        os_arch: x86_64
+        os_type: linux
+        os_distribution: IMD01
+      capabilities:
+        scalable:
+          properties:
+            max_instances: 1
+            min_instances: 1
+            default_instances: 1
+    DIMDLX02:
+      type: tosca.nodes.Compute
+      properties:
+        os_arch: x86_64
+        os_type: linux
+        os_distribution: IMD
+      capabilities:
+        scalable:
+          properties:
+            max_instances: 1
+            min_instances: 1
+            default_instances: 1

@@ -1,0 +1,39 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+template_name: File
+template_version: 2.0.0-SNAPSHOT
+template_author: Société Générale
+description: TOSCA File
+
+imports:
+  - weblogic_server.yaml
+
+node_types:
+  sg.nodes.file:
+    derived_from: tosca.nodes.SoftwareComponent
+    description: A file
+    tags:
+      icon: /images/file.jpg
+    requirements:
+      - host: sg.capabilities.FileHosting
+        lower_bound: 1
+        upper_bound: 1
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            install_path:
+              description: Path to store the file
+              type: string
+            install_file:
+              description: URL to download the file
+              type: string
+          implementation: scripts/install_file.sh
+        delete:
+          inputs:
+            install_path:
+              description: Path to store the file
+              type: string
+            install_file:
+              description: URL to download the file
+              type: string
+          implementation: scripts/delete_file.sh

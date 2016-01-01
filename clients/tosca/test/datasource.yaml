@@ -1,0 +1,28 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+template_name: DataSource
+template_version: 2.0.0-SNAPSHOT
+template_author: Société Générale
+description: TOSCA Weblogic Data Source
+
+imports:
+  - weblogic_server.yaml
+
+node_types:
+  sg.nodes.DataSource:
+    derived_from: tosca.nodes.SoftwareComponent
+    description: A Data Source
+    tags:
+      icon: /images/db.png
+    properties:
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            ip_port_adress:
+              description: Check for opening flows
+              type: string
+          implementation: bin/routetest
+    requirements:
+      - host: sg.capabilities.DataSourceHosting
+        lower_bound: 1
+        upper_bound: 1

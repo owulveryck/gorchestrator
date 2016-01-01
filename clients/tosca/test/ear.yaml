@@ -1,0 +1,27 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+template_name: Ear
+template_version: 2.0.0-SNAPSHOT
+template_author: Société Générale
+description: TOSCA EAR
+
+imports:
+  - weblogic_server.yaml
+
+node_types:
+  sg.nodes.Ear:
+    derived_from: tosca.nodes.WebApplication
+    description: An Entreprise ARchive element
+    tags:
+      icon: /images/ear.png
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            health_check_url:
+              description: URL of the health check to get application status
+              type: string
+          implementation: scripts/shell/health_check.sh
+    requirements:
+      - host: sg.capabilities.EarHosting
+        lower_bound: 1
+        upper_bound: 1

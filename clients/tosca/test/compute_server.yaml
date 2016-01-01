@@ -1,0 +1,27 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+template_name: ComputeServer
+template_version: 2.0.0-SNAPSHOT
+template_author: Société Générale
+description: TOSCA Compute server
+
+
+node_types:
+  sg.nodes.ComputeServer:
+    derived_from: tosca.nodes.Compute
+    description: >
+      The TOSCA ComputeServer Node Type represents a server installation.
+    tags:
+      icon: /images/compute.png
+    attributes:
+      hostname: { get_operation_output: [ SELF, Standard, create, FQDN ] }
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            wls_home:
+              type: string
+            wls_version:
+              type: string
+            wls_patches:
+              type: string
+          implementation: scripts/shell/create.sh
