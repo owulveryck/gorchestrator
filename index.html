@@ -1,105 +1,159 @@
-
 <!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
 
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-dark.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<link rel="alternate" href="/index.xml" type="application/rss+xml" title="Gorchestrator">
-		<link rel="icon" href="http://dev.owulveryck.info/gorchestrator//favicon.ico">
-		<title>Gorchestrator</title>
-		
-		<link rel="stylesheet" href="http://dev.owulveryck.info/gorchestrator//css/highlight.js.min.css">
-		<link rel="stylesheet" href="http://dev.owulveryck.info/gorchestrator//css/bootstrap.min.css">
-		<link rel="stylesheet" href="http://dev.owulveryck.info/gorchestrator//css/bootstrap-theme.css">
-		<link rel="stylesheet" href="http://dev.owulveryck.info/gorchestrator//css/theme.css">
-		<link rel="stylesheet" href="http://dev.owulveryck.info/gorchestrator//css/bootie-docs.css">
-	</head>
+    <title>Gorchestrator by owulveryck</title>
+  </head>
 
-<body role="document">
+  <body>
 
-	
-	<nav class="navbar navbar-inverse navbar-fixed-top">
-		<div class="container">
-			<div class="navbar-header">
-				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-					<span class="sr-only">Toggle navigation</span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-				</button>
-				<a class="navbar-brand" href="http://dev.owulveryck.info/gorchestrator//">Gorchestrator</a>
-			</div>
-			<div id="navbar" class="navbar-collapse collapse">
-				<ul class="nav navbar-nav">
-					<li class="active"><a href="http://dev.owulveryck.info/gorchestrator//">Home</a></li>
-			
-				
-				
-					
-					<li ><a href="http://dev.owulveryck.info/gorchestrator//about">About</a></li>
-				
-					
-					<li ><a href="http://dev.owulveryck.info/gorchestrator//usage">Usage</a></li>
-				
-			
-				
-					<li class="dropdown">
-						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Categories<span class="caret"></span></a>
-						<ul class="dropdown-menu" role="menu">
-						
-						</ul>
-					</li>
-				
-				</ul>
-			</div>
-		</div>
-	</nav>
+    <header>
+      <div class="container">
+        <h1>Gorchestrator</h1>
+        <h2>Orchestrator as a Service - A RESTful Concurrent orchestrator in GO</h2>
 
-<div class="container">
+        <section id="downloads">
+          <a href="https://github.com/owulveryck/gorchestrator/zipball/master" class="btn">Download as .zip</a>
+          <a href="https://github.com/owulveryck/gorchestrator/tarball/master" class="btn">Download as .tar.gz</a>
+          <a href="https://github.com/owulveryck/gorchestrator" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
+        </section>
+      </div>
+    </header>
 
-<main role="main">
+    <div class="container">
+      <section id="main_content">
+        <p><a href="https://travis-ci.org/owulveryck/gorchestrator"><img src="https://travis-ci.org/owulveryck/gorchestrator.svg?branch=master" alt="Build Status"></a></p>
 
-<div class="row">
-	
-	<div class="jumbotron">
-		<h1>Gorchestrator</h1>
-		<p>Gorchestrator: Orchestrator as a Service</p>
-	</div>
-</div>
+<h1>
+<a id="abstract" class="anchor" href="#abstract" aria-hidden="true"><span class="octicon octicon-link"></span></a>Abstract</h1>
 
+<p>A simple orchestrator that takes and adjacency matrix as input.</p>
 
+<p>This orchestrator acts as a webservice.
+This means that you send a representation of your graph and nodes via an HTTP POST request to the engine, and:</p>
 
+<ul>
+<li>It decomposes the workflow</li>
+<li>Launch as many "processes" (actually goroutines) as nodes (see performances)</li>
+<li>Launch a conductor that acts as a communication vector for the running nodes</li>
+</ul>
 
+<p>OaaS is micro service oriented. Which means that it does not actually run the artifact of the node. Instead, It calls another web service that acts as a proxy for the execution task. The proxy may implement drivers as needed, such as a <code>shell</code> driver, an <code>ansible</code> driver, <code>docker</code>, ...</p>
 
-</main>
+<p>The concurrency is implemented thanks to go routines (See this <a href="http://blog.owulveryck.info/2015/12/02/orchestrate-a-digraph-with-goroutine-a-concurrent-orchestrator/">post</a> for more information about the implementation)</p>
 
+<h2>
+<a id="the-gorch" class="anchor" href="#the-gorch" aria-hidden="true"><span class="octicon octicon-link"></span></a>The Gorch</h2>
 
-<hr />
+<p><code>gorch</code> is the Graphical-Orchestration representation.</p>
 
-<div class="row">
-	<div class="col-sm-8">
-		<p class="doc-footer-em"><a href="#">Back to TOP</a></p>
-	</div>
-</div>
+<p>It is a JSON representation of the graph.</p>
 
-</div> 
+<p>It is composed of and adjaceny matrix and a list of nodes.</p>
 
-<footer class="doc-footer">
-	<p class="doc-footer-em">Browse <strong><a href="https://github.com/owulveryck/gorchestrator">Repository</a></strong></p>
-	<p>Copyright (c) 2016, Olivier Wulveryck; All rights reserved.</p>
-	<p>Powered by <strong><a href="https://github.com/key-amb/hugo-theme-bootie-docs">Bootie Docs</a></strong> - theme for <a href="http://gohugo.io/">Hugo</a> by <a href="https://github.com/key-amb/">key-amb</a>.</p>
-</footer>
+<div class="highlight highlight-source-json"><pre>{
+    <span class="pl-s"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>string<span class="pl-pds">"</span></span>,
+    <span class="pl-s"><span class="pl-pds">"</span>state<span class="pl-pds">"</span></span>: <span class="pl-c1">0</span>,
+    <span class="pl-s"><span class="pl-pds">"</span>digraph<span class="pl-pds">"</span></span>: [
+        <span class="pl-c1">0</span>
+    ],
+    <span class="pl-s"><span class="pl-pds">"</span>nodes<span class="pl-pds">"</span></span>: [
+        {
+            <span class="pl-s"><span class="pl-pds">"</span>id<span class="pl-pds">"</span></span>: <span class="pl-c1">0</span>,
+            <span class="pl-s"><span class="pl-pds">"</span>state<span class="pl-pds">"</span></span>: <span class="pl-c1">0</span>,
+            <span class="pl-s"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>string<span class="pl-pds">"</span></span>,
+            <span class="pl-s"><span class="pl-pds">"</span>engine<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>string<span class="pl-pds">"</span></span>,
+            <span class="pl-s"><span class="pl-pds">"</span>artifact<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>string<span class="pl-pds">"</span></span>,
+            <span class="pl-s"><span class="pl-pds">"</span>args<span class="pl-pds">"</span></span>: [
+                <span class="pl-s"><span class="pl-pds">"</span>string<span class="pl-pds">"</span></span>
+            ]
+        }
+    ]
 
+}</pre></div>
 
+<h2>
+<a id="the-tools" class="anchor" href="#the-tools" aria-hidden="true"><span class="octicon octicon-link"></span></a>The tools</h2>
 
-<script src="http://dev.owulveryck.info/gorchestrator//js/jquery-1.11.2.min.js"></script>
-<script src="http://dev.owulveryck.info/gorchestrator//js/bootstrap.min.js"></script>
+<p>gorchestrator is composed of :</p>
 
-<script src="http://dev.owulveryck.info/gorchestrator//js/highlight.min.js"></script>
-<script>hljs.initHighlightingOnLoad();</script>
-<script src="http://dev.owulveryck.info/gorchestrator//js/ie10-viewport-bug-workaround.js"></script>
+<ul>
+<li>orchestrator which is the main execution webservices</li>
+<li>sample clients to POST and GET queries and to display it (see the <code>web client</code> for example)</li>
+<li>an execution portal which is also a webservice aim to acutally run the engines and executes the artifacts.</li>
+</ul>
 
-</body>
+<h1>
+<a id="getting-it-up-and-running" class="anchor" href="#getting-it-up-and-running" aria-hidden="true"><span class="octicon octicon-link"></span></a>Getting it up and running</h1>
+
+<p>The engine is written in pure go. The package is go-gettable. Assuming you have a GO environment up and running, the following tasks should be enough to enjoy the orchestrator:</p>
+
+<ul>
+<li><code>go get github.com/owulveryck/gorchestrator</code></li>
+<li><code>cd $GOPATH/src/github.com/owulveryck/gorchestrator</code></li>
+<li><code>go run</code></li>
+</ul>
+
+<p>Then you can post a query as described in the example folder:</p>
+
+<div class="highlight highlight-source-shell"><pre><span class="pl-c"># curl -X POST -H 'Content-Type:application/json' -H 'Accept:application/json' -d @example.json -k http://localhost:8080/v1/tasks</span></pre></div>
+
+<h1>
+<a id="api" class="anchor" href="#api" aria-hidden="true"><span class="octicon octicon-link"></span></a>API</h1>
+
+<p>The REST API is in developement but nearly stable. It is self documented with swagger. </p>
+
+<h2>
+<a id="apidoc" class="anchor" href="#apidoc" aria-hidden="true"><span class="octicon octicon-link"></span></a>Apidoc</h2>
+
+<p>The api doc is viewable</p>
+
+<ul>
+<li>live <a href="http://blog.owulveryck.info/gorchestrator/swagger/">here</a> for api documentation.</li>
+<li>In your own instance at <a href="http://localhost:8080/apidocs/">http://localhost:8080/apidocs/</a>
+</li>
+</ul>
+
+<h1>
+<a id="authn-and-authz" class="anchor" href="#authn-and-authz" aria-hidden="true"><span class="octicon octicon-link"></span></a>AuthN and AuthZ</h1>
+
+<p>The implementation is in the roadmap, and will be based on <code>oauth2</code></p>
+
+<h1>
+<a id="performances" class="anchor" href="#performances" aria-hidden="true"><span class="octicon octicon-link"></span></a>Performances</h1>
+
+<p>I did a <code>test</code> file to bench the orchestrator engine (and only the engine) with the <code>go</code> mechanism. The example, is the simple one listed one my blog post.</p>
+
+<p>Here are the results on my chromebook (which is small, with only 2 Gb of RAM)</p>
+
+<pre><code>orchestrator git:(master)go test -bench . -cpu 1
+PASS
+BenchmarkRun        3000            981423 ns/op
+ok      github.com/owulveryck/gorchestrator/orchestrator        3.882s
+</code></pre>
+
+<p>Which means that I can interpret and run 3000 times this digraph in 3.8s (excluding the actual execution time of the task)</p>
+
+<p><strong>Note</strong> : It is simply the execution workflow as all the nodes do not perform any action.</p>
+      </section>
+    </div>
+
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-69673850-2");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+  </body>
 </html>
