@@ -26,7 +26,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/owulveryck/gorchestrator/Godeps/_workspace/src/github.com/gorilla/mux"
+	"github.com/gorilla/mux"
 	"io"
 	"io/ioutil"
 	"net/http"
