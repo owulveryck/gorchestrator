@@ -161,7 +161,14 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 					n.State = Success
 					n.Outputs["result"] = fmt.Sprintf("%v_%v", n.Name, time.Now().Unix())
 				default:
-					err := n.Execute(exe[0])
+					var executor ExecutorBackend
+					executor = exe[0]
+					for _, eb := range exe {
+						if eb.Name == n.Target {
+							executor = eb
+						}
+					}
+					err := n.Execute(executor)
 					if err != nil && n.State <= Success {
 						n.State = Failure
 					}
