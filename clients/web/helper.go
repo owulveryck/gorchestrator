@@ -23,9 +23,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/owulveryck/gorchestrator/Godeps/_workspace/src/github.com/awalterschulze/gographviz"
+	"github.com/awalterschulze/gographviz"
 	"github.com/owulveryck/gorchestrator/orchestrator"
-	"log"
 	"net/http"
 	"os"
 	"os/exec"
@@ -39,7 +38,6 @@ func getGraph(id string) (orchestrator.Graph, error) {
 	var g orchestrator.Graph
 
 	r, err := http.Get(fmt.Sprintf("http://localhost:8080/v1/tasks/%v", id))
-	log.Println("Getting:", id)
 	if err != nil {
 		return g, err
 	}
@@ -87,7 +85,7 @@ func generateSvg(id string) ([]byte, error) {
 	}
 
 	// Now for each node, create a node
-	g.SetName(v.Name)
+	g.SetName(strings.Replace(v.Name, " ", "_", -1))
 	g.SetDir(true)
 	m := make(map[int]string)
 	// Now add every node
