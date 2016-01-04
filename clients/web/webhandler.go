@@ -72,7 +72,7 @@ func displayMain(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t := template.New("template.tmpl")
-	t, err = t.ParseFiles("tmpl/template.tmpl", "tmpl/viewgraph.tmpl")
+	t, err = t.ParseFiles("tmpl/template.tmpl", "tmpl/viewgraph.tmpl", "tmpl/navbar_right.tmpl")
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(http.StatusNotFound)
