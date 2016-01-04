@@ -39,7 +39,19 @@ func NewRouter() *mux.Router {
 	// Definition des routes
 	var routes = routes{
 		route{
-			"SVG diagram",
+			"Json tasks",
+			"GET",
+			"/tasks/tasks.json",
+			getTasks,
+		},
+		route{
+			"Display tasks",
+			"GET",
+			"/tasks/",
+			displayTasks,
+		},
+		route{
+			"JSon graph",
 			"GET",
 			"/graph/{id}.json",
 			displayGraph,

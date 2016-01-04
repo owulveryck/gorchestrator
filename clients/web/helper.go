@@ -79,7 +79,7 @@ func generateSvg(id string) ([]byte, error) {
 
 	// Creates a new graph
 	g := gographviz.NewGraph()
-	//g.AddAttr("", "rankdir", "LR")
+	g.AddAttr("", "rankdir", "LR")
 	// Now read the json input
 	var v orchestrator.Graph
 
