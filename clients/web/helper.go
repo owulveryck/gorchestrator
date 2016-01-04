@@ -30,6 +30,7 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"text/template"
 )
 
 var svg map[string][]byte
@@ -66,6 +67,16 @@ func getSvg(id string) ([]byte, error) {
 }
 
 func generateSvg(id string) ([]byte, error) {
+
+	template, err := template.New("node").Parse(`{{define "NODE"}}<<table border="0" cellspacing="0">
+		<tr ><td colspan="2" port="port1" border="1" bgcolor="lightblue">{{.Name}}</td></tr>
+		<tr ><td colspan="2" port="port2" border="1">{{.Target}}</td></tr>
+		<tr>
+			<td port="port2" border="1">{{.Engine}}</td>
+			<td port="port8" border="1">{{.Artifact}}</td>
+		</tr>
+		</table>>{{end}}`)
+
 	// Creates a new graph
 	g := gographviz.NewGraph()
 	//g.AddAttr("", "rankdir", "LR")
@@ -108,10 +119,13 @@ func generateSvg(id string) ([]byte, error) {
 			tmp[0] = n.Name
 			tmp = append(tmp, "")
 		}
+		var out bytes.Buffer
+		err = template.ExecuteTemplate(&out, "NODE", n)
 		g.AddNode("G", n.Name,
 			map[string]string{
-				"id":    fmt.Sprintf("\"%v\"", strconv.Itoa(n.ID)),
-				"label": fmt.Sprintf("\"%v|%v\"", tmp[0], tmp[1]),
+				"id": fmt.Sprintf("\"%v\"", strconv.Itoa(n.ID)),
+				//"label": fmt.Sprintf("\"%v|%v\"", tmp[0], tmp[1]),
+				"label": out.String(),
 				//"label": fmt.Sprintf("\"%v|%v|%v|%v|%v\"", tmp[0], tmp[1], n.Engine, n.Artifact, n.Args[:]),
 				"shape": "\"record\"",
 				"style": "\"rounded\"",
@@ -121,12 +135,14 @@ func generateSvg(id string) ([]byte, error) {
 	for r := 0; r < v.Digraph.Dim(); r++ {
 		for c := 0; c < v.Digraph.Dim(); c++ {
 			if v.Digraph.At(r, c) != 0 {
+				//g.AddEdge(fmt.Sprintf("%v:%v", m[r], r), fmt.Sprintf("%v:%v", m[c], c), true, nil)
 				g.AddEdge(m[r], m[c], true, nil)
 			}
 		}
 	}
 	// Now add the edges
 	s := g.String()
+	fmt.Println(s)
 	d := exec.Command("dot", "-Tsvg")
 
 	// Set the stdin stdout and stderr of the dot subprocess
