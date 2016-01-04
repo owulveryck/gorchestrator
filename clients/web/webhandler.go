@@ -98,6 +98,13 @@ func displayMain(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+func getOrchestratorState(w http.ResponseWriter, r *http.Request) {
+
+}
+func getTasks(w http.ResponseWriter, r *http.Request) {
+}
+func displayTasks(w http.ResponseWriter, r *http.Request) {
+}
 
 func displaySvg(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
