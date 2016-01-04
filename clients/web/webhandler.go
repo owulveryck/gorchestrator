@@ -25,6 +25,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/owulveryck/gorchestrator/orchestrator"
 	"html/template"
+	"log"
 	"net/http"
 )
 
@@ -35,6 +36,7 @@ type jsonErr struct {
 
 func displayGraph(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
+	log.Println("Calling displayGraph with", mux.Vars(r))
 	var id string
 	id = vars["id"]
 	g, err := getGraph(id)

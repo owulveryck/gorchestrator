@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"github.com/owulveryck/gorchestrator/Godeps/_workspace/src/github.com/awalterschulze/gographviz"
 	"github.com/owulveryck/gorchestrator/orchestrator"
+	"log"
 	"net/http"
 	"os"
 	"os/exec"
@@ -38,6 +39,7 @@ func getGraph(id string) (orchestrator.Graph, error) {
 	var g orchestrator.Graph
 
 	r, err := http.Get(fmt.Sprintf("http://localhost:8080/v1/tasks/%v", id))
+	log.Println("Getting:", id)
 	if err != nil {
 		return g, err
 	}
