@@ -142,7 +142,6 @@ func generateSvg(id string) ([]byte, error) {
 	}
 	// Now add the edges
 	s := g.String()
-	fmt.Println(s)
 	d := exec.Command("dot", "-Tsvg")
 
 	// Set the stdin stdout and stderr of the dot subprocess

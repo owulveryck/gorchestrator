@@ -3,10 +3,10 @@
                 <div class="table-responsive">
                     <table class="table table-condensed" id="execTable">
                         <tbody>
-                            <th>Action</th><th>Engine</th><th>Artifact</th><th>Args</th><th>Output</th><th>State</th>
+                            <th>Action</th><th>Target</th><th>Engine</th><th>Artifact</th><th>Args</th><th>Output</th><th>State</th>
                             {{range .Nodes}}
                             <tr id="{{.ID}}">
-                                <td id="name">{{.Name}}</td><td>{{.Engine}}</td><td>{{.Artifact}}</td><td>{{.Args}}</td><td>{{.Outputs}}</td><td id="state">{{.State}}</td>
+                                <td id="name">{{.Name}}</td><td>{{.Target}}</td><td>{{.Engine}}</td><td>{{.Artifact}}</td><td>{{.Args}}</td><td>{{.Outputs}}</td><td id="state">{{.State}}</td>
                             </tr>
                             {{end}}
                         </tbody>

@@ -28,6 +28,7 @@ import (
 	"github.com/owulveryck/toscalib/toscaexec"
 	"log"
 	"os"
+	"regexp"
 )
 
 func togorch(t toscalib.ServiceTemplateDefinition) orchestrator.Graph {
@@ -42,6 +43,34 @@ func togorch(t toscalib.ServiceTemplateDefinition) orchestrator.Graph {
 		node.Engine = "shell"
 		node.Artifact = n.NodeTemplate.Interfaces[n.InterfaceName].Operations[n.OperationName].Implementation
 		//node.Args = n.NodeTemplate.Interfaces[n.InterfaceName].Inputs
+		// Sets the target
+
+		// Find the "host" requirement
+		compute := regexp.MustCompile(`[cC]ompute$`)
+		var target string
+		target = "self"
+		targetType := "none"
+		curr := n.NodeTemplate.Requirements
+		for i := 0; i < len(t.TopologyTemplate.NodeTemplates); i++ {
+			for _, req := range curr {
+				if name, ok := req["host"]; ok {
+					// Get the NodeTemplate "name"
+					nt := t.TopologyTemplate.NodeTemplates[name.Node]
+					// Get the required node's type
+					targetType = nt.Type
+					// If targetType is a node compute
+					if compute.MatchString(targetType) {
+						target = name.Node
+						break
+					}
+					curr = nt.Requirements
+				}
+				if target != "self" {
+					break
+				}
+			}
+		}
+		node.Target = target
 		g.Nodes = append(g.Nodes, node)
 	}
 	return g
