@@ -1,8 +1,32 @@
 {{define "content"}}
-<!-- Default box -->
+          <!-- /.box -->
       <div class="box">
         <div class="box-header with-border">
-          <h3 class="box-title">Execution view</h3>
+          <h3 class="box-title">Graphical view</h3>
+
+          <div class="box-tools pull-right">
+            <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+              <i class="fa fa-minus"></i></button>
+            <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+              <i class="fa fa-times"></i></button>
+          </div>
+        </div>
+        <div class="box-body">
+                <div class="embed-responsive embed-responsive-16by9">
+                    <object class="embed-responsive-item" data="/graph/{{.ID}}.svg" type="image/svg+xml" id="graphSVG">Please provide an ID</object>
+                </div>
+        </div>
+        <!-- /.box-body -->
+        <div class="box-footer">
+          Footer
+        </div>
+        <!-- /.box-footer-->
+      </div>
+      <!-- /.box -->
+      <!-- Default box -->
+      <div class="box">
+        <div class="box-header with-border">
+          <h3 class="box-title">Table view</h3>
 
           <div class="box-tools pull-right">
             <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
@@ -18,7 +42,7 @@
                             <th>Action</th><th>Target</th><th>Engine</th><th>Artifact</th><th>State</th>
                             {{range .Nodes}}
                             <tr id="{{.ID}}">
-                                <td id="name">{{.Name}}</td><td>{{.Target}}</td><td>{{.Engine}}</td><td>{{.Artifact}}</td></td><td id="state">{{.State}}</td>
+                                <td id="name">{{.Name}}</td><td>{{.Target}}</td><td>{{.Engine}}</td><td>{{.Artifact}}</td></td><td><span class="label label-success" id="state{{.ID}}">{{.State}}</span></td>
                             </tr>
                             {{end}}
                         </tbody>
@@ -31,30 +55,6 @@
         </div>
         <!-- /.box-footer-->
       </div>
-      <!-- /.box -->
-      <div class="box">
-        <div class="box-header with-border">
-          <h3 class="box-title">Execution view</h3>
-
-          <div class="box-tools pull-right">
-            <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
-              <i class="fa fa-minus"></i></button>
-            <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
-              <i class="fa fa-times"></i></button>
-          </div>
-        </div>
-        <div class="box-body">
-                <div class="embed-responsive embed-responsive-4by3">
-                    <object class="embed-responsive-item" data="/graph/{{.ID}}.svg" type="image/svg+xml" id="graphSVG">Please provide an ID</object>
-                </div>
-        </div>
-        <!-- /.box-body -->
-        <div class="box-footer">
-          Footer
-        </div>
-        <!-- /.box-footer-->
-      </div>
-      <!-- /.box -->
 
     <!-- Bootstrap core JavaScript
     ================================================== -->
@@ -80,28 +80,36 @@
                         switch (data.nodes[i].state) {
                             case 0:
                                 color = 'rgba(0, 0, 0, 0.3)'
+                                $("#state" + data.nodes[i].id,execTable).text("Initial").removeClass("label-success").addClass("label-default");
                                 break;
                             case 1:
                                 color = 'rgba(0, 0, 255, 0.3)'
+                                $("#state" + data.nodes[i].id,execTable).text("ToRun").removeClass("label-success").addClass("label-primary");
                                 break;
                             case 2:
                                 color = 'rgba(255,255,0,0.3)'
+                                $("#state" + data.nodes[i].id,execTable).text("Running").removeClass("label-success").addClass("label-info");
                                 break;
                             case 3:
                                 color = 'rgba(0, 255, 0, 0.3)'
+                                $("#state" + data.nodes[i].id,execTable).text("Success").removeClass("label-success").addClass("label-success");
                                 break;
                             case 4:
                                 color = 'rgba(255, 0, 0, 0.3)'
+                                $("#state" + data.nodes[i].id,execTable).text("Failure").removeClass("label-success").addClass("label-danger");
                                 break;
                             case 5:
                                 color = 'rgba(192, 192, 192, 0.3)'
+                                $("#state" + data.nodes[i].id,execTable).text("Not Runnable").removeClass("label-success").addClass("label-warning");
                                 break;
                             default:
                                 color = 'rgba(230, 0, 0, 0.3)'
+                                $("#state" + data.nodes[i].id,execTable).text("Idle").removeClass("label-success").addClass("label-warning");
                         }
                         //$("#" + data.nodes[i].id,svgRoot).children("text").css({'fill': color});
                         $("#" + data.nodes[i].id,svgRoot).children("path").css({'fill': color});
-                        $("#" + data.nodes[i].id,execTable).css({'background-color': color});
+                        //$("#" + data.nodes[i].id,execTable).css({'background-color': color});
+
                         //$("#" + data.nodes[i].id,execTable).children("td").css({'background-color':'green'}) ;
                         //$("#" + data[i].id,svgRoot).children("polygon").css({'fill': color});
                     }
