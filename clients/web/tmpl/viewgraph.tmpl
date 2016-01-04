@@ -18,7 +18,13 @@
         </div>
         <!-- /.box-body -->
         <div class="box-footer">
-          Footer
+            Color codes:
+            <span class="label label-default">Initial state</span>
+            <span class="label label-primary">To run</span>
+            <span class="label label-info">Running</span>
+            <span class="label label-success">Success</span>
+            <span class="label label-warning">Not runnable</span>
+            <span class="label label-danger">Failure</span>
         </div>
         <!-- /.box-footer-->
       </div>
@@ -79,27 +85,27 @@
 
                         switch (data.nodes[i].state) {
                             case 0:
-                                color = 'rgba(0, 0, 0, 0.3)'
+                                color = '#95a5a6'
                                 $("#state" + data.nodes[i].id,execTable).text("Initial").removeClass("label-success").addClass("label-default");
                                 break;
                             case 1:
-                                color = 'rgba(0, 0, 255, 0.3)'
+                                color = '#3498db'
                                 $("#state" + data.nodes[i].id,execTable).text("ToRun").removeClass("label-success").addClass("label-primary");
                                 break;
                             case 2:
-                                color = 'rgba(255,255,0,0.3)'
+                                color = '#9b59b6'
                                 $("#state" + data.nodes[i].id,execTable).text("Running").removeClass("label-success").addClass("label-info");
                                 break;
                             case 3:
-                                color = 'rgba(0, 255, 0, 0.3)'
+                                color = '#2ecc71'
                                 $("#state" + data.nodes[i].id,execTable).text("Success").removeClass("label-success").addClass("label-success");
                                 break;
                             case 4:
-                                color = 'rgba(255, 0, 0, 0.3)'
+                                color = '#e74c3c'
                                 $("#state" + data.nodes[i].id,execTable).text("Failure").removeClass("label-success").addClass("label-danger");
                                 break;
                             case 5:
-                                color = 'rgba(192, 192, 192, 0.3)'
+                                color = '#e67e22'
                                 $("#state" + data.nodes[i].id,execTable).text("Not Runnable").removeClass("label-success").addClass("label-warning");
                                 break;
                             default:
