@@ -1,4 +1,4 @@
-tosca_definitions_version: tosca_simple_yaml_1_0_0
+tosca_definitions_version: tosca_simple_yaml_1_0
 
 description: >
   TOSCA simple profile with wordpress, web server and mysql on the same server.
@@ -30,7 +30,7 @@ topology_template:
       type: string
       description: Root password for MySQL.
     db_port:
-      type: integer
+      type: PortDef
       description: Port for the MySQL database.
       default: 3306
 
@@ -38,12 +38,10 @@ topology_template:
     wordpress:
       type: tosca.nodes.WebApplication.WordPress
       requirements:
-        - host:
-            node: webserver
-        - database_endpoint:
-            node: mysql_database
+        - host: webserver
+        - database_endpoint: mysql_database
       interfaces:
-        tosca.interfaces.node.lifecycle.Standard:
+        Standard:
           create: wordpress/wordpress_install.sh
           configure:
             implementation: wordpress/wordpress_configure.sh
@@ -55,9 +53,9 @@ topology_template:
     mysql_database:
       type: tosca.nodes.Database
       properties:
-        db_name: { get_input: db_name }
-        db_user: { get_input: db_user }
-        db_password: { get_input: db_pwd }
+        name: { get_input: db_name }
+        user: { get_input: db_user }
+        password: { get_input: db_pwd }
       capabilities:
         database_endpoint:
           properties:
@@ -66,7 +64,7 @@ topology_template:
         - host:
             node: mysql_dbms
       interfaces:
-        tosca.interfaces.node.lifecycle.Standard:
+        Standard:
           configure:
             implementation: mysql/mysql_database_configure.sh
             inputs:
@@ -77,13 +75,12 @@ topology_template:
     mysql_dbms:
       type: tosca.nodes.DBMS
       properties:
-        dbms_root_password: { get_input: db_root_pwd }
-        dbms_port: { get_input: db_port }
+        root_password: { get_input: db_root_pwd }
+        port: { get_input: db_port }
       requirements:
-        - host:
-            node: server
+        - host: server
       interfaces:
-        tosca.interfaces.node.lifecycle.Standard:
+        Standard:
           create:
             implementation: mysql/mysql_dbms_install.sh
             inputs:
@@ -97,10 +94,9 @@ topology_template:
     webserver:
       type: tosca.nodes.WebServer
       requirements:
-        - host:
-            node: server
+        - host: server
       interfaces:
-        tosca.interfaces.node.lifecycle.Standard:
+        Standard:
           create: webserver/webserver_install.sh
           start: webserver/webserver_start.sh
     server:
