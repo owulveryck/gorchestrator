@@ -96,7 +96,7 @@ func generateSvg(id string) ([]byte, error) {
 	}
 
 	// Now for each node, create a node
-	g.SetName(strings.Replace(v.Name, " ", "_", -1))
+	g.SetName("Execution")
 	g.SetDir(true)
 	m := make(map[int]string)
 	// Now add every node
@@ -169,6 +169,10 @@ func generateSvg(id string) ([]byte, error) {
 	var buf bytes.Buffer
 	buf.ReadFrom(readCloser)
 
-	d.Wait()
+	err = d.Wait()
+	if err != nil {
+		fmt.Println(s)
+	}
+
 	return buf.Bytes(), nil
 }
