@@ -22,7 +22,7 @@ package executor
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gorilla/mux"
+	"github.com/owulveryck/gorchestrator/Godeps/_workspace/src/github.com/gorilla/mux"
 	"io"
 	"io/ioutil"
 	"net/http"
