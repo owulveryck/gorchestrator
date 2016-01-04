@@ -1,18 +1,6 @@
 {{define "content"}}
-<!-- Default box -->
-      <div class="box">
-        <div class="box-header with-border">
-          <h3 class="box-title">Execution view</h3>
-
-          <div class="box-tools pull-right">
-            <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
-              <i class="fa fa-minus"></i></button>
-            <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
-              <i class="fa fa-times"></i></button>
-          </div>
-        </div>
-        <div class="box-body">
-          <div class="table-responsive">
+           <div class="col-md-6">
+                <div class="table-responsive">
                     <table class="table table-condensed" id="execTable">
                         <tbody>
                             <th>Action</th><th>Target</th><th>Engine</th><th>Artifact</th><th>State</th>
@@ -24,37 +12,13 @@
                         </tbody>
                     </table>
                 </div>
-        </div>
-        <!-- /.box-body -->
-        <div class="box-footer">
-          Footer
-        </div>
-        <!-- /.box-footer-->
-      </div>
-      <!-- /.box -->
-      <div class="box">
-        <div class="box-header with-border">
-          <h3 class="box-title">Execution view</h3>
-
-          <div class="box-tools pull-right">
-            <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
-              <i class="fa fa-minus"></i></button>
-            <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
-              <i class="fa fa-times"></i></button>
-          </div>
-        </div>
-        <div class="box-body">
+            </div>
+            <div class="col-md-6">
                 <div class="embed-responsive embed-responsive-4by3">
                     <object class="embed-responsive-item" data="/graph/{{.ID}}.svg" type="image/svg+xml" id="graphSVG">Please provide an ID</object>
                 </div>
-        </div>
-        <!-- /.box-body -->
-        <div class="box-footer">
-          Footer
-        </div>
-        <!-- /.box-footer-->
-      </div>
-      <!-- /.box -->
+            </div>
+
 
     <!-- Bootstrap core JavaScript
     ================================================== -->
@@ -126,4 +90,3 @@
     </script>
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->    <!--<script src="../../assets/js/ie10-viewport-bug-workaround.js"></script>-->
 {{end}}
-      
