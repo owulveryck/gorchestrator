@@ -1,0 +1,6 @@
+test:
+  host: 127.0.0.1
+  port: 22
+  public_key: /home/chronos/user/.ssh/id_rsa/id_rsa.pub
+  private_key: /home/chronos/user/.ssh/id_rsa
+  remote_user: dev
