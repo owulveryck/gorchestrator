@@ -1,24 +1,66 @@
 {{define "content"}}
-           <div class="col-md-8">
-                <div class="table-responsive">
+          <!-- /.box -->
+      <div class="box box-primary">
+        <div class="box-header with-border">
+          <h3 class="box-title">Graphical view</h3>
+
+          <div class="box-tools pull-right">
+            <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+              <i class="fa fa-minus"></i></button>
+            <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+              <i class="fa fa-times"></i></button>
+          </div>
+        </div>
+        <div class="box-body">
+                <div class="embed-responsive embed-responsive-16by9">
+                    <object class="embed-responsive-item" data="/graph/{{.ID}}.svg" type="image/svg+xml" id="graphSVG">Please provide an ID</object>
+                </div>
+        </div>
+        <!-- /.box-body -->
+        <div class="box-footer">
+            Color codes:
+            <span class="label label-default">Initial state</span>
+            <span class="label label-primary">To run</span>
+            <span class="label label-info">Running</span>
+            <span class="label label-success">Success</span>
+            <span class="label label-warning">Not runnable</span>
+            <span class="label label-danger">Failure</span>
+        </div>
+        <!-- /.box-footer-->
+      </div>
+      <!-- /.box -->
+      <!-- Default box -->
+      <div class="box box-success">
+        <div class="box-header with-border">
+          <h3 class="box-title">Table view</h3>
+
+          <div class="box-tools pull-right">
+            <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+              <i class="fa fa-minus"></i></button>
+            <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+              <i class="fa fa-times"></i></button>
+          </div>
+        </div>
+        <div class="box-body">
+          <div class="table-responsive">
                     <table class="table table-condensed" id="execTable">
                         <tbody>
-                            <th>Action</th><th>Engine</th><th>Artifact</th><th>Args</th><th>Output</th><th>State</th>
+                            <th>Action</th><th>Target</th><th>Engine</th><th>Artifact</th><th>State</th>
                             {{range .Nodes}}
                             <tr id="{{.ID}}">
-                                <td id="name">{{.Name}}</td><td>{{.Engine}}</td><td>{{.Artifact}}</td><td>{{.Args}}</td><td>{{.Outputs}}</td><td id="state">{{.State}}</td>
+                                <td id="name">{{.Name}}</td><td>{{.Target}}</td><td>{{.Engine}}</td><td>{{.Artifact}}</td></td><td><span class="label label-success" id="state{{.ID}}">{{.State}}</span></td>
                             </tr>
                             {{end}}
                         </tbody>
                     </table>
                 </div>
-            </div>
-            <div class="col-md-4">
-                <div class="embed-responsive embed-responsive-4by3">
-                    <object class="embed-responsive-item" data="/graph/{{.ID}}.svg" type="image/svg+xml" id="graphSVG">Please provide an ID</object>
-                </div>
-            </div>
-
+        </div>
+        <!-- /.box-body -->
+        <div class="box-footer">
+          Footer
+        </div>
+        <!-- /.box-footer-->
+      </div>
 
     <!-- Bootstrap core JavaScript
     ================================================== -->
@@ -43,29 +85,37 @@
 
                         switch (data.nodes[i].state) {
                             case 0:
-                                color = 'rgba(0, 0, 0, 0.3)'
+                                color = '#95a5a6'
+                                $("#state" + data.nodes[i].id,execTable).text("Initial").removeClass().addClass("label").addClass("label-default");
                                 break;
                             case 1:
-                                color = 'rgba(0, 0, 255, 0.3)'
+                                color = '#428bca'
+                                $("#state" + data.nodes[i].id,execTable).text("ToRun").removeClass().addClass("label").addClass("label-primary");
                                 break;
                             case 2:
-                                color = 'rgba(255,255,0,0.3)'
+                                color = '#5bc0de'
+                                $("#state" + data.nodes[i].id,execTable).text("Running").removeClass().addClass("label").addClass("label-info");
                                 break;
                             case 3:
-                                color = 'rgba(0, 255, 0, 0.3)'
+                                color = '#2ecc71'
+                                $("#state" + data.nodes[i].id,execTable).text("Success").removeClass().addClass("label").addClass("label-success");
                                 break;
                             case 4:
-                                color = 'rgba(255, 0, 0, 0.3)'
+                                color = '#e74c3c'
+                                $("#state" + data.nodes[i].id,execTable).text("Failure").removeClass().addClass("label").addClass("label-danger");
                                 break;
                             case 5:
-                                color = 'rgba(192, 192, 192, 0.3)'
+                                color = '#f89406'
+                                $("#state" + data.nodes[i].id,execTable).text("Not Runnable").removeClass().addClass("label").addClass("label-warning");
                                 break;
                             default:
                                 color = 'rgba(230, 0, 0, 0.3)'
+                                $("#state" + data.nodes[i].id,execTable).text("Idle").removeClass().addClass("label").addClass("label-warning");
                         }
                         //$("#" + data.nodes[i].id,svgRoot).children("text").css({'fill': color});
                         $("#" + data.nodes[i].id,svgRoot).children("path").css({'fill': color});
-                        $("#" + data.nodes[i].id,execTable).css({'background-color': color});
+                        //$("#" + data.nodes[i].id,execTable).css({'background-color': color});
+
                         //$("#" + data.nodes[i].id,execTable).children("td").css({'background-color':'green'}) ;
                         //$("#" + data[i].id,svgRoot).children("polygon").css({'fill': color});
                     }
@@ -90,3 +140,4 @@
     </script>
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->    <!--<script src="../../assets/js/ie10-viewport-bug-workaround.js"></script>-->
 {{end}}
+      

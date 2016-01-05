@@ -1,0 +1,92 @@
+{{define "content"}}
+           <div class="col-md-6">
+                <div class="table-responsive">
+                    <table class="table table-condensed" id="execTable">
+                        <tbody>
+                            <th>Action</th><th>Target</th><th>Engine</th><th>Artifact</th><th>State</th>
+                            {{range .Nodes}}
+                            <tr id="{{.ID}}">
+                                <td id="name">{{.Name}}</td><td>{{.Target}}</td><td>{{.Engine}}</td><td>{{.Artifact}}</td></td><td id="state">{{.State}}</td>
+                            </tr>
+                            {{end}}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="embed-responsive embed-responsive-4by3">
+                    <object class="embed-responsive-item" data="/graph/{{.ID}}.svg" type="image/svg+xml" id="graphSVG">Please provide an ID</object>
+                </div>
+            </div>
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <!-- update the color -->
+    <script src="/dist/js/jquery.min.js"></script>
+    <script type="text/javascript">
+        function updateGraph(svgRoot,execTable) {
+            $.getJSON( "{{.Update}}", function() {
+                //console.log( "success!" );
+                }).done(function(data) {
+                    for (var i in data.nodes){
+                        //console.log(data.nodes[i].state);
+                        //Initial     = 0
+                        //ToRun       = 1
+                        //Running     = 2
+                        //Success     = 3
+                        //Failure     = 4
+                        //NotRunnable = 5
+                        //Timeout     = 10
+                        //Canceled    = 11
+
+                        switch (data.nodes[i].state) {
+                            case 0:
+                                color = 'rgba(0, 0, 0, 0.3)'
+                                break;
+                            case 1:
+                                color = 'rgba(0, 0, 255, 0.3)'
+                                break;
+                            case 2:
+                                color = 'rgba(255,255,0,0.3)'
+                                break;
+                            case 3:
+                                color = 'rgba(0, 255, 0, 0.3)'
+                                break;
+                            case 4:
+                                color = 'rgba(255, 0, 0, 0.3)'
+                                break;
+                            case 5:
+                                color = 'rgba(192, 192, 192, 0.3)'
+                                break;
+                            default:
+                                color = 'rgba(230, 0, 0, 0.3)'
+                        }
+                        //$("#" + data.nodes[i].id,svgRoot).children("text").css({'fill': color});
+                        $("#" + data.nodes[i].id,svgRoot).children("path").css({'fill': color});
+                        $("#" + data.nodes[i].id,execTable).css({'background-color': color});
+                        //$("#" + data.nodes[i].id,execTable).children("td").css({'background-color':'green'}) ;
+                        //$("#" + data[i].id,svgRoot).children("polygon").css({'fill': color});
+                    }
+                });
+                    setTimeout(function() {
+                            updateGraph(svgRoot);
+                    }, 2000)
+        }
+        $(document).ready(function(){
+            var a = document.getElementById("graphSVG");
+
+            // Some help from http://stackoverflow.com/questions/6793312/how-to-use-jquery-in-svg-scalable-vector-graphics
+            //it's important to add an load event listener to the object, as it will load the svg doc asynchronously
+            a.addEventListener("load",function(){
+                var svgDoc = a.contentDocument; //get the inner DOM of alpha.svg
+                var svgRoot  = svgDoc.documentElement;
+                updateGraph(svgRoot,execTable);
+                //now we can query stuff with jquery like this
+                //note that we pass in the svgRoot as the context node!
+            },false);
+        })
+    </script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->    <!--<script src="../../assets/js/ie10-viewport-bug-workaround.js"></script>-->
+{{end}}
