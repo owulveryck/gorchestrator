@@ -35,7 +35,8 @@ import (
 type Node struct {
 	ID       int               `json:"id"`
 	State    int               `json:"state,omitempty"`
-	Name     string            `json:"name,omitempty"`
+	Name     string            `json:"name,omitempty"`   // The targeted host
+	Target   string            `json:"target,omitempty"` // The execution engine (ie ansible, shell); aim to be like a shebang in a shell file
 	Engine   string            `json:"engine,omitempty"` // The execution engine (ie ansible, shell); aim to be like a shebang in a shell file
 	Artifact string            `json:"artifact"`
 	Args     []string          `json:"args,omitempty"`   // the arguments of the artifact, if needed
@@ -105,7 +106,7 @@ func (n *Node) Execute(exe ExecutorBackend) error {
 }
 
 // Run the node
-func (n *Node) Run(exe ExecutorBackend) <-chan Message {
+func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 	c := make(chan Message)
 	waitForIt := make(chan Graph) // Shared between all messages.
 	var ga = regexp.MustCompile(`^get_attribute (.+):(.+)$`)
@@ -160,7 +161,14 @@ func (n *Node) Run(exe ExecutorBackend) <-chan Message {
 					n.State = Success
 					n.Outputs["result"] = fmt.Sprintf("%v_%v", n.Name, time.Now().Unix())
 				default:
-					err := n.Execute(exe)
+					var executor ExecutorBackend
+					executor = exe[0]
+					for _, eb := range exe {
+						if eb.Name == n.Target {
+							executor = eb
+						}
+					}
+					err := n.Execute(executor)
 					if err != nil && n.State <= Success {
 						n.State = Failure
 					}

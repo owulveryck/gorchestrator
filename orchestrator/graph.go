@@ -41,7 +41,7 @@ func (v *Graph) getNodeFromName(n string) (Node, error) {
 var mu sync.RWMutex
 
 // Run executes the Graph structure
-func (v *Graph) Run(exe ExecutorBackend) {
+func (v *Graph) Run(exe []ExecutorBackend) {
 	v.State = Running
 	m := v.Digraph
 

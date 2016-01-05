@@ -26,7 +26,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/owulveryck/gorchestrator/Godeps/_workspace/src/github.com/gorilla/mux"
+	"github.com/gorilla/mux"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -62,6 +62,7 @@ func TestInit(t *testing.T) {
 	defer ts.Close()
 	// This test should work
 	exe := ExecutorBackend{
+		"self",
 		fmt.Sprintf("%v/v1", ts.URL),
 		"./test/orchestrator.pem",
 		"./test/orchestrator_key.pem",
@@ -75,6 +76,7 @@ func TestInit(t *testing.T) {
 	}
 	// This test shoud not work because client has not the correct certificate
 	exe = ExecutorBackend{
+		"self",
 		fmt.Sprintf("%v/v1", ts.URL),
 		"./test/executor.pem",
 		"./test/orchestrator_key.pem",
@@ -88,6 +90,7 @@ func TestInit(t *testing.T) {
 	}
 
 	exe = ExecutorBackend{
+		"self",
 		fmt.Sprintf("%v/v1", ts.URL),
 		"./test/orchestrator.pem",
 		"./test/orchestrator_key.pem",
@@ -101,6 +104,7 @@ func TestInit(t *testing.T) {
 	}
 
 	exe = ExecutorBackend{
+		"self",
 		fmt.Sprintf("%v/v1", ts.URL),
 		"./test/cert_nil.pem",
 		"./test/orchestrator_key.pem",
@@ -113,6 +117,7 @@ func TestInit(t *testing.T) {
 		t.Error(err)
 	}
 	exe = ExecutorBackend{
+		"self",
 		fmt.Sprintf("%v/v1", ts.URL),
 		"./test/orchestrator.pem",
 		"./test/orchestrator_key.pem",
@@ -125,6 +130,7 @@ func TestInit(t *testing.T) {
 		t.Error(err)
 	}
 	exe = ExecutorBackend{
+		"self",
 		fmt.Sprintf("%v/v1", ts.URL),
 		"./test/orchestrator.pem",
 		"./test/orchestrator_key.pem",

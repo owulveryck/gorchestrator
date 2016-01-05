@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package main
 
 import (
-	"github.com/owulveryck/gorchestrator/Godeps/_workspace/src/github.com/gorilla/mux"
+	"github.com/gorilla/mux"
 	"net/http"
 )
 
@@ -39,7 +39,19 @@ func NewRouter() *mux.Router {
 	// Definition des routes
 	var routes = routes{
 		route{
-			"SVG diagram",
+			"Json tasks",
+			"GET",
+			"/tasks/tasks.json",
+			getTasks,
+		},
+		route{
+			"Display tasks",
+			"GET",
+			"/tasks/",
+			displayTasks,
+		},
+		route{
+			"JSon graph",
 			"GET",
 			"/graph/{id}.json",
 			displayGraph,

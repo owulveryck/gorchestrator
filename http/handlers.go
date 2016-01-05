@@ -22,7 +22,7 @@ package http
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/owulveryck/gorchestrator/Godeps/_workspace/src/github.com/gorilla/mux"
+	"github.com/gorilla/mux"
 	"github.com/owulveryck/gorchestrator/orchestrator"
 	"io"
 	"io/ioutil"
@@ -136,6 +136,7 @@ func TaskCreate(w http.ResponseWriter, r *http.Request) {
 
 	uuid := uuid()
 	exe := orchestrator.ExecutorBackend{
+		"self",
 		"https://127.0.0.1:8585/v1",
 		"orchestrator.pem",
 		"orchestrator_key.pem",
@@ -145,7 +146,7 @@ func TaskCreate(w http.ResponseWriter, r *http.Request) {
 	}
 	exe.Init()
 
-	go v.Run(exe)
+	go v.Run([]orchestrator.ExecutorBackend{exe})
 	v.Timeout = time.After(5 * time.Minute)
 	tasks[uuid.ID] = &v
 

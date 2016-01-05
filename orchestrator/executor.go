@@ -10,6 +10,7 @@ import (
 
 // ExecutorBackend represent an executor
 type ExecutorBackend struct {
+	Name        string
 	Url         string // eg: https://localhost:8585/v1
 	Certificate string //
 	Key         string

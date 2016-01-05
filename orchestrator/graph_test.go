@@ -65,6 +65,7 @@ func TestRun(t *testing.T) {
 	ts.StartTLS()
 	defer ts.Close()
 	exe := ExecutorBackend{
+		"self",
 		fmt.Sprintf("%v/v1", ts.URL),
 		"./test/orchestrator.pem",
 		"./test/orchestrator_key.pem",
@@ -81,13 +82,13 @@ func TestRun(t *testing.T) {
 	allInvalid := []Graph{validAndTimeout, validAndExecFailure}
 
 	for _, v := range allValid {
-		v.Run(exe)
+		v.Run([]ExecutorBackend{exe})
 		if v.State != Success {
 			t.Fatalf("Failed: %v", v)
 		}
 	}
 	for _, v := range allInvalid {
-		v.Run(exe)
+		v.Run([]ExecutorBackend{exe})
 		if v.State <= Success {
 			t.Fatalf("Failed: %v", v)
 		}
@@ -103,6 +104,7 @@ func BenchmarkRun(b *testing.B) {
 		b.Errorf("Struct should not be valid, error is: %v", e.Error())
 	}
 	exe := ExecutorBackend{
+		"self",
 		"https://localhost:8585/v1",
 		"./security/certs/orchestrator/orchestrator.pem",
 		"./security/certs/orchestrator/orchestrator_key.pem",
@@ -120,7 +122,7 @@ func BenchmarkRun(b *testing.B) {
 		vs[i] = valid
 		vs[i].Name = fmt.Sprintf("%v", i)
 		go func(v Graph, wg *sync.WaitGroup) {
-			v.Run(exe)
+			v.Run([]ExecutorBackend{exe})
 			wg.Done()
 		}(vs[i], &wg)
 	}
