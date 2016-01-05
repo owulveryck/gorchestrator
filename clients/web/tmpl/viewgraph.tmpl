@@ -86,31 +86,31 @@
                         switch (data.nodes[i].state) {
                             case 0:
                                 color = '#95a5a6'
-                                $("#state" + data.nodes[i].id,execTable).text("Initial").removeClass("label-success").addClass("label-default");
+                                $("#state" + data.nodes[i].id,execTable).text("Initial").removeClass().addClass("label").addClass("label-default");
                                 break;
                             case 1:
-                                color = '#3498db'
-                                $("#state" + data.nodes[i].id,execTable).text("ToRun").removeClass("label-success").addClass("label-primary");
+                                color = '#428bca'
+                                $("#state" + data.nodes[i].id,execTable).text("ToRun").removeClass().addClass("label").addClass("label-primary");
                                 break;
                             case 2:
-                                color = '#9b59b6'
-                                $("#state" + data.nodes[i].id,execTable).text("Running").removeClass("label-success").addClass("label-info");
+                                color = '#5bc0de'
+                                $("#state" + data.nodes[i].id,execTable).text("Running").removeClass().addClass("label").addClass("label-info");
                                 break;
                             case 3:
                                 color = '#2ecc71'
-                                $("#state" + data.nodes[i].id,execTable).text("Success").removeClass("label-success").addClass("label-success");
+                                $("#state" + data.nodes[i].id,execTable).text("Success").removeClass().addClass("label").addClass("label-success");
                                 break;
                             case 4:
                                 color = '#e74c3c'
-                                $("#state" + data.nodes[i].id,execTable).text("Failure").removeClass("label-success").addClass("label-danger");
+                                $("#state" + data.nodes[i].id,execTable).text("Failure").removeClass().addClass("label").addClass("label-danger");
                                 break;
                             case 5:
-                                color = '#e67e22'
-                                $("#state" + data.nodes[i].id,execTable).text("Not Runnable").removeClass("label-success").addClass("label-warning");
+                                color = '#f89406'
+                                $("#state" + data.nodes[i].id,execTable).text("Not Runnable").removeClass().addClass("label").addClass("label-warning");
                                 break;
                             default:
                                 color = 'rgba(230, 0, 0, 0.3)'
-                                $("#state" + data.nodes[i].id,execTable).text("Idle").removeClass("label-success").addClass("label-warning");
+                                $("#state" + data.nodes[i].id,execTable).text("Idle").removeClass().addClass("label").addClass("label-warning");
                         }
                         //$("#" + data.nodes[i].id,svgRoot).children("text").css({'fill': color});
                         $("#" + data.nodes[i].id,svgRoot).children("path").css({'fill': color});
