@@ -48,6 +48,19 @@ This means that you send a representation of your graph and nodes via an HTTP PO
 
 <p>The concurrency is implemented thanks to go routines (See this <a href="http://blog.owulveryck.info/2015/12/02/orchestrate-a-digraph-with-goroutine-a-concurrent-orchestrator/">post</a> for more information about the implementation)</p>
 
+<h1>
+<a id="architecture" class="anchor" href="#architecture" aria-hidden="true"><span class="octicon octicon-link"></span></a>Architecture</h1>
+
+<h2>
+<a id="orchestrator" class="anchor" href="#orchestrator" aria-hidden="true"><span class="octicon octicon-link"></span></a>orchestrator</h2>
+
+<p>The orchestrator is the main web service. It is a cloud native, stateless application. Its goal is simply to orchestrate/schedule the tasks so they are executed concurently in the correct order.</p>
+
+<h2>
+<a id="executors" class="anchor" href="#executors" aria-hidden="true"><span class="octicon octicon-link"></span></a>executor(s)</h2>
+
+<p>The executor is a web service that actually executes a task.</p>
+
 <h2>
 <a id="the-gorch" class="anchor" href="#the-gorch" aria-hidden="true"><span class="octicon octicon-link"></span></a>The Gorch</h2>
 
@@ -77,17 +90,6 @@ This means that you send a representation of your graph and nodes via an HTTP PO
     ]
 
 }</pre></div>
-
-<h2>
-<a id="the-tools" class="anchor" href="#the-tools" aria-hidden="true"><span class="octicon octicon-link"></span></a>The tools</h2>
-
-<p>gorchestrator is composed of :</p>
-
-<ul>
-<li>orchestrator which is the main execution webservices</li>
-<li>sample clients to POST and GET queries and to display it (see the <code>web client</code> for example)</li>
-<li>an execution portal which is also a webservice aim to acutally run the engines and executes the artifacts.</li>
-</ul>
 
 <h1>
 <a id="getting-it-up-and-running" class="anchor" href="#getting-it-up-and-running" aria-hidden="true"><span class="octicon octicon-link"></span></a>Getting it up and running</h1>
@@ -121,26 +123,19 @@ This means that you send a representation of your graph and nodes via an HTTP PO
 </ul>
 
 <h1>
-<a id="authn-and-authz" class="anchor" href="#authn-and-authz" aria-hidden="true"><span class="octicon octicon-link"></span></a>AuthN and AuthZ</h1>
+<a id="clients" class="anchor" href="#clients" aria-hidden="true"><span class="octicon octicon-link"></span></a>Clients</h1>
 
-<p>The implementation is in the roadmap, and will be based on <code>oauth2</code></p>
+<h2>
+<a id="webclient" class="anchor" href="#webclient" aria-hidden="true"><span class="octicon octicon-link"></span></a>Webclient</h2>
 
-<h1>
-<a id="performances" class="anchor" href="#performances" aria-hidden="true"><span class="octicon octicon-link"></span></a>Performances</h1>
+<p>A web client is in development, see <em>clients/web</em> for the sources:
+<img src="https://raw.githubusercontent.com/owulveryck/gorchestrator/master/Documentation/images/webclient.png" alt="Screenshot"></p>
 
-<p>I did a <code>test</code> file to bench the orchestrator engine (and only the engine) with the <code>go</code> mechanism. The example, is the simple one listed one my blog post.</p>
+<h2>
+<a id="tosca-client" class="anchor" href="#tosca-client" aria-hidden="true"><span class="octicon octicon-link"></span></a>Tosca client</h2>
 
-<p>Here are the results on my chromebook (which is small, with only 2 Gb of RAM)</p>
-
-<pre><code>orchestrator git:(master)go test -bench . -cpu 1
-PASS
-BenchmarkRun        3000            981423 ns/op
-ok      github.com/owulveryck/gorchestrator/orchestrator        3.882s
-</code></pre>
-
-<p>Which means that I can interpret and run 3000 times this digraph in 3.8s (excluding the actual execution time of the task)</p>
-
-<p><strong>Note</strong> : It is simply the execution workflow as all the nodes do not perform any action.</p>
+<p>A tosca client using the <a href="https://github.com/owulveryck/toscalib">toscalib</a> is present in <em>clients/tosca</em>.
+It converts a TOSCA execution plan into a <em>gorch</em> representation.</p>
       </section>
     </div>
 
