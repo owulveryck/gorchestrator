@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/owulveryck/gorchestrator.svg?branch=master)](https://travis-ci.org/owulveryck/gorchestrator)
+
 # Abstract
 
 A simple orchestrator that takes and adjacency matrix as input.
