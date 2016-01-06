@@ -186,7 +186,7 @@ func (n *node) ssh() error {
 	sshConfig := &ssh.ClientConfig{
 		User: conf[n.Target].User,
 		Auth: []ssh.AuthMethod{
-			PublicKeyFile(conf[n.Target].PublicKeyFile),
+			PublicKeyFile(conf[n.Target].PrivateKeyFile),
 			SSHAgent(),
 		},
 	}
@@ -199,7 +199,7 @@ func (n *node) ssh() error {
 
 	cmd := &SSHCommand{
 		Path:   fmt.Sprintf("%v %v", n.Artifact, n.Args[0:]),
-		Env:    []string{"LC_DIR=/"},
+		Env:    []string{},
 		Stdin:  os.Stdin,
 		Stdout: os.Stdout,
 		Stderr: os.Stderr,
