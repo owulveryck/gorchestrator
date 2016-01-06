@@ -42,7 +42,9 @@ func togorch(t toscalib.ServiceTemplateDefinition) orchestrator.Graph {
 		node.Name = fmt.Sprintf("%v:%v", n.NodeTemplate.Name, n.OperationName)
 		node.Engine = "ssh"
 		node.Artifact = n.NodeTemplate.Interfaces[n.InterfaceName].Operations[n.OperationName].Implementation
+		log.Println("Interfaces", n.NodeTemplate.Interfaces[n.InterfaceName])
 		for argName, argValue := range n.NodeTemplate.Interfaces[n.InterfaceName].Operations[n.OperationName].Inputs {
+			log.Printf("argName=%v, argValue=%v", argName, argValue)
 			for get, val := range argValue {
 				if get == "value" {
 					node.Args = append(node.Args, fmt.Sprintf("%v=%v", argName, val))
