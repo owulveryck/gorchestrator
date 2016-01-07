@@ -3,3 +3,7 @@ language: go
 go:
   - 1.5
   - tip
+
+script:
+  - go get ./...
+  - go test -v ./...
