@@ -82,6 +82,17 @@ desired effect
           <p>Orchestrator</p>
           <!-- Status -->
           <span id="orchestrator" class="badge bg-green">Online</span>
+          <script src="/dist/js/jquery.min.js"></script> 
+          <script>
+            $.getJSON( "/ping/orchestrator.json" )
+                .done(function( json  ) {
+                    console.log( "JSON Data: " + json.users[ 3  ].name  );
+                })
+                .fail(function( jqxhr, textStatus, error  ) {
+                    var err = textStatus + ", " + error;
+                    console.log( "Request Failed: " + err  );
+                });
+          </script>
         </div>
       </div>
 
