@@ -1,6 +1,8 @@
 package executor
 
 import (
+	"bufio"
+	"bytes"
 	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"github.com/owulveryck/gorchestrator/orchestrator"
@@ -8,6 +10,7 @@ import (
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
+	"regexp"
 )
 
 // toscassh is a special plugin where all the inputs are passed as environment variables
@@ -57,11 +60,19 @@ func (n *node) toscassh() error {
 		Port:   conf[n.Target].Port,
 	}
 
+	command := ""
+	for _, arg := range n.Args {
+		command = fmt.Sprintf("%v %v", command, arg)
+	}
+	command = fmt.Sprintf("%v %v && env", command, n.Artifact)
+	var output []byte
+	var outbuf bytes.Buffer
+	outbuf = *bytes.NewBuffer(output)
 	cmd := &SSHCommand{
-		Path:   n.Artifact,
+		Path:   command,
 		Env:    []string{},
 		Stdin:  os.Stdin,
-		Stdout: os.Stdout,
+		Stdout: &outbuf,
 		Stderr: os.Stderr,
 	}
 
@@ -69,9 +80,23 @@ func (n *node) toscassh() error {
 	n.State = orchestrator.Running
 	if err := client.RunCommand(cmd); err != nil {
 		n.State = orchestrator.Failure
-		log.Printf("command run error: %s\n", err)
+		log.Printf("[%v] command run error: %s\n", n.Name, err)
 		return err
 	}
+	// Now fill the output
+	// find the variables
+	for k, _ := range n.Outputs {
+		re := regexp.MustCompile(fmt.Sprintf("^%v=", k))
+		scanner := bufio.NewScanner(bytes.NewReader(output))
+		for scanner.Scan() {
+			txt := scanner.Text()
+			log.Println("DEBUG", txt)
+			if re.MatchString(txt) {
+				n.Outputs[k] = txt
+			}
+		}
+	}
+
 	n.State = orchestrator.Success
 	return nil
 }
