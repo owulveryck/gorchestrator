@@ -76,6 +76,7 @@ func generateSvg(id string) ([]byte, error) {
 			<td port="port8" border="1">{{.Artifact}}</td>
 		</tr>
 		<tr ><td colspan="2" port="port2" border="1">{{.Args}}</td></tr>
+		<tr ><td colspan="2" port="port2" border="1">{{.Outputs}}</td></tr>
 		</table>>{{end}}`)
 
 	// Creates a new graph

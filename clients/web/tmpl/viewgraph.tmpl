@@ -45,10 +45,24 @@
           <div class="table-responsive">
                     <table class="table table-condensed" id="execTable">
                         <tbody>
-                            <th>Action</th><th>Target</th><th>Engine</th><th>Artifact</th><th>State</th>
+                            <th>Action</th><th>Target</th><th>Engine</th><th>Artifact</th><th>Inputs</th><th>Outputs</th><th>State</th>
                             {{range .Nodes}}
                             <tr id="{{.ID}}">
-                                <td id="name">{{.Name}}</td><td>{{.Target}}</td><td>{{.Engine}}</td><td>{{.Artifact}}</td></td><td><span class="label label-success" id="state{{.ID}}">{{.State}}</span></td>
+                                <td id="name">{{.Name}}</td>
+                                <td>{{.Target}}</td>
+                                <td>{{.Engine}}</td>
+                                <td>{{.Artifact}}</td>
+                                <td>
+                                    {{range .Args}}
+                                        {{.}}<br/>
+                                    {{end}}
+                                </td>
+                                <td id="outputs_{{.ID}}">
+                                    {{range .Outputs}}
+                                        <span id="output_{{.}}">{{.}}</span><br/>
+                                    {{end}}
+                                </td>
+                                <td><span class="label label-success" id="state{{.ID}}">{{.State}}</span></td>
                             </tr>
                             {{end}}
                         </tbody>
