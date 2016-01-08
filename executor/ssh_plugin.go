@@ -156,7 +156,6 @@ func PublicKeyFile(file string) ssh.AuthMethod {
 func SSHAgent() ssh.AuthMethod {
 	if sshAgent, err := net.Dial("unix", os.Getenv("SSH_AUTH_SOCK")); err == nil {
 		return ssh.PublicKeysCallback(agent.NewClient(sshAgent).Signers)
-
 	}
 	return nil
 
@@ -197,8 +196,12 @@ func (n *node) ssh() error {
 		Port:   conf[n.Target].Port,
 	}
 
+	comm := n.Artifact
+	for _, arg := range n.Args {
+		comm = fmt.Sprintf("%v %v", comm, arg)
+	}
 	cmd := &SSHCommand{
-		Path:   fmt.Sprintf("%v %v", n.Artifact, n.Args[0:]),
+		Path:   comm,
 		Env:    []string{},
 		Stdin:  os.Stdin,
 		Stdout: os.Stdout,

@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package executor
 
 import (
+	//log "github.com/Sirupsen/logrus"
 	"log"
 	"net/http"
 	"time"
