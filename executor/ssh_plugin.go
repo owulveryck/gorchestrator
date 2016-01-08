@@ -3,15 +3,15 @@ package executor
 import (
 	"fmt"
 	"github.com/owulveryck/gorchestrator/orchestrator"
+	"golang.org/x/crypto/ssh"
+	"golang.org/x/crypto/ssh/agent"
 	"gopkg.in/yaml.v2"
 	"io"
 	"io/ioutil"
+	"log"
 	"net"
 	"os"
 	"strings"
-
-	"golang.org/x/crypto/ssh"
-	"golang.org/x/crypto/ssh/agent"
 )
 
 type sshConfig struct {
@@ -186,8 +186,8 @@ func (n *node) ssh() error {
 	sshConfig := &ssh.ClientConfig{
 		User: conf[n.Target].User,
 		Auth: []ssh.AuthMethod{
-			PublicKeyFile(conf[n.Target].PrivateKeyFile),
 			SSHAgent(),
+			PublicKeyFile(conf[n.Target].PrivateKeyFile),
 		},
 	}
 
@@ -205,11 +205,11 @@ func (n *node) ssh() error {
 		Stderr: os.Stderr,
 	}
 
-	fmt.Printf("Running command: %s\n", cmd.Path)
+	log.Printf("[%v] Running command: %s\n", n.Name, cmd.Path)
 	n.State = orchestrator.Running
 	if err := client.RunCommand(cmd); err != nil {
 		n.State = orchestrator.Failure
-		fmt.Fprintf(os.Stderr, "command run error: %s\n", err)
+		log.Printf("command run error: %s\n", err)
 		return err
 	}
 	n.State = orchestrator.Success

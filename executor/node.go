@@ -55,6 +55,9 @@ func (n *node) Run() {
 			_ = n.shell()
 		case "ssh":
 			_ = n.ssh()
+		case "toscassh":
+			err := n.toscassh()
+			log.Printf("[%v] Execution run returned %v", n.Name, err)
 		case "default":
 			n.State = orchestrator.Failure
 		}
