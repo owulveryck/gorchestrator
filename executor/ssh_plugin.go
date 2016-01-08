@@ -156,8 +156,6 @@ func PublicKeyFile(file string) ssh.AuthMethod {
 func SSHAgent() ssh.AuthMethod {
 	if sshAgent, err := net.Dial("unix", os.Getenv("SSH_AUTH_SOCK")); err == nil {
 		return ssh.PublicKeysCallback(agent.NewClient(sshAgent).Signers)
-	} else {
-		log.Info(err)
 	}
 	return nil
 
@@ -188,11 +186,8 @@ func (n *node) ssh() error {
 	if pubkey != nil {
 		auth = append(auth, pubkey)
 	}
-	log.Info("SSHAgent...")
 	agent := SSHAgent()
-	log.Info("SSHAgent...done")
 	if agent != nil {
-		log.Info("Adding sshagent...")
 		auth = append(auth, agent)
 	}
 

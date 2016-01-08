@@ -36,11 +36,8 @@ func (n *node) toscassh() error {
 	if pubkey != nil {
 		auth = append(auth, pubkey)
 	}
-	log.Info("SSHAgent...")
 	agent := SSHAgent()
-	log.Info("SSHAgent...done")
 	if agent != nil {
-		log.Info("Adding sshagent...")
 		auth = append(auth, agent)
 	}
 
