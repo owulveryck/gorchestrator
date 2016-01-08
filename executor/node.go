@@ -2,8 +2,8 @@ package executor
 
 import (
 	"bytes"
+	log "github.com/Sirupsen/logrus"
 	"github.com/owulveryck/gorchestrator/orchestrator"
-	"log"
 	"os"
 	"os/exec"
 )
@@ -32,7 +32,7 @@ func (n *node) shell() error {
 	// Actually run the dot subprocess
 	if err = d.Run(); err != nil { //Use start, not run
 		n.State = orchestrator.Failure
-		log.Println("An error occured: ", err) //replace with logger, or anything you want
+		log.Error("An error occured: ", err) //replace with logger, or anything you want
 		return err
 	}
 	//fmt.Fprintf(stdinOfDotProcess, s)
@@ -48,7 +48,14 @@ func (n *node) shell() error {
 
 // Run actually launch the engine to run the node
 func (n *node) Run() {
-	log.Printf("Running %v with engine %v, artifact %v and args %v", n.Name, n.Engine, n.Artifact, n.Args)
+	contextLogger := log.WithFields(log.Fields{
+		"Service": "executor",
+		"Method":  "node.Run",
+		"Node":    n.Name,
+	})
+	contextLogger.Data["Method"] = "node.Run"
+	contextLogger.Data["Node"] = n.Name
+	contextLogger.Data["State"] = n.State
 	if n.Artifact != "" {
 		switch n.Engine {
 		case "shell":
@@ -56,8 +63,13 @@ func (n *node) Run() {
 		case "ssh":
 			_ = n.ssh()
 		case "toscassh":
+			contextLogger.Info("Launching toscassh engine")
 			err := n.toscassh()
-			log.Printf("[%v] Execution run returned %v", n.Name, err)
+			if err != nil {
+				contextLogger.Warning("Execution returned", err)
+			} else {
+				contextLogger.Info("Execution successfuled", err)
+			}
 		case "default":
 			n.State = orchestrator.Failure
 		}

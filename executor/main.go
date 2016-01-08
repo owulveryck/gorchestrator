@@ -24,9 +24,9 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/hex"
-	//log "github.com/Sirupsen/logrus"
+	log "github.com/Sirupsen/logrus"
 	"io/ioutil"
-	"log"
+	//"log"
 	"net/http"
 	//"os"
 )

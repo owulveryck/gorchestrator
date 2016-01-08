@@ -20,8 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package executor
 
 import (
-	//log "github.com/Sirupsen/logrus"
-	"log"
+	log "github.com/Sirupsen/logrus"
 	"net/http"
 	"time"
 )
@@ -32,12 +31,16 @@ func Logger(inner http.Handler, name string) http.Handler {
 
 		inner.ServeHTTP(w, r)
 
-		log.Printf(
-			"[Executor] %s\t%s\t%s\t%s",
-			r.Method,
-			r.RequestURI,
-			name,
-			time.Since(start),
-		)
+		// Only log POST methods
+		if r.Method == "POST" {
+
+			log.Printf(
+				"[Executor] %s\t%s\t%s\t%s",
+				r.Method,
+				r.RequestURI,
+				name,
+				time.Since(start),
+			)
+		}
 	})
 }
