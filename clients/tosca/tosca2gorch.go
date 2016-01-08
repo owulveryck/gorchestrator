@@ -62,7 +62,8 @@ func togorch(t toscalib.ServiceTemplateDefinition) orchestrator.Graph {
 						log.Println("Cannot find property %v on %v", val[1], val[0])
 					}
 				case "get_attribute":
-					log.Println("DEBUG (get_attribute):", argValue)
+					log.Println("DEBUG (get_attribute):", val)
+					node.Args = append(node.Args, fmt.Sprintf("%v=get_attribute %v*:%v", argName, val[0], val[1]))
 				default:
 					node.Args = append(node.Args, fmt.Sprintf("DEBUG: %v=%v", argName, val))
 
