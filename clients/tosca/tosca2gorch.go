@@ -133,6 +133,10 @@ func main() {
 		log.Fatal("Too many arguments")
 	}
 	v = togorch(t)
+	for _, n := range v.Nodes {
+		log.Printf("[%v]\t%v\t%v\t%v", n.Name, n.Artifact, n.Args, n.Outputs)
+
+	}
 	r, _ := json.MarshalIndent(v, "  ", "  ")
 	fmt.Printf("%s\n", string(r))
 }
