@@ -40,20 +40,45 @@ func togorch(t toscalib.ServiceTemplateDefinition) orchestrator.Graph {
 		var node orchestrator.Node
 		node.ID = i
 		node.Name = fmt.Sprintf("%v:%v", n.NodeTemplate.Name, n.OperationName)
-		node.Engine = "ssh"
+		if n.OperationName == "noop" {
+			node.Engine = "nil"
+		} else {
+			node.Engine = "toscassh"
+		}
 		node.Artifact = n.NodeTemplate.Interfaces[n.InterfaceName].Operations[n.OperationName].Implementation
-		log.Println("Interfaces", n.NodeTemplate.Interfaces[n.InterfaceName])
 		for argName, argValue := range n.NodeTemplate.Interfaces[n.InterfaceName].Operations[n.OperationName].Inputs {
-			log.Printf("argName=%v, argValue=%v", argName, argValue)
 			for get, val := range argValue {
-				if get == "value" {
-					node.Args = append(node.Args, fmt.Sprintf("%v=%v", argName, val))
+				switch get {
+				case "value":
+					node.Args = append(node.Args, fmt.Sprintf("%v=%v", argName, val[0]))
+				case "get_input":
+					value := e.Inputs[val[0]]
+					node.Args = append(node.Args, fmt.Sprintf("%v=%v", argName, value))
+				case "get_property":
+					log.Println("DEBUG:", argValue)
+					prop, err := t.GetProperty(val[0], val[1])
+					node.Args = append(node.Args, fmt.Sprintf("%v=%v", argName, prop))
+					if err != nil {
+						log.Println("Cannot find property %v on %v", val[1], val[0])
+					}
+
+				case "get_attribute":
+				default:
+					node.Args = append(node.Args, fmt.Sprintf("DEBUG: %v=%v", argName, val))
+
 				}
 			}
-
 		}
+		// Sets the output
+		// For every node, the attributes of the node or its type is an output
+		node.Outputs = make(map[string]string, 0)
+		for k, _ := range n.NodeTemplate.Refs.Type.Attributes {
+			node.Outputs[k] = ""
+		}
+		//for k, v := range n.NodeTemplate.Attributes {
+		//node.Outputs[k] = v
+		//}
 		// Sets the target
-
 		// Find the "host" requirement
 		compute := regexp.MustCompile(`[cC]ompute$`)
 		var target string
