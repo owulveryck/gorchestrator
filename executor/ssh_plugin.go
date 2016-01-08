@@ -2,13 +2,13 @@ package executor
 
 import (
 	"fmt"
+	log "github.com/Sirupsen/logrus"
 	"github.com/owulveryck/gorchestrator/orchestrator"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/agent"
 	"gopkg.in/yaml.v2"
 	"io"
 	"io/ioutil"
-	"log"
 	"net"
 	"os"
 	"strings"
@@ -156,6 +156,8 @@ func PublicKeyFile(file string) ssh.AuthMethod {
 func SSHAgent() ssh.AuthMethod {
 	if sshAgent, err := net.Dial("unix", os.Getenv("SSH_AUTH_SOCK")); err == nil {
 		return ssh.PublicKeysCallback(agent.NewClient(sshAgent).Signers)
+	} else {
+		log.Info(err)
 	}
 	return nil
 
@@ -181,13 +183,26 @@ func (n *node) ssh() error {
 	if _, ok := conf[n.Target]; !ok {
 		return fmt.Errorf("Cannot find entry for host %v in the ssh config file", n.Target)
 	}
+	var auth []ssh.AuthMethod
+	pubkey := PublicKeyFile(conf[n.Target].PrivateKeyFile)
+	if pubkey != nil {
+		auth = append(auth, pubkey)
+	}
+	log.Info("SSHAgent...")
+	agent := SSHAgent()
+	log.Info("SSHAgent...done")
+	if agent != nil {
+		log.Info("Adding sshagent...")
+		auth = append(auth, agent)
+	}
+
+	if len(auth) == 0 {
+		return fmt.Errorf("No authentication found for host %v", n.Target)
+	}
 	// ssh.Password("your_password")
 	sshConfig := &ssh.ClientConfig{
 		User: conf[n.Target].User,
-		Auth: []ssh.AuthMethod{
-			SSHAgent(),
-			PublicKeyFile(conf[n.Target].PrivateKeyFile),
-		},
+		Auth: auth,
 	}
 
 	client := &SSHClient{

@@ -2,11 +2,11 @@ package executor
 
 import (
 	"fmt"
+	log "github.com/Sirupsen/logrus"
 	"github.com/owulveryck/gorchestrator/orchestrator"
 	"golang.org/x/crypto/ssh"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
-	"log"
 	"os"
 )
 
@@ -31,13 +31,27 @@ func (n *node) toscassh() error {
 		n.State = orchestrator.Failure
 		return fmt.Errorf("Cannot find entry for host %v in the ssh config file", n.Target)
 	}
+	var auth []ssh.AuthMethod
+	pubkey := PublicKeyFile(conf[n.Target].PrivateKeyFile)
+	if pubkey != nil {
+		auth = append(auth, pubkey)
+	}
+	log.Info("SSHAgent...")
+	agent := SSHAgent()
+	log.Info("SSHAgent...done")
+	if agent != nil {
+		log.Info("Adding sshagent...")
+		auth = append(auth, agent)
+	}
+
+	if len(auth) == 0 {
+		return fmt.Errorf("No authentication found for host %v", n.Target)
+	}
+
 	// ssh.Password("your_password")
 	sshConfig := &ssh.ClientConfig{
 		User: conf[n.Target].User,
-		Auth: []ssh.AuthMethod{
-			SSHAgent(),
-			PublicKeyFile(conf[n.Target].PrivateKeyFile),
-		},
+		Auth: auth,
 	}
 
 	client := &SSHClient{
