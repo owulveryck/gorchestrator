@@ -27,6 +27,7 @@ import (
 	"github.com/owulveryck/toscalib"
 	"log"
 	"os"
+	"path/filepath"
 )
 
 func main() {
@@ -37,15 +38,6 @@ func main() {
 		flag.PrintDefaults()
 		return
 	}
-	r, err := os.Open(toscaFilename)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer r.Close()
-	err = t.Parse(r)
-	if err != nil {
-		log.Fatal(err)
-	}
 	if inputFilename == "" {
 		log.Println("Warning: No input file passed as argument, using default values")
 	}
@@ -53,6 +45,17 @@ func main() {
 	inputs, err := getInputs(inputFilename)
 	log.Println(inputs)
 
+	r, err := os.Open(toscaFilename)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer r.Close()
+	// Change the CWD to deal correctly with the imports of the TOSCA file
+	os.Chdir(filepath.Dir(toscaFilename))
+	err = t.Parse(r)
+	if err != nil {
+		log.Fatal(err)
+	}
 	v = togorch(t)
 	for _, n := range v.Nodes {
 		log.Printf("[%v]\t%v\t%v\t%v", n.Name, n.Artifact, n.Args, n.Outputs)
