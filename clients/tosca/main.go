@@ -20,11 +20,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package main
 
 import (
-	"encoding/json"
+	//"encoding/json"
 	"flag"
-	"fmt"
+	//"fmt"
 	"github.com/owulveryck/gorchestrator/orchestrator"
 	"github.com/owulveryck/toscalib"
+	//"gopkg.in/yaml.v2"
 	"log"
 	"os"
 	"path/filepath"
@@ -61,6 +62,6 @@ func main() {
 		log.Printf("[%v]\t%v\t%v\t%v", n.Name, n.Artifact, n.Args, n.Outputs)
 
 	}
-	res, _ := json.MarshalIndent(v, "  ", "  ")
-	fmt.Printf("%s\n", string(res))
+	//res, _ := json.MarshalIndent(v, "  ", "  ")
+	//fmt.Printf("%s\n", string(res))
 }
