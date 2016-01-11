@@ -46,6 +46,13 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	if inputFilename == "" {
+		log.Println("Warning: No input file passed as argument, using default values")
+	}
+
+	inputs, err := getInputs(inputFilename)
+	log.Println(inputs)
+
 	v = togorch(t)
 	for _, n := range v.Nodes {
 		log.Printf("[%v]\t%v\t%v\t%v", n.Name, n.Artifact, n.Args, n.Outputs)
