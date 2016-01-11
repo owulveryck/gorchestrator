@@ -21,11 +21,11 @@ package main
 
 import (
 	"fmt"
+	"github.com/Sirupsen/logrus"
 	"github.com/owulveryck/gorchestrator/orchestrator"
 	"github.com/owulveryck/gorchestrator/structure"
 	"github.com/owulveryck/toscalib"
 	"github.com/owulveryck/toscalib/toscaexec"
-	"log"
 	"regexp"
 )
 
@@ -59,6 +59,7 @@ func getTarget(t toscalib.ServiceTemplateDefinition, n toscaexec.Play) string {
 }
 
 func togorch(t toscalib.ServiceTemplateDefinition) orchestrator.Graph {
+
 	e := toscaexec.GeneratePlaybook(t)
 	var g orchestrator.Graph
 	g.Digraph = structure.Matrix(e.AdjacencyMatrix)
@@ -76,6 +77,11 @@ func togorch(t toscalib.ServiceTemplateDefinition) orchestrator.Graph {
 
 		node.Target = getTarget(t, n)
 
+		ctxlog := log.WithFields(logrus.Fields{
+			"Node":   node.Name,
+			"ID":     node.ID,
+			"Target": node.Target,
+		})
 		node.Artifact = n.NodeTemplate.Interfaces[n.InterfaceName].Operations[n.OperationName].Implementation
 		// Get inputs from the node type
 		for argName, argValue := range t.NodeTypes[n.NodeTemplate.Type].Interfaces[n.InterfaceName][n.OperationName].Inputs {
@@ -87,7 +93,7 @@ func togorch(t toscalib.ServiceTemplateDefinition) orchestrator.Graph {
 					value := e.Inputs[val[0]]
 					node.Args = append(node.Args, fmt.Sprintf("%v=%v", argName, value))
 				case "get_property":
-					log.Printf("DEBUG get_property %v val[0]=%v val[1]=%v", argValue, val[0], val[1])
+					ctxlog.Debugf("get_property %v val[0]=%v val[1]=%v", argValue, val[0], val[1])
 					tgt := val[0]
 					switch tgt {
 					case "SELF":
@@ -103,7 +109,7 @@ func togorch(t toscalib.ServiceTemplateDefinition) orchestrator.Graph {
 						log.Printf("Cannot find property %v on %v", val[1], val[0])
 					}
 				case "get_attribute":
-					log.Println("DEBUG (get_attribute):", val)
+					ctxlog.Debugf("get_attribute:", val)
 					node.Args = append(node.Args, fmt.Sprintf("%v=get_attribute %v*:%v", argName, val[0], val[1]))
 				default:
 					node.Args = append(node.Args, fmt.Sprintf("DEBUG: %v=%v", argName, val))
@@ -121,14 +127,14 @@ func togorch(t toscalib.ServiceTemplateDefinition) orchestrator.Graph {
 					value := e.Inputs[val[0]]
 					node.Args = append(node.Args, fmt.Sprintf("%v=%v", argName, value))
 				case "get_property":
-					log.Println("DEBUG:", argValue)
+					ctxlog.Debug("get_property", argValue)
 					prop, err := t.GetProperty(val[0], val[1])
 					node.Args = append(node.Args, fmt.Sprintf("%v=%v", argName, prop))
 					if err != nil {
 						log.Printf("Cannot find property %v on %v", val[1], val[0])
 					}
 				case "get_attribute":
-					log.Println("DEBUG (get_attribute):", val)
+					ctxlog.Debug("get_attribute:", val)
 					node.Args = append(node.Args, fmt.Sprintf("%v=get_attribute %v*:%v", argName, val[0], val[1]))
 				default:
 					node.Args = append(node.Args, fmt.Sprintf("DEBUG: %v=%v", argName, val))

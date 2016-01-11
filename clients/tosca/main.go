@@ -26,10 +26,27 @@ import (
 	"github.com/owulveryck/gorchestrator/orchestrator"
 	"github.com/owulveryck/toscalib"
 	//"gopkg.in/yaml.v2"
-	"log"
+	"github.com/Sirupsen/logrus"
+	logrus_syslog "github.com/Sirupsen/logrus/hooks/syslog"
+	"log/syslog"
+
 	"os"
 	"path/filepath"
 )
+
+var log = logrus.New()
+
+func init() {
+	log.Out = os.Stderr
+	log.Formatter = new(logrus.JSONFormatter)
+	log.Level = logrus.DebugLevel
+	hook, err := logrus_syslog.NewSyslogHook("", "", syslog.LOG_INFO, "")
+
+	if err == nil {
+		log.Hooks.Add(hook)
+
+	}
+}
 
 func main() {
 	var t toscalib.ServiceTemplateDefinition
@@ -40,7 +57,7 @@ func main() {
 		return
 	}
 	if inputFilename == "" {
-		log.Println("Warning: No input file passed as argument, using default values")
+		log.Warning("No input file passed as argument, using default values")
 	}
 
 	inputs, err := getInputs(inputFilename)
@@ -59,7 +76,12 @@ func main() {
 	}
 	v = togorch(t)
 	for _, n := range v.Nodes {
-		log.Printf("[%v]\t%v\t%v\t%v", n.Name, n.Artifact, n.Args, n.Outputs)
+		log.WithFields(logrus.Fields{
+			"Name":     n.Name,
+			"Artifact": n.Artifact,
+			"Args":     n.Args,
+			"Outputs":  n.Outputs,
+		}).Info("")
 
 	}
 	//res, _ := json.MarshalIndent(v, "  ", "  ")
