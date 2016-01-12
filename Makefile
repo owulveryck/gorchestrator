@@ -11,7 +11,7 @@ clients: $(TARGET)/clients/tosca $(TARGET)/clients/web
 $(TARGET)/generate_cert: security/util/generate_cert.go
 	go build -o $(TARGET)/generate_cert security/util/generate_cert.go
 
-$(TARGET)/clients/tosca: clients/tosca/*.go
+$(TARGET)/clients/tosca: clients/tosca/*.go ../toscalib/*.go ../toscalib/toscaexec/*.go
 	go build -o $(TARGET)/clients/tosca/tosca2gorch clients/tosca/*.go
 
 $(TARGET)/clients/web: clients/web/*.go clients/web/htdocs/* clients/web/tmpl/*
@@ -65,4 +65,4 @@ testing: dist
 	tmux select-pane -t 2
 	tmux send-keys "cd $(TARGET)/executor && ./executor"
 	tmux select-pane -t 1
-	tmux send-keys "cd clients/tosca/example && cat tosca_elk.yaml | ../../../$(TARGET)/clients/tosca/tosca2gorch | curl  -X POST -H 'Content-Type:application/json' -H 'Accept:application/json' -d@- http://localhost:8080/v1/tasks" 
+	tmux send-keys "$(TARGET)/clients/tosca/tosca2gorch -t clients/tosca/examples/tosca_elk.yaml -i clients/tosca/examples/inputs.yaml | curl  -X POST -H 'Content-Type:application/json' -H 'Accept:application/json' -d@- http://localhost:8080/v1/tasks" 
