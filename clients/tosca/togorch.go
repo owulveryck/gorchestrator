@@ -29,9 +29,25 @@ import (
 	"regexp"
 )
 
-func getTarget(t toscalib.ServiceTemplateDefinition, n toscaexec.Play) string {
+func getAttributeTarget(t toscalib.ServiceTemplateDefinition, n toscaexec.Play) string {
 	// Find the "host" requirement
-	compute := regexp.MustCompile(`[cC]ompute$`)
+	var target string
+	target = "self"
+	curr := n.NodeTemplate.Requirements
+	for i := 0; i < len(t.TopologyTemplate.NodeTemplates); i++ {
+		for _, req := range curr {
+			if name, ok := req["host"]; ok {
+				// Get the NodeTemplate "name"
+				return name.Node
+			}
+		}
+	}
+	return target
+}
+
+func getComputeTarget(t toscalib.ServiceTemplateDefinition, n toscaexec.Play) string {
+	// Find the "host" requirement
+	compute := regexp.MustCompile(`[cC]ompute[a-zA-Z]*$`)
 	var target string
 	target = "self"
 	targetType := "none"
@@ -46,7 +62,6 @@ func getTarget(t toscalib.ServiceTemplateDefinition, n toscaexec.Play) string {
 				// If targetType is a node compute
 				if compute.MatchString(targetType) {
 					target = name.Node
-					log.Println("Target:", target)
 					break
 				}
 				curr = nt.Requirements
@@ -86,7 +101,8 @@ func togorch(t toscalib.ServiceTemplateDefinition, operations []string) orchestr
 
 		// Sets the target
 
-		node.Target = getTarget(t, n)
+		node.Target = getComputeTarget(t, n)
+		attrTarget := getAttributeTarget(t, n)
 
 		ctxlog := log.WithFields(logrus.Fields{
 			"Node":   node.Name,
@@ -123,7 +139,7 @@ func togorch(t toscalib.ServiceTemplateDefinition, operations []string) orchestr
 					case "SELF":
 						tgt = n.NodeTemplate.Name
 					case "HOST":
-						tgt = node.Target
+						tgt = attrTarget
 					}
 					node.Args = append(node.Args, fmt.Sprintf("%v=get_attribute %v*:%v", argName, tgt, val[1]))
 				default:
