@@ -5,7 +5,11 @@ import (
 	"io/ioutil"
 )
 
-type Inputs map[string]string
+type Inputs map[string]Value
+
+type Value struct {
+	Value string `yaml:"value"`
+}
 
 // getInputs reade file f and returns its inputs
 func getInputs(f string) (Inputs, error) {

@@ -20,12 +20,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package main
 
 import (
-	"encoding/json"
+	//"encoding/json"
 	"flag"
-	"fmt"
-	"github.com/Sirupsen/logrus"
+	//"fmt"
 	"github.com/owulveryck/gorchestrator/orchestrator"
 	"github.com/owulveryck/toscalib"
+	//"gopkg.in/yaml.v2"
+	"github.com/Sirupsen/logrus"
+	//logrus_syslog "github.com/Sirupsen/logrus/hooks/syslog"
+	//"log/syslog"
 
 	"os"
 	"path/filepath"
@@ -73,14 +76,10 @@ func main() {
 
 	for i, _ := range t.TopologyTemplate.Inputs {
 		if val, ok := inputs[i]; ok {
-
-			t.TopologyTemplate.Inputs[i] = toscalib.PropertyDefinition{
-				Value: val.Value,
-			}
+			t.TopologyTemplate.Inputs[i].Value = val
 		}
 	}
 
-	log.Println(t.TopologyTemplate.Inputs)
 	v = togorch(t)
 	for _, n := range v.Nodes {
 		log.WithFields(logrus.Fields{
@@ -91,6 +90,6 @@ func main() {
 		}).Info("")
 
 	}
-	res, _ := json.MarshalIndent(v, "  ", "  ")
-	fmt.Printf("%s\n", string(res))
+	//res, _ := json.MarshalIndent(v, "  ", "  ")
+	//fmt.Printf("%s\n", string(res))
 }

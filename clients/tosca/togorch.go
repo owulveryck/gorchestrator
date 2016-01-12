@@ -93,9 +93,8 @@ func togorch(t toscalib.ServiceTemplateDefinition) orchestrator.Graph {
 					value := e.Inputs[val[0]]
 					node.Args = append(node.Args, fmt.Sprintf("%v=%v", argName, value))
 				case "get_property":
-					ctxlog.Debugf("get_property %v val[0]=%v val[1]=%v", argValue, val[0], val[1])
 					tgt := val[0]
-					switch tgt {
+					switch val[0] {
 					case "SELF":
 						tgt = n.NodeTemplate.Name
 					case "HOST":
@@ -103,14 +102,19 @@ func togorch(t toscalib.ServiceTemplateDefinition) orchestrator.Graph {
 					}
 					prop, err := t.GetProperty(tgt, val[1])
 					vals, err := t.EvaluateStatement(prop)
-					log.Println("VALS", vals)
 					node.Args = append(node.Args, fmt.Sprintf("%v=%v", argName, vals))
 					if err != nil {
-						log.Printf("Cannot find property %v on %v", val[1], val[0])
+						ctxlog.Warnf("Cannot find property %v on %v", val[1], val[0])
 					}
 				case "get_attribute":
-					ctxlog.Debugf("get_attribute:", val)
-					node.Args = append(node.Args, fmt.Sprintf("%v=get_attribute %v*:%v", argName, val[0], val[1]))
+					tgt := val[0]
+					switch val[0] {
+					case "SELF":
+						tgt = n.NodeTemplate.Name
+					case "HOST":
+						tgt = node.Target
+					}
+					node.Args = append(node.Args, fmt.Sprintf("%v=get_attribute %v*:%v", argName, tgt, val[1]))
 				default:
 					node.Args = append(node.Args, fmt.Sprintf("DEBUG: %v=%v", argName, val))
 
@@ -127,14 +131,12 @@ func togorch(t toscalib.ServiceTemplateDefinition) orchestrator.Graph {
 					value := e.Inputs[val[0]]
 					node.Args = append(node.Args, fmt.Sprintf("%v=%v", argName, value))
 				case "get_property":
-					ctxlog.Debug("get_property", argValue)
 					prop, err := t.GetProperty(val[0], val[1])
 					node.Args = append(node.Args, fmt.Sprintf("%v=%v", argName, prop))
 					if err != nil {
-						log.Printf("Cannot find property %v on %v", val[1], val[0])
+						ctxlog.Warnf("Cannot find property %v on %v", val[1], val[0])
 					}
 				case "get_attribute":
-					ctxlog.Debug("get_attribute:", val)
 					node.Args = append(node.Args, fmt.Sprintf("%v=get_attribute %v*:%v", argName, val[0], val[1]))
 				default:
 					node.Args = append(node.Args, fmt.Sprintf("DEBUG: %v=%v", argName, val))
