@@ -46,6 +46,7 @@ func getTarget(t toscalib.ServiceTemplateDefinition, n toscaexec.Play) string {
 				// If targetType is a node compute
 				if compute.MatchString(targetType) {
 					target = name.Node
+					log.Println("Target:", target)
 					break
 				}
 				curr = nt.Requirements
@@ -58,7 +59,7 @@ func getTarget(t toscalib.ServiceTemplateDefinition, n toscaexec.Play) string {
 	return target
 }
 
-func togorch(t toscalib.ServiceTemplateDefinition) orchestrator.Graph {
+func togorch(t toscalib.ServiceTemplateDefinition, operations []string) orchestrator.Graph {
 
 	e := toscaexec.GeneratePlaybook(t)
 	var g orchestrator.Graph
@@ -73,6 +74,16 @@ func togorch(t toscalib.ServiceTemplateDefinition) orchestrator.Graph {
 		} else {
 			node.Engine = "toscassh"
 		}
+		torun := false
+		for _, operation := range operations {
+			if operation == n.OperationName {
+				torun = true
+			}
+		}
+		if !torun {
+			node.Engine = "nil"
+		}
+
 		// Sets the target
 
 		node.Target = getTarget(t, n)

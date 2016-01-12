@@ -75,13 +75,15 @@ func generateSvg(id string) ([]byte, error) {
 			<td port="port2" border="1">{{.Engine}}</td>
 			<td port="port8" border="1">{{.Artifact}}</td>
 		</tr>
-		<tr ><td colspan="2" port="port2" border="1">{{.Args}}</td></tr>
+		{{range .Args}}
+		<tr ><td colspan="2" port="port2" border="1">{{.}}</td></tr>
+		{{end}}
 		<tr ><td colspan="2" port="port2" border="1">{{.Outputs}}</td></tr>
 		</table>>{{end}}`)
 
 	// Creates a new graph
 	g := gographviz.NewGraph()
-	g.AddAttr("", "rankdir", "LR")
+	//g.AddAttr("", "rankdir", "LR")
 	// Now read the json input
 	var v orchestrator.Graph
 

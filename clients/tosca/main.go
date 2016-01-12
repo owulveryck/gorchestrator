@@ -81,7 +81,7 @@ func main() {
 	}
 
 	log.Println(t.TopologyTemplate.Inputs)
-	v = togorch(t)
+	v = togorch(t, []string{"create", "configure", "start"})
 	for _, n := range v.Nodes {
 		log.WithFields(logrus.Fields{
 			"Name":     n.Name,
