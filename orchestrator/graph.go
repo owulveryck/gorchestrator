@@ -20,6 +20,7 @@ package orchestrator
 
 import (
 	"github.com/owulveryck/gorchestrator/structure"
+	"regexp"
 	"sync"
 	"time"
 )
@@ -31,6 +32,17 @@ type Graph struct {
 	Digraph structure.Matrix `json:"digraph"`
 	Nodes   []Node           `json:"nodes"`
 	Timeout <-chan time.Time `json:"-"`
+}
+
+func (v *Graph) getNodesFromRegexp(n string) ([]Node, error) {
+	re := regexp.MustCompile(n)
+	var nn []Node
+	for _, node := range v.Nodes {
+		if re.MatchString(node.Name) {
+			nn = append(nn, node)
+		}
+	}
+	return nn, nil
 }
 
 func (v *Graph) getNodeFromName(n string) (Node, error) {

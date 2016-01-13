@@ -29,9 +29,25 @@ import (
 	"regexp"
 )
 
-func getTarget(t toscalib.ServiceTemplateDefinition, n toscaexec.Play) string {
+func getAttributeTarget(t toscalib.ServiceTemplateDefinition, n toscaexec.Play) string {
 	// Find the "host" requirement
-	compute := regexp.MustCompile(`[cC]ompute$`)
+	var target string
+	target = "self"
+	curr := n.NodeTemplate.Requirements
+	for i := 0; i < len(t.TopologyTemplate.NodeTemplates); i++ {
+		for _, req := range curr {
+			if name, ok := req["host"]; ok {
+				// Get the NodeTemplate "name"
+				return name.Node
+			}
+		}
+	}
+	return target
+}
+
+func getComputeTarget(t toscalib.ServiceTemplateDefinition, n toscaexec.Play) string {
+	// Find the "host" requirement
+	compute := regexp.MustCompile(`[cC]ompute[a-zA-Z]*$`)
 	var target string
 	target = "self"
 	targetType := "none"
@@ -58,7 +74,7 @@ func getTarget(t toscalib.ServiceTemplateDefinition, n toscaexec.Play) string {
 	return target
 }
 
-func togorch(t toscalib.ServiceTemplateDefinition) orchestrator.Graph {
+func togorch(t toscalib.ServiceTemplateDefinition, operations []string) orchestrator.Graph {
 
 	e := toscaexec.GeneratePlaybook(t)
 	var g orchestrator.Graph
@@ -73,9 +89,20 @@ func togorch(t toscalib.ServiceTemplateDefinition) orchestrator.Graph {
 		} else {
 			node.Engine = "toscassh"
 		}
+		torun := false
+		for _, operation := range operations {
+			if operation == n.OperationName {
+				torun = true
+			}
+		}
+		if !torun {
+			node.Engine = "nil"
+		}
+
 		// Sets the target
 
-		node.Target = getTarget(t, n)
+		node.Target = getComputeTarget(t, n)
+		attrTarget := getAttributeTarget(t, n)
 
 		ctxlog := log.WithFields(logrus.Fields{
 			"Node":   node.Name,
@@ -93,9 +120,8 @@ func togorch(t toscalib.ServiceTemplateDefinition) orchestrator.Graph {
 					value := e.Inputs[val[0]]
 					node.Args = append(node.Args, fmt.Sprintf("%v=%v", argName, value))
 				case "get_property":
-					ctxlog.Debugf("get_property %v val[0]=%v val[1]=%v", argValue, val[0], val[1])
 					tgt := val[0]
-					switch tgt {
+					switch val[0] {
 					case "SELF":
 						tgt = n.NodeTemplate.Name
 					case "HOST":
@@ -103,14 +129,19 @@ func togorch(t toscalib.ServiceTemplateDefinition) orchestrator.Graph {
 					}
 					prop, err := t.GetProperty(tgt, val[1])
 					vals, err := t.EvaluateStatement(prop)
-					log.Println("VALS", vals)
 					node.Args = append(node.Args, fmt.Sprintf("%v=%v", argName, vals))
 					if err != nil {
-						log.Printf("Cannot find property %v on %v", val[1], val[0])
+						ctxlog.Warnf("Cannot find property %v on %v", val[1], val[0])
 					}
 				case "get_attribute":
-					ctxlog.Debugf("get_attribute:", val)
-					node.Args = append(node.Args, fmt.Sprintf("%v=get_attribute %v*:%v", argName, val[0], val[1]))
+					tgt := val[0]
+					switch val[0] {
+					case "SELF":
+						tgt = n.NodeTemplate.Name
+					case "HOST":
+						tgt = attrTarget
+					}
+					node.Args = append(node.Args, fmt.Sprintf("%v=get_attribute %v*:%v", argName, tgt, val[1]))
 				default:
 					node.Args = append(node.Args, fmt.Sprintf("DEBUG: %v=%v", argName, val))
 
@@ -127,14 +158,12 @@ func togorch(t toscalib.ServiceTemplateDefinition) orchestrator.Graph {
 					value := e.Inputs[val[0]]
 					node.Args = append(node.Args, fmt.Sprintf("%v=%v", argName, value))
 				case "get_property":
-					ctxlog.Debug("get_property", argValue)
 					prop, err := t.GetProperty(val[0], val[1])
 					node.Args = append(node.Args, fmt.Sprintf("%v=%v", argName, prop))
 					if err != nil {
-						log.Printf("Cannot find property %v on %v", val[1], val[0])
+						ctxlog.Warnf("Cannot find property %v on %v", val[1], val[0])
 					}
 				case "get_attribute":
-					ctxlog.Debug("get_attribute:", val)
 					node.Args = append(node.Args, fmt.Sprintf("%v=get_attribute %v*:%v", argName, val[0], val[1]))
 				default:
 					node.Args = append(node.Args, fmt.Sprintf("DEBUG: %v=%v", argName, val))

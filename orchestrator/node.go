@@ -109,7 +109,7 @@ func (n *Node) Execute(exe ExecutorBackend) error {
 func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 	c := make(chan Message)
 	waitForIt := make(chan Graph) // Shared between all messages.
-	var ga = regexp.MustCompile(`^get_attribute (.+):(.+)$`)
+	var ga = regexp.MustCompile(`^.*=get_attribute (.+):(.+)$`)
 
 	var g Graph
 	go func() {
@@ -147,8 +147,10 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 					// Then substitute it to its actual value
 					subargs := ga.FindStringSubmatch(arg)
 					if len(subargs) == 4 {
-						nn, _ := g.getNodeFromName(subargs[2])
-						n.Args[i] = nn.Outputs[subargs[3]]
+						nn, _ := g.getNodesFromRegexp(subargs[2])
+						for _, nn := range nn {
+							n.Args[i] = nn.Outputs[subargs[3]]
+						}
 					}
 				}
 				c <- Message{n.ID, n.State, waitForIt}

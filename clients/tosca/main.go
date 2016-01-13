@@ -20,15 +20,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package main
 
 import (
-	//"encoding/json"
+	"encoding/json"
 	"flag"
-	//"fmt"
+	"fmt"
+	"github.com/Sirupsen/logrus"
 	"github.com/owulveryck/gorchestrator/orchestrator"
 	"github.com/owulveryck/toscalib"
-	//"gopkg.in/yaml.v2"
-	"github.com/Sirupsen/logrus"
-	logrus_syslog "github.com/Sirupsen/logrus/hooks/syslog"
-	"log/syslog"
 
 	"os"
 	"path/filepath"
@@ -40,12 +37,12 @@ func init() {
 	log.Out = os.Stderr
 	//log.Formatter = new(logrus.JSONFormatter)
 	log.Level = logrus.DebugLevel
-	hook, err := logrus_syslog.NewSyslogHook("", "", syslog.LOG_INFO, "")
+	//hook, err := logrus_syslog.NewSyslogHook("", "", syslog.LOG_INFO, "")
 
-	if err == nil {
-		log.Hooks.Add(hook)
+	//if err == nil {
+	//	log.Hooks.Add(hook)
 
-	}
+	//}
 }
 
 func main() {
@@ -61,7 +58,6 @@ func main() {
 	}
 
 	inputs, err := getInputs(inputFilename)
-	log.Println(inputs)
 
 	r, err := os.Open(toscaFilename)
 	if err != nil {
@@ -74,7 +70,18 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	v = togorch(t)
+
+	for i, _ := range t.TopologyTemplate.Inputs {
+		if val, ok := inputs[i]; ok {
+
+			t.TopologyTemplate.Inputs[i] = toscalib.PropertyDefinition{
+				Value: val.Value,
+			}
+		}
+	}
+
+	log.Println(t.TopologyTemplate.Inputs)
+	v = togorch(t, []string{"create", "configure", "start"})
 	for _, n := range v.Nodes {
 		log.WithFields(logrus.Fields{
 			"Name":     n.Name,
@@ -84,6 +91,6 @@ func main() {
 		}).Info("")
 
 	}
-	//res, _ := json.MarshalIndent(v, "  ", "  ")
-	//fmt.Printf("%s\n", string(res))
+	res, _ := json.MarshalIndent(v, "  ", "  ")
+	fmt.Printf("%s\n", string(res))
 }
