@@ -68,4 +68,4 @@ testing: dist
 	tmux select-pane -t 2
 	tmux send-keys "cd $(TARGET)/executor && ./executor"
 	tmux select-pane -t 1
-	tmux send-keys "$(TARGET)/clients/tosca/tosca2gorch -t clients/tosca/examples/tosca_elk.yaml -i clients/tosca/examples/inputs.yaml | curl  -X POST -H 'Content-Type:application/json' -H 'Accept:application/json' -d@- http://localhost:8080/v1/tasks" 
+	tmux send-keys "$(TARGET)/clients/tosca/tosca2gorch -t clients/tosca/example/tosca_elk.yaml -i clients/tosca/example/inputs.yaml | curl  -X POST -H 'Content-Type:application/json' -H 'Accept:application/json' -d@- http://localhost:8080/v1/tasks" 

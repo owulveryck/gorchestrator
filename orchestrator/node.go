@@ -120,7 +120,9 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 			var m structure.Matrix
 			m = g.Digraph
 			s := m.Dim()
-			n.Outputs = make(map[string]string, 0)
+			if len(n.Outputs) == 0 {
+				n.Outputs = make(map[string]string, 0)
+			}
 			if n.Artifact == "" && n.Engine == "" {
 				n.Engine = "nil"
 			}

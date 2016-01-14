@@ -45,6 +45,7 @@ func (n *node) toscassh() error {
 	}
 
 	if len(auth) == 0 {
+		n.State = orchestrator.Failure
 		return fmt.Errorf("No authentication found for host %v", n.Target)
 	}
 
