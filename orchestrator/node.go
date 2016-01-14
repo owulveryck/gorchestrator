@@ -130,7 +130,7 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 			for i := 0; i < s; i++ {
 				mu.RLock()
 				if m.At(i, n.ID) < Success && m.At(i, n.ID) > 0 {
-					n.State = ToRun
+					//n.State = ToRun
 				} else if m.At(i, n.ID) >= Failure {
 					n.State = NotRunnable
 				}
