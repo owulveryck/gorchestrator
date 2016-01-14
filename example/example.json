@@ -16,8 +16,8 @@
         "id": 0,
         "target": "test",
         "name": "a",
-        "engine": "sleep",
-        "artifact": "script.sh",
+        "engine": "toscassh",
+        "artifact": "./sleep.sh",
         "args": null,
         "output": null
       },
@@ -36,13 +36,14 @@
         "id": 2,
         "target": "test",
         "name": "c",
-        "engine": "shell",
-        "artifact": "example/script.sh",
+        "engine": "toscassh",
+        "artifact": "./script2.sh",
         "args": [
-          "-e",
-          "get_attribute 1:output1"
+          "ip_address=get_attribute d:ip_address"
         ],
-        "output": null
+        "output": {
+            "my_ip": ""
+        }
       },
       {
         "id": 3,

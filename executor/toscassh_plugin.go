@@ -93,7 +93,6 @@ func (n *node) toscassh() error {
 			txt := scanner.Text()
 			if re.MatchString(txt) {
 				args := re.FindStringSubmatch(txt)
-				log.Printf("DEBUG: found %v for %v", args, k)
 				n.Outputs[k] = args[1]
 			}
 		}
