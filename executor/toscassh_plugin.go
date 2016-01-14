@@ -65,10 +65,9 @@ func (n *node) toscassh() error {
 	for _, arg := range n.Args {
 		command = fmt.Sprintf("%v %v", command, arg)
 	}
-	command = fmt.Sprintf("%v %v && env", command, n.Artifact)
-	var output []byte
+	command = fmt.Sprintf("%v . %v && env", command, n.Artifact)
 	var outbuf bytes.Buffer
-	outbuf = *bytes.NewBuffer(output)
+	//outbuf = *bytes.NewBuffer(output)
 	cmd := &SSHCommand{
 		Path:   command,
 		Env:    []string{},
@@ -87,13 +86,15 @@ func (n *node) toscassh() error {
 	// Now fill the output
 	// find the variables
 	for k, _ := range n.Outputs {
-		re := regexp.MustCompile(fmt.Sprintf("^%v=", k))
-		scanner := bufio.NewScanner(bytes.NewReader(output))
+		out := outbuf
+		re := regexp.MustCompile(fmt.Sprintf("^%v=(.*)", k))
+		scanner := bufio.NewScanner(&out)
 		for scanner.Scan() {
 			txt := scanner.Text()
-			log.Println("DEBUG", txt)
 			if re.MatchString(txt) {
-				n.Outputs[k] = txt
+				args := re.FindStringSubmatch(txt)
+				log.Printf("DEBUG: found %v for %v", args, k)
+				n.Outputs[k] = args[1]
 			}
 		}
 	}

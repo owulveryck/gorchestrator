@@ -14,15 +14,17 @@
     "nodes": [
       {
         "id": 0,
+        "target": "test",
         "name": "a",
         "engine": "sleep",
-        "artifact": "example/script.sh",
+        "artifact": "script.sh",
         "args": null,
         "output": null
       },
       {
         "id": 1,
         "name": "b",
+        "target": "test",
         "engine": "sleep",
         "artifact": "myscript.sh",
         "args": null,
@@ -32,6 +34,7 @@
       },
       {
         "id": 2,
+        "target": "test",
         "name": "c",
         "engine": "shell",
         "artifact": "example/script.sh",
@@ -44,13 +47,18 @@
       {
         "id": 3,
         "name": "d",
-        "engine": "sleep",
-        "artifact": "example/script.sh",
+        "target": "test",
+        "engine": "toscassh",
+        "artifact": "./script.sh",
         "args": null,
-        "output": null
+        "output": {
+            "network": "",
+            "ip_address": ""
+        }
       },
       {
         "id": 4,
+        "target": "test",
         "name": "e",
         "engine": "sleep",
         "artifact": "example/script.sh",
@@ -59,6 +67,7 @@
       },
       {
         "id": 5,
+        "target": "test",
         "name": "f",
         "engine": "sleep",
         "artifact": "example/script.sh",
@@ -67,6 +76,7 @@
       },
       {
         "id": 6,
+        "target": "test",
         "name": "g",
         "engine": "sleep",
         "artifact": "example/script.sh",
@@ -75,6 +85,7 @@
       },
       {
         "id": 7,
+        "target": "test",
         "name": "h",
         "engine": "sleep",
         "artifact": "example/script.sh",

@@ -36,7 +36,7 @@ var log = logrus.New()
 func init() {
 	log.Out = os.Stderr
 	//log.Formatter = new(logrus.JSONFormatter)
-	log.Level = logrus.DebugLevel
+	log.Level = logrus.WarnLevel
 	//hook, err := logrus_syslog.NewSyslogHook("", "", syslog.LOG_INFO, "")
 
 	//if err == nil {
