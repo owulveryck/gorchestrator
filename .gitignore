@@ -30,3 +30,4 @@ dist/*
 orchestrator/coverage.out
 
 tests/binaries/*
+rsync.sh

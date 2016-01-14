@@ -21,6 +21,9 @@ $(TARGET)/clients/web: clients/web/*.go clients/web/htdocs/* clients/web/tmpl/*
 $(TARGET)/orchestrator/orchestrator: orchestrator/*.go http/*.go
 	go build -o $(TARGET)/orchestrator/orchestrator main.go
 
+$(TARGET)/executor/sshConfig_sample.yaml: executor/sshConfig.yaml
+	cp executor/sshConfig.yaml $(TARGET)/executor/sshConfig_sample.yaml
+
 $(TARGET)/executor/executor: executor/*.go executor/cmd/*.go
 	go build -o $(TARGET)/executor/executor executor/cmd/main.go
 
@@ -45,7 +48,7 @@ install_certificates: certificates $(TARGET)/orchestrator/orchestrator $(TARGET)
 	cp $(TARGET)/certs/executor*pem $(TARGET)/certs/orchestrator.pem $(TARGET)/executor 
 	
 
-dist: $(TARGET)/executor/executor $(TARGET)/orchestrator/orchestrator $(TARGET)/generate_cert $(TARGET)/clients/web install_certificates clients
+dist: $(TARGET)/executor/executor $(TARGET)/orchestrator/orchestrator $(TARGET)/generate_cert $(TARGET)/clients/web install_certificates clients $(TARGET)/executor/sshConfig_sample.yaml
 
 clean:
 	rm -rf $(TARGET)
