@@ -49,7 +49,7 @@ func getComputeTarget(t toscalib.ServiceTemplateDefinition, n toscaexec.Play) st
 	// Find the "host" requirement
 	compute := regexp.MustCompile(`[cC]ompute[a-zA-Z]*$`)
 	var target string
-	target = "self"
+	target = n.NodeTemplate.Name
 	targetType := "none"
 	curr := n.NodeTemplate.Requirements
 	for i := 0; i < len(t.TopologyTemplate.NodeTemplates); i++ {
@@ -66,7 +66,7 @@ func getComputeTarget(t toscalib.ServiceTemplateDefinition, n toscaexec.Play) st
 				}
 				curr = nt.Requirements
 			}
-			if target != "self" {
+			if target != n.NodeTemplate.Name {
 				return target
 			}
 		}

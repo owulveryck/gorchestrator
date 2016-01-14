@@ -38,7 +38,7 @@ var svg map[string][]byte
 func getGraph(id string) (orchestrator.Graph, error) {
 	var g orchestrator.Graph
 
-	r, err := http.Get(fmt.Sprintf("http://localhost:8080/v1/tasks/%v", id))
+	r, err := http.Get(fmt.Sprintf("%v/%v", OrchestratorUrl, id))
 	if err != nil {
 		return g, err
 	}
@@ -87,7 +87,7 @@ func generateSvg(id string) ([]byte, error) {
 	// Now read the json input
 	var v orchestrator.Graph
 
-	resp, err := http.Get(fmt.Sprintf("http://localhost:8080/v1/tasks/%v", id))
+	resp, err := http.Get(fmt.Sprintf("%v/%v", OrchestratorUrl, id))
 	if err != nil {
 		return nil, err
 	}

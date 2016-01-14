@@ -20,14 +20,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package main
 
 import (
+	"flag"
 	"log"
 	"net/http"
 )
 
+var OrchestratorUrl string
+
 func main() {
 
+	flag.StringVar(&OrchestratorUrl, "orchestrator", "http://localhost:8080/v1/tasks", "URL for the orchestrator")
+	flag.Parse()
 	router := NewRouter()
 
-	log.Println("connect here: http://localhost:8181/view/")
+	log.Println("connect here: http://localhost:8181/")
 	log.Fatal(http.ListenAndServe(":8181", router))
 }
