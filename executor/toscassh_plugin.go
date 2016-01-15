@@ -92,7 +92,7 @@ func (n *node) toscassh() error {
 		scanner := bufio.NewScanner(&out)
 		for scanner.Scan() {
 			txt := scanner.Text()
-			log.Printf("[%v] Output: %v", n.Name, txt)
+			//log.Printf("[%v] Output: %v", n.Name, txt)
 			if re.MatchString(txt) {
 				log.Printf("[%v] Output %v Matched argument %v", n.Name, txt, k)
 				args := re.FindStringSubmatch(txt)
