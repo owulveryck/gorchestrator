@@ -25,6 +25,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/owulveryck/gorchestrator/structure"
+	"log"
 	"math/rand"
 	"net/http"
 	"regexp"
@@ -148,6 +149,7 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 					// If argument is a get_attribute node:attribute
 					// Then substitute it to its actual value
 					subargs := ga.FindStringSubmatch(arg)
+					log.Println("DEBUG:", subargs)
 					if len(subargs) == 4 {
 						nn, _ := g.getNodesFromRegexp(subargs[2])
 						for _, nn := range nn {

@@ -81,6 +81,7 @@ func (n *node) toscassh() error {
 	if err := client.RunCommand(cmd); err != nil {
 		n.State = orchestrator.Failure
 		log.Printf("[%v] command run error: %s\n", n.Name, err)
+		log.Println("Output:", outbuf.String())
 		return err
 	}
 	// Now fill the output
@@ -93,6 +94,7 @@ func (n *node) toscassh() error {
 			txt := scanner.Text()
 			log.Printf("[%v] Output: %v", n.Name, txt)
 			if re.MatchString(txt) {
+				log.Printf("[%v] Output %v Matched argument %v", n.Name, txt, k)
 				args := re.FindStringSubmatch(txt)
 				n.Outputs[k] = args[1]
 			}
