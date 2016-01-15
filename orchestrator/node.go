@@ -115,31 +115,33 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 	var g Graph
 	go func() {
 		n.State = ToRun
+		if len(n.Outputs) == 0 {
+			n.Outputs = make(map[string]string, 0)
+		}
+		if n.Artifact == "" && n.Engine == "" {
+			n.Engine = "nil"
+		}
+
 		for n.State <= ToRun {
 			c <- Message{n.ID, n.State, waitForIt}
 			g = <-waitForIt
 			var m structure.Matrix
 			m = g.Digraph
 			s := m.Dim()
-			if len(n.Outputs) == 0 {
-				n.Outputs = make(map[string]string, 0)
-			}
-			if n.Artifact == "" && n.Engine == "" {
-				n.Engine = "nil"
-			}
-			n.State = Running
+			state := Running
 			for i := 0; i < s; i++ {
 				mu.RLock()
 				if m.At(i, n.ID) < Success && m.At(i, n.ID) > 0 {
-					n.State = ToRun
+					state = ToRun
 				} else if m.At(i, n.ID) >= Failure {
-					n.State = NotRunnable
+					state = NotRunnable
 				}
 				mu.RUnlock()
 				if n.State == NotRunnable {
 					continue
 				}
 			}
+			n.State = state
 			if n.State == NotRunnable {
 				c <- Message{n.ID, n.State, waitForIt}
 			}
