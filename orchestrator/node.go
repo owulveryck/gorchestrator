@@ -87,8 +87,8 @@ func (n *Node) Execute(exe ExecutorBackend) error {
 	id = t.ID
 
 	// Now loop for the result
-	for err == nil && n.State < Success {
-		var res Node
+	var res Node
+	for err == nil && res.State < Success {
 		r, err := client.Get(fmt.Sprintf("%v/%v", url, id))
 		if err != nil {
 			n.State = NotRunnable
@@ -100,9 +100,9 @@ func (n *Node) Execute(exe ExecutorBackend) error {
 			n.State = Failure
 			return err
 		}
-		*n = res
-		time.Sleep(1 * time.Second)
+		time.Sleep(2 * time.Second)
 	}
+	*n = res
 	return nil
 }
 
