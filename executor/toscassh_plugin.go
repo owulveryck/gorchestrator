@@ -63,9 +63,9 @@ func (n *node) toscassh() error {
 
 	command := ""
 	for _, arg := range n.Args {
-		command = fmt.Sprintf("%v %v", command, arg)
+		command = fmt.Sprintf("%v ; echo \"%v\"", command, arg)
 	}
-	command = fmt.Sprintf("%v . %v && env", command, n.Artifact)
+	command = fmt.Sprintf("(%v ; cat %v && echo env) | /bin/ksh", command, n.Artifact)
 	var outbuf bytes.Buffer
 	//outbuf = *bytes.NewBuffer(output)
 	cmd := &SSHCommand{
@@ -91,6 +91,7 @@ func (n *node) toscassh() error {
 		scanner := bufio.NewScanner(&out)
 		for scanner.Scan() {
 			txt := scanner.Text()
+			log.Printf("[%v] Output: %v", n.Name, txt)
 			if re.MatchString(txt) {
 				args := re.FindStringSubmatch(txt)
 				n.Outputs[k] = args[1]
