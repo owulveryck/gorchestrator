@@ -3,6 +3,7 @@ package config
 import (
 	"encoding/json"
 	"flag"
+	"github.com/owulveryck/gorchestrator/logger"
 	"io/ioutil"
 	"os"
 	"os/signal"
@@ -21,18 +22,7 @@ type Config struct {
 		Key         string `json:"key,omitempty"`
 		Scheme      string `json:"scheme,omitempty"`
 	} `json:"http"`
-	Log struct {
-		Hook []struct {
-			URL      string `json:"address,omitempty"`
-			Level    string `json:"level"`
-			Protocol string `json:"protocol"`
-			Type     string `json:"type"`
-		} `json:"hook,omitempty"`
-		Output struct {
-			Level string `json:"level"`
-			Path  string `json:"path"`
-		} `json:"output,omitempty"`
-	} `json:"log"`
+	Log logger.Log `json:"log"`
 }
 
 var (
