@@ -25,6 +25,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/owulveryck/gorchestrator/structure"
+	"log"
 	"math/rand"
 	"net/http"
 	"regexp"
@@ -86,8 +87,8 @@ func (n *Node) Execute(exe ExecutorBackend) error {
 	id = t.ID
 
 	// Now loop for the result
-	for err == nil && n.State < Success {
-		var res Node
+	var res Node
+	for err == nil && res.State < Success {
 		r, err := client.Get(fmt.Sprintf("%v/%v", url, id))
 		if err != nil {
 			n.State = NotRunnable
@@ -99,9 +100,9 @@ func (n *Node) Execute(exe ExecutorBackend) error {
 			n.State = Failure
 			return err
 		}
-		*n = res
-		time.Sleep(1 * time.Second)
+		time.Sleep(2 * time.Second)
 	}
+	*n = res
 	return nil
 }
 
@@ -114,31 +115,33 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 	var g Graph
 	go func() {
 		n.State = ToRun
+		if len(n.Outputs) == 0 {
+			n.Outputs = make(map[string]string, 0)
+		}
+		if n.Artifact == "" && n.Engine == "" {
+			n.Engine = "nil"
+		}
+
 		for n.State <= ToRun {
 			c <- Message{n.ID, n.State, waitForIt}
 			g = <-waitForIt
 			var m structure.Matrix
 			m = g.Digraph
 			s := m.Dim()
-			if len(n.Outputs) == 0 {
-				n.Outputs = make(map[string]string, 0)
-			}
-			if n.Artifact == "" && n.Engine == "" {
-				n.Engine = "nil"
-			}
-			n.State = Running
+			state := Running
 			for i := 0; i < s; i++ {
 				mu.RLock()
 				if m.At(i, n.ID) < Success && m.At(i, n.ID) > 0 {
-					//n.State = ToRun
+					state = ToRun
 				} else if m.At(i, n.ID) >= Failure {
-					n.State = NotRunnable
+					state = NotRunnable
 				}
 				mu.RUnlock()
 				if n.State == NotRunnable {
 					continue
 				}
 			}
+			n.State = state
 			if n.State == NotRunnable {
 				c <- Message{n.ID, n.State, waitForIt}
 			}
@@ -148,6 +151,7 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 					// If argument is a get_attribute node:attribute
 					// Then substitute it to its actual value
 					subargs := ga.FindStringSubmatch(arg)
+					log.Println("DEBUG:", subargs)
 					if len(subargs) == 4 {
 						nn, _ := g.getNodesFromRegexp(subargs[2])
 						for _, nn := range nn {

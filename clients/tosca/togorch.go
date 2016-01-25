@@ -141,7 +141,7 @@ func togorch(t toscalib.ServiceTemplateDefinition, operations []string) orchestr
 					case "HOST":
 						tgt = attrTarget
 					}
-					node.Args = append(node.Args, fmt.Sprintf("%v=get_attribute %v*:%v", argName, tgt, val[1]))
+					node.Args = append(node.Args, fmt.Sprintf("%v=get_attribute %v.*:%v", argName, tgt, val[1]))
 				default:
 					node.Args = append(node.Args, fmt.Sprintf("DEBUG: %v=%v", argName, val))
 
