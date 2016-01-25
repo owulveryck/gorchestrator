@@ -1,4 +1,6 @@
 /*
+The gorchestrator package is the root package of the product suite.
+
 Olivier Wulveryck - author of Gorchestrator
 Copyright (C) 2015 Olivier Wulveryck
 
@@ -20,10 +22,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package main
 
 import (
+	"github.com/owulveryck/gorchestrator/config"
 	"github.com/owulveryck/gorchestrator/http"
 )
 
 func main() {
-
-	http.Run()
+	http.Run(config.GetConfig())
 }

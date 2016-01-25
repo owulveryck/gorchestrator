@@ -1,4 +1,6 @@
 /*
+The http package is the interface to the orchestrator
+
 Olivier Wulveryck - author of Gorchestrator
 Copyright (C) 2015 Olivier Wulveryck
 
@@ -22,6 +24,8 @@ package http
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"fmt"
+	"github.com/owulveryck/gorchestrator/config"
 	"github.com/owulveryck/gorchestrator/orchestrator"
 	"log"
 	"net/http"
@@ -47,11 +51,12 @@ func uuid() Task {
 // This will hold all the requested tasks
 var tasks map[string]*orchestrator.Graph
 
-func Run() {
+func Run(config *config.Config) {
 
 	tasks = make(map[string]*orchestrator.Graph, 0)
 	router := NewRouter()
 
-	log.Println("Starting Orchestrator: Listening on 8080")
-	log.Fatal(http.ListenAndServe(":8080", router))
+	URL := fmt.Sprintf("%v:%v", config.HTTP.BindAddress, config.HTTP.BindPort)
+	log.Println("Starting Orchestrator: Listening on", URL)
+	log.Fatal(http.ListenAndServe(URL, router))
 }

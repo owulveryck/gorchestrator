@@ -1,0 +1,32 @@
+{
+  "executor": {
+    "url": "http://localhost:8181/v1/tasks"
+  },
+  "http": {
+    "bind_address": "127.0.0.1",
+    "bind_port": 8080,
+    "certificate": "certificate.pem",
+    "key": "key.pem",
+    "scheme": "https"
+  },
+  "log": {
+    "hook": [
+      {
+        "URL": "192.168.1.12:5000",
+        "level": "debug",
+        "protocol": "udp",
+        "type": "logstash"
+      },
+      {
+        "URL": "127.0.0.1:5000",
+        "level": "debug",
+        "protocol": "udp",
+        "type": "syslog"
+      }
+    ],
+    "output": {
+      "level": "debug",
+      "path": "stderr"
+    }
+  }
+}
