@@ -2,10 +2,9 @@ package logger
 
 import (
 	"github.com/Sirupsen/logrus"
-	"github.com/Sirupsen/logrus/formatters/logstash"
 	logrus_syslog "github.com/Sirupsen/logrus/hooks/syslog"
 	"github.com/owulveryck/gorchestrator/config"
-	"github.com/ripcurld00d/logrus-logstash-hook"
+	logstash_hook "github.com/owulveryck/gorchestrator/logger/hook/logstash"
 	"io"
 	"log/syslog"
 	"os"
@@ -13,7 +12,7 @@ import (
 
 var log = &logrus.Logger{
 	Out:       os.Stderr,
-	Formatter: new(logrus.JSONFormatter),
+	Formatter: new(logrus.TextFormatter),
 	Hooks:     make(logrus.LevelHooks),
 	Level:     logrus.DebugLevel,
 }
@@ -23,7 +22,6 @@ func init() {
 	if conf == nil {
 		conf = &config.Config{}
 	}
-	log.Formatter = &logstash.LogstashFormatter{Type: "application_name"}
 	// Output to stderr instead of stdout, could also be a file.
 	var output io.Writer
 	switch conf.Log.Output.Path {
@@ -58,7 +56,13 @@ func init() {
 				log.Hooks.Add(h)
 			}
 		case "logstash":
-			h, err := logrus_logstash.NewLogstashHook(hook.Protocol, hook.URL)
+			level, err := logrus.ParseLevel(hook.Level)
+			if err != nil {
+				logrus.Warn("Cannot parse conf level, default to INFO")
+			} else {
+				log.Level = level
+			}
+			h, err := logstash_hook.NewLogstashHook(hook.Protocol, hook.URL, "application", level)
 			if err != nil {
 				logrus.Errorf("Unable to connect to logstash at %v:%v", hook.Protocol, hook.URL)
 
