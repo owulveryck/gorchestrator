@@ -11,13 +11,19 @@ import (
 	"os"
 )
 
-var Log = &logrus.Logger{}
+var log = &logrus.Logger{
+	Out:       os.Stderr,
+	Formatter: new(logrus.JSONFormatter),
+	Hooks:     make(logrus.LevelHooks),
+	Level:     logrus.DebugLevel,
+}
 
 func init() {
 	conf := config.GetConfig()
 	if conf == nil {
+		conf = &config.Config{}
 	}
-	Log.Formatter = &logstash.LogstashFormatter{Type: "application_name"}
+	log.Formatter = &logstash.LogstashFormatter{Type: "application_name"}
 	// Output to stderr instead of stdout, could also be a file.
 	var output io.Writer
 	switch conf.Log.Output.Path {
@@ -29,14 +35,14 @@ func init() {
 		logrus.Warn("No log output defined, using stderr")
 		output = os.Stderr
 	}
-	Log.Out = output
+	log.Out = output
 
 	// Only log the warning severity or above.
 	level, err := logrus.ParseLevel(conf.Log.Output.Level)
 	if err != nil {
-		logrus.Error("Cannot parse conf level, default to INFO")
+		logrus.Warn("Cannot parse conf level, default to INFO")
 	} else {
-		Log.Level = level
+		log.Level = level
 	}
 	for _, hook := range conf.Log.Hook {
 		switch hook.Type {
@@ -49,27 +55,20 @@ func init() {
 			if err != nil {
 				logrus.Errorf("Unable to connect to syslog daemon %v:%v", hook.Protocol, hook.URL)
 			} else {
-				Log.Hooks.Add(h)
+				log.Hooks.Add(h)
 			}
 		case "logstash":
 			h, err := logrus_logstash.NewLogstashHook(hook.Protocol, hook.URL)
 			if err != nil {
-				logrus.Error("Unable to connect to logstash at %v:%v", hook.Protocol, hook.URL)
+				logrus.Errorf("Unable to connect to logstash at %v:%v", hook.Protocol, hook.URL)
 
 			} else {
-				Log.Hooks.Add(h)
+				log.Hooks.Add(h)
 			}
 		}
 	}
 }
 
-// This is a wrapper to the logrus.Entry to add the WithObject func
-type Logger logrus.Entry
-
-// The ObjectLogger interface
-type ObjectLogger interface {
-	GetFields() logrus.Fields
-}
-
-func (l *Logger) WithObject(o ObjectLogger) {
+func GetLog() logrus.Logger {
+	return *log
 }
