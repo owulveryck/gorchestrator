@@ -3,27 +3,12 @@ package config
 import (
 	"encoding/json"
 	"flag"
-	"github.com/owulveryck/gorchestrator/logger"
 	"io/ioutil"
 	"os"
 	"os/signal"
 	"sync"
 	"syscall"
 )
-
-type Config struct {
-	Executor struct {
-		URL string `json:"url"`
-	} `json:"executor,omitempty"`
-	HTTP struct {
-		BindAddress string `json:"bind_address"`
-		BindPort    int    `json:"bind_port"`
-		Certificate string `json:"certificate,omitempty"`
-		Key         string `json:"key,omitempty"`
-		Scheme      string `json:"scheme,omitempty"`
-	} `json:"http"`
-	Log logger.Log `json:"log"`
-}
 
 var (
 	config     *Config
