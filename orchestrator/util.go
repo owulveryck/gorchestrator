@@ -1,23 +1,38 @@
-/*
-Olivier Wulveryck - author of Gorchestrator
-Copyright (C) 2015 Olivier Wulveryck
-
-This file is part of the Gorchestrator project and
-is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
 package orchestrator
+
+import (
+	"log"
+)
+
+func broadcast(ch <-chan Graph, size, lag int) []chan Graph {
+	cs := make([]chan Graph, size)
+	for i, _ := range cs {
+		// The size of the channels buffer controls how far behind the recievers
+		// of the fanOut channels can lag the other channels.
+		//cs[i] = make(chan Graph)
+		cs[i] = make(chan Graph, lag)
+
+	}
+	go func() {
+		for i := range ch {
+			for _, c := range cs {
+				log.Println("Sending to channel")
+				c <- i
+				log.Println("Done")
+
+			}
+
+		}
+		for _, c := range cs {
+			// close all our fanOut channels when the input channel is exhausted.
+			close(c)
+
+		}
+
+	}()
+	return cs
+
+}
 
 func fanOut(outputs ...chan<- Graph) chan<- Graph {
 	c := make(chan Graph)

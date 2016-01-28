@@ -10,7 +10,7 @@ func (n *Node) getFields() logger.Fields {
 		"ID":       n.ID,
 		"GraphID":  n.GraphID,
 		"ExecID":   n.execID,
-		"State":    n.State,
+		"State":    n.GetState(),
 		"Target":   n.Target,
 		"Engine":   n.Engine,
 		"Artifact": n.Artifact,

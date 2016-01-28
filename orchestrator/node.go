@@ -15,17 +15,18 @@ import (
 
 // Node is a "runable" node description
 type Node struct {
-	ID       int               `json:"id"`
-	State    int               `json:"state,omitempty"`
-	Name     string            `json:"name,omitempty"`   // The targeted host
-	Target   string            `json:"target,omitempty"` // The execution engine (ie ansible, shell); aim to be like a shebang in a shell file
-	Engine   string            `json:"engine,omitempty"` // The execution engine (ie ansible, shell); aim to be like a shebang in a shell file
-	Artifact string            `json:"artifact"`
-	Args     []string          `json:"args,omitempty"`   // the arguments of the artifact, if needed
-	Outputs  map[string]string `json:"output,omitempty"` // the key is the name of the parameter, the value its value (always a string)
-	GraphID  string            `json:"graph_id,omitempty"`
-	execID   string            `json:"-"`
-	mu       sync.RWMutex      `json:"-"`
+	ID           int               `json:"id"`
+	State        int               `json:"state,omitempty"`
+	Name         string            `json:"name,omitempty"`   // The targeted host
+	Target       string            `json:"target,omitempty"` // The execution engine (ie ansible, shell); aim to be like a shebang in a shell file
+	Engine       string            `json:"engine,omitempty"` // The execution engine (ie ansible, shell); aim to be like a shebang in a shell file
+	Artifact     string            `json:"artifact"`
+	Args         []string          `json:"args,omitempty"`   // the arguments of the artifact, if needed
+	Outputs      map[string]string `json:"output,omitempty"` // the key is the name of the parameter, the value its value (always a string)
+	GraphID      string            `json:"graph_id,omitempty"`
+	execID       string            `json:"-"`
+	mu           sync.RWMutex      `json:"-"`
+	waitForEvent chan Graph        `json:"-"`
 }
 
 func (n Node) GetState() int {
@@ -116,6 +117,7 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 
 	var g Graph
 	go func() {
+		defer close(c)
 		n.SetState(ToRun)
 		if len(n.Outputs) == 0 {
 			n.Outputs = make(map[string]string, 0)
@@ -124,32 +126,46 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 			n.Engine = "nil"
 		}
 
-		for n.GetState() <= ToRun {
-			n.LogDebugf("Advertize %v", 1)
-			c <- Message{n.ID, n.GetState(), waitForIt}
-			g = <-waitForIt
-			var m structure.Matrix
-			m = g.Digraph
-			s := m.Dim()
-			state := Running
-			for i := 0; i < s; i++ {
-				mu.RLock()
-				if m.At(i, n.ID) < Success && m.At(i, n.ID) > 0 {
-					state = ToRun
-				} else if m.At(i, n.ID) >= Failure {
-					state = NotRunnable
+		message := Message{n.ID, n.GetState(), waitForIt}
+		for {
+			switch {
+			case n.GetState() <= ToRun:
+				message.State = n.GetState()
+				c <- message
+				n.LogDebug("Telling I am waiting")
+				g = <-n.waitForEvent
+				//g = <-waitForIt
+				n.LogDebug("Received new informations")
+				var m structure.Matrix
+				m = g.Digraph
+				s := m.Dim()
+				state := Running
+				for i := 0; i < s; i++ {
+					mu.RLock()
+					n.LogDebugf("Node %v => %v", i, m.At(i, n.ID))
+					if m.At(i, n.ID) < Success && m.At(i, n.ID) > 0 {
+						n.LogDebug("State will change -> ToRun")
+						state = ToRun
+					} else if m.At(i, n.ID) >= Failure {
+						state = NotRunnable
+					}
+					mu.RUnlock()
+					if state == NotRunnable {
+						continue
+					}
 				}
-				mu.RUnlock()
-				if n.GetState() == NotRunnable {
-					continue
+				if state != n.GetState() {
+					n.SetState(state)
+					n.LogInfo("New State")
 				}
-			}
-			n.SetState(state)
-			if n.GetState() == NotRunnable {
-				n.LogDebug("Not runnable, advertising graph")
-				c <- Message{n.ID, n.GetState(), waitForIt}
-			}
-			if n.GetState() == Running {
+
+			case n.GetState() == NotRunnable:
+				n.LogInfo("I cannot run")
+				message.State = n.GetState()
+				c <- message
+
+			case n.GetState() == Running:
+				n.LogInfo("Starting execution")
 				// Check and find the arguments
 				for i, arg := range n.Args {
 					// If argument is a get_attribute node:attribute
@@ -163,8 +179,8 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 					}
 				}
 
-				n.LogDebugf("Advertize %v", 2)
-				c <- Message{n.ID, n.GetState(), waitForIt}
+				message.State = n.GetState()
+				c <- message
 				switch n.Engine {
 				case "nil":
 					n.SetState(Success)
@@ -187,13 +203,17 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 					} else {
 						n.SetState(Success)
 					}
-
 				}
-				n.LogDebugf("Advertize %v", 3)
-				c <- Message{n.ID, n.GetState(), waitForIt}
+				n.LogInfo("Execution done")
+				message.State = n.GetState()
+				n.LogInfo("Sending message", message)
+				c <- message
+			case n.GetState() > Running:
+				return
+				//n.LogDebugf("Advertize %v", 3)
+				//c <- Message{n.ID, n.GetState(), waitForIt}
 			}
 		}
-		close(c)
 	}()
 	return c
 }

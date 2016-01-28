@@ -61,40 +61,38 @@ func (v *Graph) Run(exe []ExecutorBackend) {
 
 	n := m.Dim()
 	cs := make([]<-chan Message, n)
-	cos := make([]chan<- Graph, n)
+	//cos := make([]chan<- Graph, n)
+	co := make(chan Graph)
+	cos := broadcast(co, n, 1)
+
 	for i := 0; i < n; i++ {
 		cs[i] = v.Nodes[i].Run(exe)
+		v.Nodes[i].waitForEvent = cos[i]
 	}
-	for i := 0; i < n; i++ {
-		node := <-cs[i]
-		cos[i] = node.Wait
-	}
+	//for i := 0; i < n; i++ {
+	//	node := <-cs[i]
+	//cos[i] = node.Wait
+	//	node.Wait = cos[i]
+	//}
 
-	co := fanOut(cos...)
+	//co := fanOut(cos...)
 	c := fanIn(cs...)
 	v.LogDebug("Initial broadcast")
-	co <- Graph{
-		(*v).Name,
-		(*v).State,
-		(*v).Digraph,
-		(*v).Nodes,
-		(*v).Timeout,
-		(*v).mu,
-		(*v).ID,
-	}
+	co <- *v
 	v.LogDebug("Entering the for loop")
 	for {
 		select {
 		case node := <-c:
+			v.LogInfo("Received message", node)
 			v.LogDebugf("Received notification from node %v, its state is %v", node.ID, node.State)
 			if node.State >= Running {
+				mu.Lock()
 				for c := 0; c < n; c++ {
 					if m.At(node.ID, c) != 0 {
-						mu.Lock()
 						m.Set(node.ID, c, int64(node.State))
-						mu.Unlock()
 					}
 				}
+				mu.Unlock()
 			}
 			stop := true
 			state := Success
@@ -116,11 +114,12 @@ func (v *Graph) Run(exe []ExecutorBackend) {
 			if stop {
 				return
 			}
+			//v.Digraph = m
 			v.LogDebug("Advertising")
 			co <- Graph{
 				(*v).Name,
 				(*v).State,
-				(*v).Digraph,
+				m,
 				(*v).Nodes,
 				(*v).Timeout,
 				(*v).mu,
