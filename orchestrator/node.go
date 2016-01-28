@@ -9,6 +9,7 @@ import (
 	"math/rand"
 	"net/http"
 	"regexp"
+	"sync"
 	"time"
 )
 
@@ -24,6 +25,21 @@ type Node struct {
 	Outputs  map[string]string `json:"output,omitempty"` // the key is the name of the parameter, the value its value (always a string)
 	GraphID  string            `json:"graph_id,omitempty"`
 	execID   string            `json:"-"`
+	mu       sync.RWMutex      `json:"-"`
+}
+
+func (n Node) GetState() int {
+	var state int
+	n.mu.RLock()
+	defer n.mu.RUnlock()
+	state = n.State
+	return state
+}
+
+func (n *Node) SetState(s int) {
+	n.mu.Lock()
+	defer n.mu.Unlock()
+	n.State = s
 }
 
 // Actually executes the node (via the executor)
@@ -41,7 +57,7 @@ func (n *Node) Execute(exe ExecutorBackend) error {
 		ID string `json:"id"`
 	}
 	url := fmt.Sprintf("%v/tasks", exe.Url)
-	b, _ := json.Marshal(*n)
+	b, _ := json.Marshal(n)
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(b))
 	//req.Header.Set("X-Custom-Header", "myvalue")
 	req.Header.Set("Content-Type", "application/json")
@@ -51,20 +67,20 @@ func (n *Node) Execute(exe ExecutorBackend) error {
 	// Do a ping before for testing purpose
 	resp, err := client.Do(req)
 	if err != nil {
-		n.State = NotRunnable
+		//n.SetState(NotRunnable)
 		return err
 
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode >= http.StatusBadRequest {
-		n.State = NotRunnable
+		//n.SetState(NotRunnable)
 		return errors.New("Error in the executor")
 
 	}
 	dec := json.NewDecoder(resp.Body)
 	if err := dec.Decode(&t); err != nil {
-		n.State = Failure
+		//n.SetState(Failure)
 		return err
 	}
 	n.execID = t.ID
@@ -76,13 +92,13 @@ func (n *Node) Execute(exe ExecutorBackend) error {
 	for err == nil && res.State < Success {
 		r, err := client.Get(fmt.Sprintf("%v/%v", url, id))
 		if err != nil {
-			n.State = NotRunnable
+			//n.SetState(NotRunnable)
 			return err
 		}
 		defer r.Body.Close()
 		dec := json.NewDecoder(r.Body)
 		if err := dec.Decode(&res); err != nil {
-			n.State = Failure
+			//n.SetState(Failure)
 			return err
 		}
 		time.Sleep(2 * time.Second)
@@ -100,7 +116,7 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 
 	var g Graph
 	go func() {
-		n.State = ToRun
+		n.SetState(ToRun)
 		if len(n.Outputs) == 0 {
 			n.Outputs = make(map[string]string, 0)
 		}
@@ -108,8 +124,9 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 			n.Engine = "nil"
 		}
 
-		for n.State <= ToRun {
-			c <- Message{n.ID, n.State, waitForIt}
+		for n.GetState() <= ToRun {
+			n.LogDebugf("Advertize %v", 1)
+			c <- Message{n.ID, n.GetState(), waitForIt}
 			g = <-waitForIt
 			var m structure.Matrix
 			m = g.Digraph
@@ -123,16 +140,16 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 					state = NotRunnable
 				}
 				mu.RUnlock()
-				if n.State == NotRunnable {
+				if n.GetState() == NotRunnable {
 					continue
 				}
 			}
-			n.State = state
-			if n.State == NotRunnable {
+			n.SetState(state)
+			if n.GetState() == NotRunnable {
 				n.LogDebug("Not runnable, advertising graph")
-				c <- Message{n.ID, n.State, waitForIt}
+				c <- Message{n.ID, n.GetState(), waitForIt}
 			}
-			if n.State == Running {
+			if n.GetState() == Running {
 				// Check and find the arguments
 				for i, arg := range n.Args {
 					// If argument is a get_attribute node:attribute
@@ -145,14 +162,16 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 						}
 					}
 				}
-				c <- Message{n.ID, n.State, waitForIt}
+
+				n.LogDebugf("Advertize %v", 2)
+				c <- Message{n.ID, n.GetState(), waitForIt}
 				switch n.Engine {
 				case "nil":
-					n.State = Success
+					n.SetState(Success)
 				case "sleep": // For test purpose
 					time.Sleep(time.Duration(rand.Intn(1e3)) * time.Millisecond)
 					rand.Seed(time.Now().Unix())
-					n.State = Success
+					n.SetState(Success)
 					n.Outputs["result"] = fmt.Sprintf("%v_%v", n.Name, time.Now().Unix())
 				default:
 					var executor ExecutorBackend
@@ -163,12 +182,15 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 						}
 					}
 					err := n.Execute(executor)
-					if err != nil && n.State <= Success {
-						n.State = Failure
+					if err != nil && n.GetState() <= Success {
+						n.SetState(Failure)
+					} else {
+						n.SetState(Success)
 					}
 
 				}
-				c <- Message{n.ID, n.State, waitForIt}
+				n.LogDebugf("Advertize %v", 3)
+				c <- Message{n.ID, n.GetState(), waitForIt}
 			}
 		}
 		close(c)
