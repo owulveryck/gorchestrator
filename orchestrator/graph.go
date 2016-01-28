@@ -20,7 +20,6 @@ package orchestrator
 
 import (
 	"github.com/owulveryck/gorchestrator/structure"
-	"log"
 	"regexp"
 	"sync"
 	"time"
@@ -35,6 +34,20 @@ type Graph struct {
 	Timeout <-chan time.Time `json:"-"`
 	mu      sync.RWMutex     `json:"-"`
 	ID      string           `json:"id,omitempty"`
+}
+
+func (n Graph) GetState() int {
+	var state int
+	n.mu.RLock()
+	defer n.mu.RUnlock()
+	state = n.State
+	return state
+}
+
+func (n *Graph) SetState(s int) {
+	n.mu.Lock()
+	defer n.mu.Unlock()
+	n.State = s
 }
 
 func (v *Graph) getNodesFromRegexp(n string) ([]Node, error) {
@@ -57,7 +70,7 @@ var mu sync.RWMutex
 
 // Run executes the Graph structure
 func (v *Graph) Run(exe []ExecutorBackend) {
-	v.State = Running
+	v.SetState(Running)
 
 	n := v.Digraph.Dim()
 	cs := make([]<-chan Message, n)
@@ -75,7 +88,6 @@ func (v *Graph) Run(exe []ExecutorBackend) {
 	for {
 		select {
 		case node := <-c:
-			log.Printf("Received notification from node %v, its state is %v", node.ID, node.State)
 			if node.State >= Running {
 				mu.Lock()
 				for c := 0; c < n; c++ {
@@ -98,14 +110,14 @@ func (v *Graph) Run(exe []ExecutorBackend) {
 					}
 				}
 			}
-			v.State = state
-			if v.State >= Success {
+			v.SetState(state)
+			if v.GetState() >= Success {
 				return
 			}
 			co <- *v
 		case <-v.Timeout:
 			co <- *v
-			v.State = Timeout
+			v.SetState(Timeout)
 			return
 		}
 	}

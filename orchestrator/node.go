@@ -90,7 +90,7 @@ func (n *Node) Execute(exe ExecutorBackend) error {
 
 	// Now loop for the result
 	var res Node
-	for err == nil && res.State < Success {
+	for err == nil && res.GetState() < Success {
 		r, err := client.Get(fmt.Sprintf("%v/%v", url, id))
 		if err != nil {
 			//n.SetState(NotRunnable)
