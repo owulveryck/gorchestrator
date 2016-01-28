@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"math/rand"
 	"net/http"
 	"regexp"
@@ -114,6 +115,7 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 	var ga = regexp.MustCompile(`^(.*)=get_attribute (.+):(.+)$`)
 
 	var g Graph
+	log.Println(g)
 	go func() {
 		defer close(c)
 		n.SetState(ToRun)
@@ -124,10 +126,15 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 			n.Engine = "nil"
 		}
 
+		n.mu.RLock()
 		message := Message{n.ID, n.GetState()}
+		n.mu.RUnlock()
+		var once sync.Once
 		for {
+			once.Do(func() {
+				g = <-n.waitForEvent
+			})
 			message.State = n.GetState()
-			g = <-n.waitForEvent
 			//n.LogDebug("Received event", g.Nodes)
 			switch {
 			case n.GetState() <= ToRun:
@@ -147,12 +154,9 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 				}
 				if state != n.GetState() {
 					n.SetState(state)
-					n.LogInfo("New State")
 				}
-				message.State = n.GetState()
 			case n.GetState() == NotRunnable:
 				n.LogInfo("I cannot run")
-				message.State = n.GetState()
 
 			case n.GetState() == Running:
 				n.LogInfo("Starting execution")
@@ -193,10 +197,15 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 					}
 				}
 				n.LogInfo("Execution done")
-				message.State = n.GetState()
 			case n.GetState() > Running:
 			}
-			c <- message
+			switch {
+			case n.GetState() != message.State:
+				message.State = n.GetState()
+				c <- message
+			case n.GetState() == message.State:
+				g = <-n.waitForEvent
+			}
 		}
 	}()
 	return c

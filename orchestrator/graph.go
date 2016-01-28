@@ -14,12 +14,13 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+along with this prograv.Digraph.  If not, see <http://www.gnu.org/licenses/>.
 */
 package orchestrator
 
 import (
 	"github.com/owulveryck/gorchestrator/structure"
+	"log"
 	"regexp"
 	"sync"
 	"time"
@@ -57,75 +58,53 @@ var mu sync.RWMutex
 // Run executes the Graph structure
 func (v *Graph) Run(exe []ExecutorBackend) {
 	v.State = Running
-	m := v.Digraph
 
-	n := m.Dim()
+	n := v.Digraph.Dim()
 	cs := make([]<-chan Message, n)
 	co := make(chan Graph)
 	cos := broadcast(co, n, n)
 
 	for i := 0; i < n; i++ {
 		cs[i] = v.Nodes[i].Run(exe)
+		v.Nodes[i].mu.Lock()
 		v.Nodes[i].waitForEvent = cos[i]
+		v.Nodes[i].mu.Unlock()
 	}
 	c := fanIn(cs...)
-	v.LogDebug("Initial broadcast")
 	co <- *v
-	v.LogDebug("Entering the for loop")
 	for {
 		select {
 		case node := <-c:
-			v.LogDebugf("Received notification from node %v, its state is %v", node.ID, node.State)
+			log.Printf("Received notification from node %v, its state is %v", node.ID, node.State)
 			if node.State >= Running {
 				mu.Lock()
 				for c := 0; c < n; c++ {
-					if m.At(node.ID, c) != 0 {
-						m.Set(node.ID, c, int64(node.State))
+					if v.Digraph.At(node.ID, c) != 0 {
+						v.Digraph.Set(node.ID, c, int64(node.State))
 					}
 				}
 				mu.Unlock()
 			}
-			stop := true
 			state := Success
 			for r := 0; r < n; r++ {
 				for c := 0; c < n; c++ {
 					switch {
-					case m.At(r, c) == ToRun:
-						stop = false
+					case v.Digraph.At(r, c) == ToRun:
 						state = Running
-					case m.At(r, c) == Running:
-						stop = false
+					case v.Digraph.At(r, c) == Running:
 						state = Running
-					case m.At(r, c) > Success:
+					case v.Digraph.At(r, c) > Success:
 						state = Failure
 					}
 				}
 			}
 			v.State = state
-			if stop {
+			if v.State >= Success {
 				return
 			}
-			//v.Digraph = m
-			v.LogDebug("Advertising")
-			co <- Graph{
-				(*v).Name,
-				(*v).State,
-				m,
-				(*v).Nodes,
-				(*v).Timeout,
-				(*v).mu,
-				(*v).ID,
-			}
+			co <- *v
 		case <-v.Timeout:
-			co <- Graph{
-				(*v).Name,
-				(*v).State,
-				(*v).Digraph,
-				(*v).Nodes,
-				(*v).Timeout,
-				(*v).mu,
-				(*v).ID,
-			}
+			co <- *v
 			v.State = Timeout
 			return
 		}
