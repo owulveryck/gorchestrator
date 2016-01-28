@@ -132,19 +132,19 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 			case n.GetState() <= ToRun:
 				message.State = n.GetState()
 				c <- message
-				n.LogDebug("Telling I am waiting")
+				//n.LogDebug("Telling I am waiting")
 				g = <-n.waitForEvent
 				//g = <-waitForIt
-				n.LogDebug("Received new informations")
+				//n.LogDebug("Received new informations")
 				var m structure.Matrix
 				m = g.Digraph
 				s := m.Dim()
 				state := Running
 				for i := 0; i < s; i++ {
 					mu.RLock()
-					n.LogDebugf("Node %v => %v", i, m.At(i, n.ID))
+					//	n.LogDebugf("Node %v => %v", i, m.At(i, n.ID))
 					if m.At(i, n.ID) < Success && m.At(i, n.ID) > 0 {
-						n.LogDebug("State will change -> ToRun")
+						//n.LogDebug("State will change -> ToRun")
 						state = ToRun
 					} else if m.At(i, n.ID) >= Failure {
 						state = NotRunnable
@@ -209,7 +209,7 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 				n.LogInfo("Sending message", message)
 				c <- message
 			case n.GetState() > Running:
-				return
+				g = <-n.waitForEvent
 				//n.LogDebugf("Advertize %v", 3)
 				//c <- Message{n.ID, n.GetState(), waitForIt}
 			}
