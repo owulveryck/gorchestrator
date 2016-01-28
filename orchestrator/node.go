@@ -160,11 +160,12 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 				}
 
 			case n.GetState() == NotRunnable:
+				c <- message
 				n.LogInfo("I cannot run")
 				message.State = n.GetState()
-				c <- message
 
 			case n.GetState() == Running:
+				c <- message
 				n.LogInfo("Starting execution")
 				// Check and find the arguments
 				for i, arg := range n.Args {
@@ -180,7 +181,6 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 				}
 
 				message.State = n.GetState()
-				c <- message
 				switch n.Engine {
 				case "nil":
 					n.SetState(Success)
@@ -206,10 +206,11 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 				}
 				n.LogInfo("Execution done")
 				message.State = n.GetState()
-				n.LogInfo("Sending message", message)
-				c <- message
 			case n.GetState() > Running:
-				g = <-n.waitForEvent
+				c <- message
+				n.LogDebug("Finished... waiting")
+				<-n.waitForEvent
+				n.LogDebug("Finished...")
 				//n.LogDebugf("Advertize %v", 3)
 				//c <- Message{n.ID, n.GetState(), waitForIt}
 			}

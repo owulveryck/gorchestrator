@@ -63,7 +63,7 @@ func (v *Graph) Run(exe []ExecutorBackend) {
 	cs := make([]<-chan Message, n)
 	//cos := make([]chan<- Graph, n)
 	co := make(chan Graph)
-	cos := broadcast(co, n, n-1)
+	cos := broadcast(co, n, n)
 
 	for i := 0; i < n; i++ {
 		cs[i] = v.Nodes[i].Run(exe)
