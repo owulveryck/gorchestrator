@@ -61,7 +61,6 @@ func (v *Graph) Run(exe []ExecutorBackend) {
 
 	n := m.Dim()
 	cs := make([]<-chan Message, n)
-	//cos := make([]chan<- Graph, n)
 	co := make(chan Graph)
 	cos := broadcast(co, n, n)
 
@@ -69,13 +68,6 @@ func (v *Graph) Run(exe []ExecutorBackend) {
 		cs[i] = v.Nodes[i].Run(exe)
 		v.Nodes[i].waitForEvent = cos[i]
 	}
-	//for i := 0; i < n; i++ {
-	//	node := <-cs[i]
-	//cos[i] = node.Wait
-	//	node.Wait = cos[i]
-	//}
-
-	//co := fanOut(cos...)
 	c := fanIn(cs...)
 	v.LogDebug("Initial broadcast")
 	co <- *v
@@ -83,7 +75,6 @@ func (v *Graph) Run(exe []ExecutorBackend) {
 	for {
 		select {
 		case node := <-c:
-			v.LogInfo("Received message", node)
 			v.LogDebugf("Received notification from node %v, its state is %v", node.ID, node.State)
 			if node.State >= Running {
 				mu.Lock()
@@ -137,18 +128,6 @@ func (v *Graph) Run(exe []ExecutorBackend) {
 			}
 			v.State = Timeout
 			return
-			/*
-				case co <- Graph{
-					(*v).Name,
-					(*v).State,
-					(*v).Digraph,
-					(*v).Nodes,
-					(*v).Timeout,
-					(*v).mu,
-					(*v).ID,
-				}:
-					v.LogDebugf("Advertising")
-			*/
 		}
 	}
 }

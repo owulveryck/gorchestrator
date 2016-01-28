@@ -13,32 +13,15 @@ func broadcast(ch <-chan Graph, size, lag int) []chan Graph {
 		for i := range ch {
 			for _, c := range cs {
 				c <- i
-
 			}
-
 		}
 		for _, c := range cs {
 			// close all our fanOut channels when the input channel is exhausted.
 			close(c)
-
 		}
-
 	}()
 	return cs
 
-}
-
-func fanOut(outputs ...chan<- Graph) chan<- Graph {
-	c := make(chan Graph)
-	for i := range outputs {
-		output := outputs[i] // New instance of 'input' for each loop.
-		go func(i int) {
-			for {
-				output <- <-c
-			}
-		}(i)
-	}
-	return c
 }
 func fanIn(inputs ...<-chan Message) <-chan Message {
 	c := make(chan Message)

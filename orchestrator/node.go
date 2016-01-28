@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/owulveryck/gorchestrator/structure"
 	"math/rand"
 	"net/http"
 	"regexp"
@@ -112,7 +111,6 @@ func (n *Node) Execute(exe ExecutorBackend) error {
 func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 	n.LogDebug("Entering the Run function")
 	c := make(chan Message)
-	waitForIt := make(chan Graph) // Shared between all messages.
 	var ga = regexp.MustCompile(`^(.*)=get_attribute (.+):(.+)$`)
 
 	var g Graph
@@ -126,27 +124,20 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 			n.Engine = "nil"
 		}
 
-		message := Message{n.ID, n.GetState(), waitForIt}
+		message := Message{n.ID, n.GetState()}
 		for {
+			message.State = n.GetState()
+			g = <-n.waitForEvent
+			//n.LogDebug("Received event", g.Nodes)
 			switch {
 			case n.GetState() <= ToRun:
-				message.State = n.GetState()
-				c <- message
-				//n.LogDebug("Telling I am waiting")
-				g = <-n.waitForEvent
-				//g = <-waitForIt
-				//n.LogDebug("Received new informations")
-				var m structure.Matrix
-				m = g.Digraph
-				s := m.Dim()
+				s := g.Digraph.Dim()
 				state := Running
 				for i := 0; i < s; i++ {
 					mu.RLock()
-					//	n.LogDebugf("Node %v => %v", i, m.At(i, n.ID))
-					if m.At(i, n.ID) < Success && m.At(i, n.ID) > 0 {
-						//n.LogDebug("State will change -> ToRun")
+					if g.Digraph.At(i, n.ID) < Success && g.Digraph.At(i, n.ID) > 0 {
 						state = ToRun
-					} else if m.At(i, n.ID) >= Failure {
+					} else if g.Digraph.At(i, n.ID) >= Failure {
 						state = NotRunnable
 					}
 					mu.RUnlock()
@@ -158,14 +149,12 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 					n.SetState(state)
 					n.LogInfo("New State")
 				}
-
+				message.State = n.GetState()
 			case n.GetState() == NotRunnable:
-				c <- message
 				n.LogInfo("I cannot run")
 				message.State = n.GetState()
 
 			case n.GetState() == Running:
-				c <- message
 				n.LogInfo("Starting execution")
 				// Check and find the arguments
 				for i, arg := range n.Args {
@@ -180,7 +169,6 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 					}
 				}
 
-				message.State = n.GetState()
 				switch n.Engine {
 				case "nil":
 					n.SetState(Success)
@@ -207,13 +195,8 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 				n.LogInfo("Execution done")
 				message.State = n.GetState()
 			case n.GetState() > Running:
-				c <- message
-				n.LogDebug("Finished... waiting")
-				<-n.waitForEvent
-				n.LogDebug("Finished...")
-				//n.LogDebugf("Advertize %v", 3)
-				//c <- Message{n.ID, n.GetState(), waitForIt}
 			}
+			c <- message
 		}
 	}()
 	return c
