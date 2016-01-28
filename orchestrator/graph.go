@@ -72,10 +72,21 @@ func (v *Graph) Run(exe []ExecutorBackend) {
 
 	co := fanOut(cos...)
 	c := fanIn(cs...)
+	v.LogDebug("Initial broadcast")
+	co <- Graph{
+		(*v).Name,
+		(*v).State,
+		(*v).Digraph,
+		(*v).Nodes,
+		(*v).Timeout,
+		(*v).mu,
+		(*v).ID,
+	}
+	v.LogDebug("Entering the for loop")
 	for {
 		select {
 		case node := <-c:
-			v.LogDebugf("Received notification from node %v", node.ID)
+			v.LogDebugf("Received notification from node %v, its state is %v", node.ID, node.State)
 			if node.State >= Running {
 				for c := 0; c < n; c++ {
 					if m.At(node.ID, c) != 0 {
@@ -105,6 +116,16 @@ func (v *Graph) Run(exe []ExecutorBackend) {
 			if stop {
 				return
 			}
+			v.LogDebug("Advertising")
+			co <- Graph{
+				(*v).Name,
+				(*v).State,
+				(*v).Digraph,
+				(*v).Nodes,
+				(*v).Timeout,
+				(*v).mu,
+				(*v).ID,
+			}
 		case <-v.Timeout:
 			co <- Graph{
 				(*v).Name,
@@ -117,15 +138,18 @@ func (v *Graph) Run(exe []ExecutorBackend) {
 			}
 			v.State = Timeout
 			return
-		case co <- Graph{
-			(*v).Name,
-			(*v).State,
-			(*v).Digraph,
-			(*v).Nodes,
-			(*v).Timeout,
-			(*v).mu,
-			(*v).ID,
-		}:
+			/*
+				case co <- Graph{
+					(*v).Name,
+					(*v).State,
+					(*v).Digraph,
+					(*v).Nodes,
+					(*v).Timeout,
+					(*v).mu,
+					(*v).ID,
+				}:
+					v.LogDebugf("Advertising")
+			*/
 		}
 	}
 }
