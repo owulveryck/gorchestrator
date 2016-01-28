@@ -1,9 +1,5 @@
 package orchestrator
 
-import (
-	"log"
-)
-
 func broadcast(ch <-chan Graph, size, lag int) []chan Graph {
 	cs := make([]chan Graph, size)
 	for i, _ := range cs {
@@ -16,9 +12,7 @@ func broadcast(ch <-chan Graph, size, lag int) []chan Graph {
 	go func() {
 		for i := range ch {
 			for _, c := range cs {
-				log.Println("Sending to channel")
 				c <- i
-				log.Println("Done")
 
 			}
 
