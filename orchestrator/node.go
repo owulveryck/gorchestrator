@@ -131,6 +131,7 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 		n.mu.RUnlock()
 		var once sync.Once
 		for {
+			log.Println("loop")
 			once.Do(func() {
 				g = <-n.waitForEvent
 			})
