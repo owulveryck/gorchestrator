@@ -78,8 +78,7 @@ func TestRun(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	//allValid := []Graph{valid, validAndNoArtifact, validAndSleep, validAndExecSuccess}
-	allValid := []Graph{validAndExecSuccess}
+	allValid := []Graph{valid, validAndNoArtifact, validAndSleep, validAndExecSuccess}
 
 	for _, v := range allValid {
 		v.Run([]ExecutorBackend{exe})
@@ -87,15 +86,13 @@ func TestRun(t *testing.T) {
 			t.Fatalf("Failed: %v", v)
 		}
 	}
-	/*
-		allInvalid := []Graph{validAndTimeout, validAndExecFailure}
-		for _, v := range allInvalid {
-			v.Run([]ExecutorBackend{exe})
-			if v.State <= Success {
-				t.Fatalf("Failed: %v", v)
-			}
+	allInvalid := []Graph{validAndTimeout, validAndExecFailure}
+	for _, v := range allInvalid {
+		v.Run([]ExecutorBackend{exe})
+		if v.State <= Success {
+			t.Fatalf("Failed: %v", v)
 		}
-	*/
+	}
 }
 func BenchmarkRun(b *testing.B) {
 	e := valid.Check()

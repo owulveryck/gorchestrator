@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"math/rand"
 	"net/http"
 	"regexp"
@@ -84,7 +83,9 @@ func (n *Node) Execute(exe ExecutorBackend) error {
 		//n.SetState(Failure)
 		return err
 	}
+	n.mu.Lock()
 	n.execID = t.ID
+	n.mu.Unlock()
 	id = t.ID
 	n.LogInfo("Running")
 
@@ -104,7 +105,9 @@ func (n *Node) Execute(exe ExecutorBackend) error {
 		}
 		time.Sleep(2 * time.Second)
 	}
-	*n = res
+	n.mu.Lock()
+	n.Outputs = res.Outputs
+	n.mu.Unlock()
 	return nil
 }
 
@@ -115,7 +118,6 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 	var ga = regexp.MustCompile(`^(.*)=get_attribute (.+):(.+)$`)
 
 	var g Graph
-	log.Println(g)
 	go func() {
 		defer close(c)
 		n.SetState(ToRun)
@@ -131,7 +133,6 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 		n.mu.RUnlock()
 		var once sync.Once
 		for {
-			log.Println("loop")
 			once.Do(func() {
 				g = <-n.waitForEvent
 			})

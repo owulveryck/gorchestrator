@@ -60,7 +60,7 @@ func init() {
 		sync.RWMutex{},
 		"",
 	}
-	validAndExecSuccess = Graph{"ValidAndNoArtifact",
+	validAndExecSuccess = Graph{"ValidAndExecSuccess",
 		0,
 		[]int64{0, 1, 0, 0, 1, 0, 0, 0,
 			0, 0, 0, 0, 0, 0, 1, 0,
@@ -85,7 +85,7 @@ func init() {
 		sync.RWMutex{},
 		"",
 	}
-	validAndExecFailure = Graph{"ValidAndNoArtifact",
+	validAndExecFailure = Graph{"ValidAndExecFailure",
 		0,
 		[]int64{0, 1, 0, 0, 1, 0, 0, 0,
 			0, 0, 0, 0, 0, 0, 1, 0,
