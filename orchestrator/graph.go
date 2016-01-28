@@ -32,6 +32,8 @@ type Graph struct {
 	Digraph structure.Matrix `json:"digraph"`
 	Nodes   []Node           `json:"nodes"`
 	Timeout <-chan time.Time `json:"-"`
+	mu      sync.RWMutex     `json:"-"`
+	ID      string           `json:"id,omitempty"`
 }
 
 func (v *Graph) getNodesFromRegexp(n string) ([]Node, error) {
@@ -73,6 +75,7 @@ func (v *Graph) Run(exe []ExecutorBackend) {
 	for {
 		select {
 		case node := <-c:
+			v.LogDebugf("Received notification from node %v", node.ID)
 			if node.State >= Running {
 				for c := 0; c < n; c++ {
 					if m.At(node.ID, c) != 0 {
@@ -83,21 +86,22 @@ func (v *Graph) Run(exe []ExecutorBackend) {
 				}
 			}
 			stop := true
-			v.State = Success
+			state := Success
 			for r := 0; r < n; r++ {
 				for c := 0; c < n; c++ {
 					switch {
 					case m.At(r, c) == ToRun:
 						stop = false
-						v.State = Running
+						state = Running
 					case m.At(r, c) == Running:
 						stop = false
-						v.State = Running
+						state = Running
 					case m.At(r, c) > Success:
-						v.State = Failure
+						state = Failure
 					}
 				}
 			}
+			v.State = state
 			if stop {
 				return
 			}
@@ -108,6 +112,8 @@ func (v *Graph) Run(exe []ExecutorBackend) {
 				(*v).Digraph,
 				(*v).Nodes,
 				(*v).Timeout,
+				(*v).mu,
+				(*v).ID,
 			}
 			v.State = Timeout
 			return
@@ -117,6 +123,8 @@ func (v *Graph) Run(exe []ExecutorBackend) {
 			(*v).Digraph,
 			(*v).Nodes,
 			(*v).Timeout,
+			(*v).mu,
+			(*v).ID,
 		}:
 		}
 	}

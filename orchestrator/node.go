@@ -1,22 +1,3 @@
-/*
-Olivier Wulveryck - author of Gorchestrator
-Copyright (C) 2015 Olivier Wulveryck
-
-This file is part of the Gorchestrator project and
-is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
 package orchestrator
 
 import (
@@ -25,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/owulveryck/gorchestrator/structure"
-	"log"
 	"math/rand"
 	"net/http"
 	"regexp"
@@ -42,10 +22,13 @@ type Node struct {
 	Artifact string            `json:"artifact"`
 	Args     []string          `json:"args,omitempty"`   // the arguments of the artifact, if needed
 	Outputs  map[string]string `json:"output,omitempty"` // the key is the name of the parameter, the value its value (always a string)
+	GraphID  string            `json:"graph_id,omitempty"`
+	execID   string            `json:"-"`
 }
 
 // Actually executes the node (via the executor)
 func (n *Node) Execute(exe ExecutorBackend) error {
+	n.LogDebug("Entering the Execute function")
 	if exe.Client == nil {
 		err := exe.Init()
 		if err != nil {
@@ -84,7 +67,9 @@ func (n *Node) Execute(exe ExecutorBackend) error {
 		n.State = Failure
 		return err
 	}
+	n.execID = t.ID
 	id = t.ID
+	n.LogInfo("Running")
 
 	// Now loop for the result
 	var res Node
@@ -108,6 +93,7 @@ func (n *Node) Execute(exe ExecutorBackend) error {
 
 // Run the node
 func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
+	n.LogDebug("Entering the Run function")
 	c := make(chan Message)
 	waitForIt := make(chan Graph) // Shared between all messages.
 	var ga = regexp.MustCompile(`^(.*)=get_attribute (.+):(.+)$`)
@@ -143,6 +129,7 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 			}
 			n.State = state
 			if n.State == NotRunnable {
+				n.LogDebug("Not runnable, advertising graph")
 				c <- Message{n.ID, n.State, waitForIt}
 			}
 			if n.State == Running {
@@ -151,7 +138,6 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 					// If argument is a get_attribute node:attribute
 					// Then substitute it to its actual value
 					subargs := ga.FindStringSubmatch(arg)
-					log.Println("DEBUG:", subargs)
 					if len(subargs) == 4 {
 						nn, _ := g.getNodesFromRegexp(subargs[2])
 						for _, nn := range nn {
