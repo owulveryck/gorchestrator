@@ -79,7 +79,7 @@ func TestRun(t *testing.T) {
 	}
 
 	//allValid := []Graph{valid, validAndNoArtifact, validAndSleep, validAndExecSuccess}
-	allValid := []Graph{valid, validAndNoArtifact, validAndSleep}
+	allValid := []Graph{validAndExecSuccess}
 
 	for _, v := range allValid {
 		v.Run([]ExecutorBackend{exe})
