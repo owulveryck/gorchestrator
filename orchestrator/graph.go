@@ -87,13 +87,16 @@ func (v *Graph) Run(exe []ExecutorBackend) {
 		select {
 		case node := <-c:
 			if node.State >= Running {
-				//v.Lock()
 				for c := 0; c < n; c++ {
-					if v.Digraph.At(node.ID, c) != 0 {
+					//v.RLock()
+					val := v.Digraph.At(node.ID, c)
+					//v.RUnlock()
+					if val != 0 {
+						//v.Lock()
 						v.Digraph.Set(node.ID, c, int64(node.State))
+						//v.Unlock()
 					}
 				}
-				//v.Unlock()
 			}
 			state := Success
 			for r := 0; r < n; r++ {

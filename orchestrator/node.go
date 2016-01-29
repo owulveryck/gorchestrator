@@ -145,14 +145,16 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 				s := g.Digraph.Dim()
 				state := Running
 				for i := 0; i < s; i++ {
-					//g.RLock()
-					if g.Digraph.At(i, n.ID) < Success && g.Digraph.At(i, n.ID) > 0 {
+					g.RLock()
+					val := g.Digraph.At(i, n.ID)
+					g.RUnlock()
+					if val < Success && val > 0 {
 						state = ToRun
-					} else if g.Digraph.At(i, n.ID) >= Failure {
+					} else if val >= Failure {
 						state = NotRunnable
 					}
-					//g.RUnlock()
 					if state == NotRunnable {
+						n.SetState(state)
 						continue
 					}
 				}

@@ -82,7 +82,6 @@ func TestRun(t *testing.T) {
 	allValid := []Graph{valid, validAndNoArtifact, validAndSleep, validAndExecSuccess}
 	allValid = []Graph{
 		valid,
-		valid,
 	}
 
 	var wg sync.WaitGroup
