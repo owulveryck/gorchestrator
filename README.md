@@ -1,4 +1,4 @@
-# <img src="https://raw.githubusercontent.com/owulveryck/gorchestrator/concurrency/Documentation/images/gorchestrator-160x160.png" width="50"/> Gorchestrator
+# <img src="https://raw.githubusercontent.com/owulveryck/gorchestrator/concurrency/Documentation/images/gorchestrator-160x160.png" width="50"/> Gorchestrator <img src="https://raw.githubusercontent.com/owulveryck/gorchestrator/concurrency/Documentation/images/gorchestrator-160x160.png" width="50"/> 
 
 # Abstract
 
