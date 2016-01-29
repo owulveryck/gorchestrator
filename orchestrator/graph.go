@@ -36,7 +36,7 @@ type Graph struct {
 	ID           string `json:"id,omitempty"`
 }
 
-func (n Graph) GetState() int {
+func (n *Graph) GetState() int {
 	var state int
 	n.RLock()
 	defer n.RUnlock()
@@ -61,8 +61,8 @@ func (v *Graph) getNodesFromRegexp(n string) ([]Node, error) {
 	return nn, nil
 }
 
-func (v *Graph) getNodeFromName(n string) (Node, error) {
-	var nn Node
+func (v *Graph) getNodeFromName(n string) (*Node, error) {
+	var nn *Node
 	return nn, nil
 }
 
