@@ -131,13 +131,10 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 		n.RLock()
 		message := Message{n.ID, n.GetState()}
 		n.RUnlock()
-		var once sync.Once
+		n.Lock()
+		g = <-n.waitForEvent
+		n.Unlock()
 		for {
-			once.Do(func() {
-				n.Lock()
-				g = <-n.waitForEvent
-				n.Unlock()
-			})
 			message.State = n.GetState()
 			//n.LogDebug("Received event", g.Nodes)
 			switch {
