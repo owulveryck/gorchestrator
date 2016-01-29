@@ -19,6 +19,7 @@ along with this prograv.Digraph.  If not, see <http://www.gnu.org/licenses/>.
 package orchestrator
 
 import (
+	"encoding/json"
 	"github.com/owulveryck/gorchestrator/structure"
 	"regexp"
 	"sync"
@@ -34,6 +35,42 @@ type Graph struct {
 	Timeout      <-chan time.Time `json:"-"`
 	sync.RWMutex `json:"-"`
 	ID           string `json:"id,omitempty"`
+}
+
+func (g *Graph) UnmarshalJSON(b []byte) (err error) {
+	type graph struct {
+		Name    string           `json:"name,omitempty"`
+		State   int              `json:"state"`
+		Digraph []int64          `json:"digraph"`
+		Nodes   []Node           `json:"nodes"`
+		Timeout <-chan time.Time `json:"-"`
+	}
+	s := graph{}
+	if err = json.Unmarshal(b, &s); err == nil {
+		g.Name = s.Name
+		g.State = s.State
+		g.Digraph = structure.Matrix{s.Digraph, sync.RWMutex{}}
+		g.Nodes = s.Nodes
+	} else {
+		return err
+	}
+	return nil
+}
+
+func (g *Graph) MarshalJSON() ([]byte, error) {
+	type graph struct {
+		Name    string           `json:"name,omitempty"`
+		State   int              `json:"state"`
+		Digraph []int64          `json:"digraph"`
+		Nodes   []Node           `json:"nodes"`
+		Timeout <-chan time.Time `json:"-"`
+	}
+	s := graph{}
+	s.Name = g.Name
+	s.State = g.State
+	s.Digraph = g.Digraph.Matrix
+	s.Nodes = g.Nodes
+	return json.Marshal(s)
 }
 
 func (n *Graph) GetState() int {
