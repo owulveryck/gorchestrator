@@ -134,7 +134,9 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 		var once sync.Once
 		for {
 			once.Do(func() {
+				n.Lock()
 				g = <-n.waitForEvent
+				n.Unlock()
 			})
 			message.State = n.GetState()
 			//n.LogDebug("Received event", g.Nodes)

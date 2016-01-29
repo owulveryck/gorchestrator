@@ -50,12 +50,12 @@ func (n *Graph) SetState(s int) {
 	n.State = s
 }
 
-func (v *Graph) getNodesFromRegexp(n string) ([]Node, error) {
+func (v *Graph) getNodesFromRegexp(n string) ([]*Node, error) {
 	re := regexp.MustCompile(n)
-	var nn []Node
-	for _, node := range v.Nodes {
-		if re.MatchString(node.Name) {
-			nn = append(nn, node)
+	var nn []*Node
+	for i, _ := range v.Nodes {
+		if re.MatchString(v.Nodes[i].Name) {
+			nn = append(nn, &v.Nodes[i])
 		}
 	}
 	return nn, nil

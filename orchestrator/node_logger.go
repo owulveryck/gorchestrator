@@ -5,6 +5,8 @@ import (
 )
 
 func (n *Node) getFields() logger.Fields {
+	n.RLock()
+	defer n.RUnlock()
 	return logger.Fields{
 		"Element":  "node",
 		"ID":       n.ID,
