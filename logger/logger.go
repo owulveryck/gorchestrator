@@ -79,6 +79,6 @@ func (f Fields) Fields() logrus.Fields {
 	return logrus.Fields(f)
 }
 
-func GetLog() logrus.Logger {
-	return *log
+func GetLog() *logrus.Logger {
+	return log
 }
