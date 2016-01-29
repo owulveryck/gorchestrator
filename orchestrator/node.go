@@ -204,7 +204,9 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 				message.State = n.GetState()
 				c <- message
 			case n.GetState() == message.State:
+				n.RLock()
 				g = <-n.waitForEvent
+				n.RUnlock()
 			}
 		}
 	}()
