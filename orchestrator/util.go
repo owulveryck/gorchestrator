@@ -1,12 +1,12 @@
 package orchestrator
 
-func broadcast(ch <-chan Graph, size, lag int) []chan Graph {
-	cs := make([]chan Graph, size)
+func broadcast(ch <-chan *Graph, size, lag int) []chan *Graph {
+	cs := make([]chan *Graph, size)
 	for i, _ := range cs {
 		// The size of the channels buffer controls how far behind the recievers
 		// of the fanOut channels can lag the other channels.
 		//cs[i] = make(chan Graph)
-		cs[i] = make(chan Graph, lag)
+		cs[i] = make(chan *Graph, lag)
 
 	}
 	go func() {

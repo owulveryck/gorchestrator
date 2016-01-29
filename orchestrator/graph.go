@@ -27,26 +27,26 @@ import (
 
 // Graph is the input of the orchestrator
 type Graph struct {
-	Name    string           `json:"name,omitempty"`
-	State   int              `json:"state"`
-	Digraph structure.Matrix `json:"digraph"`
-	Nodes   []Node           `json:"nodes"`
-	Timeout <-chan time.Time `json:"-"`
-	mu      sync.RWMutex     `json:"-"`
-	ID      string           `json:"id,omitempty"`
+	Name         string           `json:"name,omitempty"`
+	State        int              `json:"state"`
+	Digraph      structure.Matrix `json:"digraph"`
+	Nodes        []Node           `json:"nodes"`
+	Timeout      <-chan time.Time `json:"-"`
+	sync.RWMutex `json:"-"`
+	ID           string `json:"id,omitempty"`
 }
 
 func (n Graph) GetState() int {
 	var state int
-	n.mu.RLock()
-	defer n.mu.RUnlock()
+	n.RLock()
+	defer n.RUnlock()
 	state = n.State
 	return state
 }
 
 func (n *Graph) SetState(s int) {
-	n.mu.Lock()
-	defer n.mu.Unlock()
+	n.Lock()
+	defer n.Unlock()
 	n.State = s
 }
 
@@ -66,36 +66,34 @@ func (v *Graph) getNodeFromName(n string) (Node, error) {
 	return nn, nil
 }
 
-var mu sync.RWMutex
-
 // Run executes the Graph structure
 func (v *Graph) Run(exe []ExecutorBackend) {
 	v.SetState(Running)
 
 	n := v.Digraph.Dim()
 	cs := make([]<-chan Message, n)
-	co := make(chan Graph)
+	co := make(chan *Graph)
 	cos := broadcast(co, n, n)
 
 	for i := 0; i < n; i++ {
 		cs[i] = v.Nodes[i].Run(exe)
-		v.Nodes[i].mu.Lock()
+		v.Nodes[i].Lock()
 		v.Nodes[i].waitForEvent = cos[i]
-		v.Nodes[i].mu.Unlock()
+		v.Nodes[i].Unlock()
 	}
 	c := fanIn(cs...)
-	co <- *v
+	co <- v
 	for {
 		select {
 		case node := <-c:
 			if node.State >= Running {
-				mu.Lock()
+				//v.Lock()
 				for c := 0; c < n; c++ {
 					if v.Digraph.At(node.ID, c) != 0 {
 						v.Digraph.Set(node.ID, c, int64(node.State))
 					}
 				}
-				mu.Unlock()
+				//v.Unlock()
 			}
 			state := Success
 			for r := 0; r < n; r++ {
@@ -114,9 +112,9 @@ func (v *Graph) Run(exe []ExecutorBackend) {
 			if v.GetState() >= Success {
 				return
 			}
-			co <- *v
+			co <- v
 		case <-v.Timeout:
-			co <- *v
+			co <- v
 			v.SetState(Timeout)
 			return
 		}
@@ -125,7 +123,7 @@ func (v *Graph) Run(exe []ExecutorBackend) {
 
 // Check is the structure is coherent, (a squared matrix with as many nodes as needed)
 func (i *Graph) Check() Error {
-	if len(i.Nodes)*len(i.Nodes) != len(i.Digraph) {
+	if len(i.Nodes)*len(i.Nodes) != len(i.Digraph.Matrix) {
 		return Error{1, "Structure is not coherent"}
 	}
 	return Error{0, ""}

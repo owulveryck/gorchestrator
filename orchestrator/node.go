@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"math/rand"
 	"net/http"
 	"regexp"
@@ -24,21 +25,21 @@ type Node struct {
 	Outputs      map[string]string `json:"output,omitempty"` // the key is the name of the parameter, the value its value (always a string)
 	GraphID      string            `json:"graph_id,omitempty"`
 	execID       string            `json:"-"`
-	mu           sync.RWMutex      `json:"-"`
-	waitForEvent chan Graph        `json:"-"`
+	sync.RWMutex `json:"-"`
+	waitForEvent chan *Graph `json:"-"`
 }
 
-func (n Node) GetState() int {
+func (n *Node) GetState() int {
 	var state int
-	n.mu.RLock()
-	defer n.mu.RUnlock()
+	n.RLock()
+	defer n.RUnlock()
 	state = n.State
 	return state
 }
 
 func (n *Node) SetState(s int) {
-	n.mu.Lock()
-	defer n.mu.Unlock()
+	n.Lock()
+	defer n.Unlock()
 	n.State = s
 }
 
@@ -83,9 +84,9 @@ func (n *Node) Execute(exe ExecutorBackend) error {
 		//n.SetState(Failure)
 		return err
 	}
-	n.mu.Lock()
+	n.Lock()
 	n.execID = t.ID
-	n.mu.Unlock()
+	n.Unlock()
 	id = t.ID
 	n.LogInfo("Running")
 
@@ -105,9 +106,9 @@ func (n *Node) Execute(exe ExecutorBackend) error {
 		}
 		time.Sleep(2 * time.Second)
 	}
-	n.mu.Lock()
+	n.Lock()
 	n.Outputs = res.Outputs
-	n.mu.Unlock()
+	n.Unlock()
 	return nil
 }
 
@@ -117,7 +118,7 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 	c := make(chan Message)
 	var ga = regexp.MustCompile(`^(.*)=get_attribute (.+):(.+)$`)
 
-	var g Graph
+	var g *Graph
 	go func() {
 		defer close(c)
 		n.SetState(ToRun)
@@ -128,9 +129,9 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 			n.Engine = "nil"
 		}
 
-		n.mu.RLock()
+		n.RLock()
 		message := Message{n.ID, n.GetState()}
-		n.mu.RUnlock()
+		n.RUnlock()
 		var once sync.Once
 		for {
 			once.Do(func() {
@@ -140,16 +141,17 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 			//n.LogDebug("Received event", g.Nodes)
 			switch {
 			case n.GetState() <= ToRun:
+				log.Println(g.Digraph)
 				s := g.Digraph.Dim()
 				state := Running
 				for i := 0; i < s; i++ {
-					mu.RLock()
+					//g.RLock()
 					if g.Digraph.At(i, n.ID) < Success && g.Digraph.At(i, n.ID) > 0 {
 						state = ToRun
 					} else if g.Digraph.At(i, n.ID) >= Failure {
 						state = NotRunnable
 					}
-					mu.RUnlock()
+					//g.RUnlock()
 					if state == NotRunnable {
 						continue
 					}

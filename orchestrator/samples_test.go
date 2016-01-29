@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package orchestrator
 
 import (
+	"github.com/owulveryck/gorchestrator/structure"
 	"sync"
 	"time"
 )
@@ -35,17 +36,21 @@ var validAndExecFailure Graph
 var notValid Graph
 
 func init() {
-	validAndNoArtifact = Graph{"ValidAndNoArtifact",
-		0,
-		[]int64{0, 1, 0, 0, 1, 0, 0, 0,
+	matrix := structure.Matrix{
+		Matrix: []int64{0, 1, 0, 0, 1, 0, 0, 0,
 			0, 0, 0, 0, 0, 0, 1, 0,
 			0, 0, 0, 0, 0, 0, 0, 0,
-			0, 0, 1, 0, 0, 0, 1, 0,
+			0, 1, 0, 0, 0, 1, 0,
 			0, 0, 0, 0, 0, 0, 0, 0,
 			1, 1, 1, 0, 0, 0, 0, 0,
 			0, 0, 0, 0, 0, 0, 0, 0,
 			0, 0, 0, 0, 0, 0, 1, 0,
 		},
+	}
+
+	validAndNoArtifact = Graph{"ValidAndNoArtifact",
+		0,
+		matrix,
 		[]Node{
 			{0, 0, "a", "SELF", "nil", "", nil, nil, "", "", sync.RWMutex{}, nil},
 			{1, 0, "b", "SELF", "nil", "", nil, nil, "", "", sync.RWMutex{}, nil},
@@ -62,15 +67,7 @@ func init() {
 	}
 	validAndExecSuccess = Graph{"ValidAndExecSuccess",
 		0,
-		[]int64{0, 1, 0, 0, 1, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 1, 0,
-			0, 0, 0, 0, 0, 0, 0, 0,
-			0, 0, 1, 0, 0, 0, 1, 0,
-			0, 0, 0, 0, 0, 0, 0, 0,
-			1, 1, 1, 0, 0, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 1, 0,
-		},
+		matrix,
 		[]Node{
 			{0, 0, "a", "", "shell", "success", nil, nil, "", "", sync.RWMutex{}, nil},
 			{1, 0, "b", "", "", "nil", nil, nil, "", "", sync.RWMutex{}, nil},
@@ -87,15 +84,7 @@ func init() {
 	}
 	validAndExecFailure = Graph{"ValidAndExecFailure",
 		0,
-		[]int64{0, 1, 0, 0, 1, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 1, 0,
-			0, 0, 0, 0, 0, 0, 0, 0,
-			0, 0, 1, 0, 0, 0, 1, 0,
-			0, 0, 0, 0, 0, 0, 0, 0,
-			1, 1, 1, 0, 0, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 1, 0,
-		},
+		matrix,
 		[]Node{
 			{0, 0, "a", "", "shell", "success", nil, nil, "", "", sync.RWMutex{}, nil},
 			{1, 0, "b", "", "", "nil", nil, nil, "", "", sync.RWMutex{}, nil},
@@ -113,15 +102,7 @@ func init() {
 
 	validAndTimeout = Graph{"ValidAndTimeout",
 		0,
-		[]int64{0, 1, 0, 0, 1, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 1, 0,
-			0, 0, 0, 0, 0, 0, 0, 0,
-			0, 0, 1, 0, 0, 0, 1, 0,
-			0, 0, 0, 0, 0, 0, 0, 0,
-			1, 1, 1, 0, 0, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 1, 0,
-		},
+		matrix,
 		[]Node{
 			{0, 0, "a", "", "sleep", "", nil, nil, "", "", sync.RWMutex{}, nil},
 			{1, 0, "b", "", "sleep", "", nil, nil, "", "", sync.RWMutex{}, nil},
@@ -139,15 +120,7 @@ func init() {
 
 	validAndSleep = Graph{"ValidAndSleep",
 		0,
-		[]int64{0, 1, 0, 0, 1, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 1, 0,
-			0, 0, 0, 0, 0, 0, 0, 0,
-			0, 0, 1, 0, 0, 0, 1, 0,
-			0, 0, 0, 0, 0, 0, 0, 0,
-			1, 1, 1, 0, 0, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 1, 0,
-		},
+		matrix,
 		[]Node{
 			{0, 0, "a", "", "sleep", "", nil, nil, "", "", sync.RWMutex{}, nil},
 			{1, 0, "b", "", "sleep", "", nil, nil, "", "", sync.RWMutex{}, nil},
@@ -165,15 +138,7 @@ func init() {
 
 	valid = Graph{"Valid",
 		0,
-		[]int64{0, 1, 0, 0, 1, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 1, 0,
-			0, 0, 0, 0, 0, 0, 0, 0,
-			0, 0, 1, 0, 0, 0, 1, 0,
-			0, 0, 0, 0, 0, 0, 0, 0,
-			1, 1, 1, 0, 0, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 1, 0,
-		},
+		matrix,
 		[]Node{
 			{0, 0, "a", "", "nil", "myplaybook.yml", nil, nil, "", "", sync.RWMutex{}, nil},
 			{1, 0, "b", "", "nil", "myscript.sh", nil,
@@ -198,14 +163,16 @@ func init() {
 
 	notValid = Graph{"NotValid",
 		0,
-		[]int64{0, 1, 0, 0, 1, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 1, 0,
-			0, 0, 0, 0, 0, 0, 0, 0,
-			0, 1, 0, 0, 0, 1, 0,
-			0, 0, 0, 0, 0, 0, 0, 0,
-			1, 1, 1, 0, 0, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 1, 0,
+		structure.Matrix{
+			Matrix: []int64{0, 1, 0, 0, 1, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 1, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 1, 0, 0, 0, 1, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				1, 1, 1, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 1, 0,
+			},
 		},
 		[]Node{
 			{0, 0, "a", "", "nil", "myplaybook.yml", nil, nil, "", "", sync.RWMutex{}, nil},

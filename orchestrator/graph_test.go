@@ -30,14 +30,16 @@ import (
 )
 
 func TestRun(t *testing.T) {
-	e := valid.Check()
-	if e.Code != 0 {
-		t.Errorf("Struct should be valid, error is: %v", e.Error())
-	}
-	e = notValid.Check()
-	if e.Code == 0 {
-		t.Errorf("Struct should not be valid, error is: %v", e.Error())
-	}
+	/*
+		e := valid.Check()
+		if e.Code != 0 {
+			t.Errorf("Struct should be valid, error is: %v", e.Error())
+		}
+		e = notValid.Check()
+		if e.Code == 0 {
+			t.Errorf("Struct should not be valid, error is: %v", e.Error())
+		}
+	*/
 
 	tasks = make(map[string](*Node), 0)
 	router := NewRouter()
@@ -78,21 +80,36 @@ func TestRun(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	allValid := []Graph{valid, validAndNoArtifact, validAndSleep, validAndExecSuccess}
+	t.Log("Launching tests")
+	//allValid := []Graph{valid, validAndNoArtifact, validAndSleep, validAndExecSuccess}
+	allValid := []Graph{valid}
 
+	var wg sync.WaitGroup
 	for _, v := range allValid {
-		v.Run([]ExecutorBackend{exe})
-		if v.State != Success {
-			t.Fatalf("Failed: %v", v)
-		}
+		wg.Add(1)
+		go func(v Graph) {
+			v.Run([]ExecutorBackend{exe})
+			if v.State != Success {
+				t.Fatalf("Failed: %v", v)
+			}
+			t.Logf("[%v] Test Finished", v.Name)
+			wg.Done()
+		}(v)
 	}
-	allInvalid := []Graph{validAndTimeout, validAndExecFailure}
-	for _, v := range allInvalid {
-		v.Run([]ExecutorBackend{exe})
-		if v.State <= Success {
-			t.Fatalf("Failed: %v", v)
+	/*
+		allInvalid := []Graph{validAndTimeout, validAndExecFailure}
+		for _, v := range allInvalid {
+			wg.Add(1)
+			go func() {
+				v.Run([]ExecutorBackend{exe})
+				if v.State <= Success {
+					t.Fatalf("Failed: %v", v)
+				}
+				wg.Done()
+			}()
 		}
-	}
+	*/
+	wg.Wait()
 }
 func BenchmarkRun(b *testing.B) {
 	e := valid.Check()
