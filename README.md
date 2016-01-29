@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/owulveryck/gorchestrator.svg?branch=master)](https://travis-ci.org/owulveryck/gorchestrator)
+# Gorchestrator <img src="https://raw.githubusercontent.com/owulveryck/gorchestrator/concurrency/Documentation/images/gorchestrator-160x160.png" width="40"/>
 
 # Abstract
 
@@ -92,3 +92,15 @@ A web client is in development, see _clients/web_ for the sources:
 
 A tosca client using the [toscalib](https://github.com/owulveryck/toscalib) is present in _clients/tosca_.
 It converts a TOSCA execution plan into a _gorch_ representation.
+
+# CI
+
+The service TRAVIS is used to test the current release. The current build status is :
+[![Build Status](https://travis-ci.org/owulveryck/gorchestrator.svg?branch=master)](https://travis-ci.org/owulveryck/gorchestrator)
+
+## What is tested
+
+* The basic tests of all the gorchestrator's packages
+* a [go vet](https://golang.org/cmd/vet/) on all the gorchestrator's packages
+* race condition detection (using the [go race detector](http://blog.golang.org/race-detector)) on all the gorchestrator's packages
+
