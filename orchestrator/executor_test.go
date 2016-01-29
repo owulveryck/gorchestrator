@@ -29,7 +29,6 @@ import (
 	"github.com/gorilla/mux"
 	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -181,7 +180,6 @@ func TaskShow(w http.ResponseWriter, r *http.Request) {
 
 			}
 		case "failure":
-			log.Println("========== Setting failure")
 			v.SetState(Failure)
 		default:
 			v.SetState(Success)
