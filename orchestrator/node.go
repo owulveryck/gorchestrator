@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"math/rand"
 	"net/http"
 	"regexp"
@@ -132,7 +133,9 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 		message := Message{n.ID, n.GetState()}
 		n.RUnlock()
 		n.Lock()
+		log.Printf("[%v]Waiting", n.ID)
 		g = <-n.waitForEvent
+		log.Printf("[%v]Done Waiting", n.ID)
 		n.Unlock()
 		for {
 			message.State = n.GetState()
