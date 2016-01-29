@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"math/rand"
 	"net/http"
 	"regexp"
@@ -141,7 +140,6 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 			//n.LogDebug("Received event", g.Nodes)
 			switch {
 			case n.GetState() <= ToRun:
-				log.Println(g.Digraph)
 				s := g.Digraph.Dim()
 				state := Running
 				for i := 0; i < s; i++ {

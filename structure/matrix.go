@@ -24,8 +24,8 @@ func (m *Matrix) isValid() error {
 
 // Dim returns the dimension of the matrix
 func (m *Matrix) Dim() int {
-	m.RLock()
-	defer m.RUnlock()
+	//m.RLock()
+	//defer m.RUnlock()
 	err := m.isValid()
 	if err != nil {
 		return 0

@@ -30,16 +30,14 @@ import (
 )
 
 func TestRun(t *testing.T) {
-	/*
-		e := valid.Check()
-		if e.Code != 0 {
-			t.Errorf("Struct should be valid, error is: %v", e.Error())
-		}
-		e = notValid.Check()
-		if e.Code == 0 {
-			t.Errorf("Struct should not be valid, error is: %v", e.Error())
-		}
-	*/
+	e := valid.Check()
+	if e.Code != 0 {
+		t.Errorf("Struct should be valid, error is: %v", e.Error())
+	}
+	e = notValid.Check()
+	if e.Code == 0 {
+		t.Errorf("Struct should not be valid, error is: %v", e.Error())
+	}
 
 	tasks = make(map[string](*Node), 0)
 	router := NewRouter()
@@ -81,8 +79,8 @@ func TestRun(t *testing.T) {
 	}
 
 	t.Log("Launching tests")
-	//allValid := []Graph{valid, validAndNoArtifact, validAndSleep, validAndExecSuccess}
-	allValid := []Graph{valid}
+	allValid := []Graph{valid, validAndNoArtifact, validAndSleep, validAndExecSuccess}
+	//allValid := []Graph{valid}
 
 	var wg sync.WaitGroup
 	for _, v := range allValid {
