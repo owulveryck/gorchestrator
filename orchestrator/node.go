@@ -9,31 +9,36 @@ import (
 	"math/rand"
 	"net/http"
 	"regexp"
+	"sync"
 	"time"
 )
 
 // Node is a "runable" node description
 type Node struct {
-	ID           int               `json:"id"`
-	State        int               `json:"state,omitempty"`
-	Name         string            `json:"name,omitempty"`   // The targeted host
-	Target       string            `json:"target,omitempty"` // The execution engine (ie ansible, shell); aim to be like a shebang in a shell file
-	Engine       string            `json:"engine,omitempty"` // The execution engine (ie ansible, shell); aim to be like a shebang in a shell file
-	Artifact     string            `json:"artifact"`
-	Args         []string          `json:"args,omitempty"`   // the arguments of the artifact, if needed
-	Outputs      map[string]string `json:"output,omitempty"` // the key is the name of the parameter, the value its value (always a string)
-	GraphID      string            `json:"graph_id,omitempty"`
-	execID       string
-	waitForEvent chan *Graph
+	ID       int               `json:"id"`
+	State    int               `json:"state,omitempty"`
+	Name     string            `json:"name,omitempty"`   // The targeted host
+	Target   string            `json:"target,omitempty"` // The execution engine (ie ansible, shell); aim to be like a shebang in a shell file
+	Engine   string            `json:"engine,omitempty"` // The execution engine (ie ansible, shell); aim to be like a shebang in a shell file
+	Artifact string            `json:"artifact"`
+	Args     []string          `json:"args,omitempty"`   // the arguments of the artifact, if needed
+	Outputs  map[string]string `json:"output,omitempty"` // the key is the name of the parameter, the value its value (always a string)
+	GraphID  string            `json:"graph_id,omitempty"`
+	execID   string
+	sync.RWMutex
 }
 
 func (n *Node) GetState() int {
+	n.RLock()
+	defer n.RUnlock()
 	var state int
 	state = n.State
 	return state
 }
 
 func (n *Node) SetState(s int) {
+	n.Lock()
+	defer n.Unlock()
 	n.State = s
 }
 
@@ -104,7 +109,6 @@ func (n *Node) Execute(exe ExecutorBackend) error {
 
 // Run the node
 func (n *Node) Run(exe []ExecutorBackend, waitForEvent chan *Graph) <-chan Message {
-	log.Println("Entering the Run function for node at address", &n)
 	c := make(chan Message)
 	var ga = regexp.MustCompile(`^(.*)=get_attribute (.+):(.+)$`)
 

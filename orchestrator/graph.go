@@ -147,16 +147,19 @@ func (v *Graph) Run(exe []ExecutorBackend) {
 			if v.GetState() >= Success {
 				return
 			}
-			nodes := make([]Node, n-1)
-			for _, n := range v.Nodes {
-				if n.ID != node.ID {
-					nodes = append(nodes, n)
+			co <- v
+			/*
+				nodes := make([]Node, n-1)
+				for _, n := range v.Nodes {
+					if n.ID != node.ID {
+						nodes = append(nodes, n)
+					}
 				}
-			}
-			co <- &Graph{
-				Digraph: v.Digraph,
-				Nodes:   nodes,
-			}
+				co <- &Graph{
+					Digraph: v.Digraph,
+					Nodes:   nodes,
+				}
+			*/
 		case <-v.Timeout:
 			co <- v
 			v.SetState(Timeout)
