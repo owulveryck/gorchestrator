@@ -87,7 +87,7 @@ func TestRun(t *testing.T) {
 	}
 
 	var wg sync.WaitGroup
-	for num := 0; num < 5; num++ {
+	for num := 0; num < 1; num++ {
 		for index, _ := range allValid {
 			wg.Add(1)
 			go func(v Graph) {

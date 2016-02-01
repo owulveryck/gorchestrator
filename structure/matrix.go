@@ -6,7 +6,7 @@ import (
 	"sync"
 )
 
-var mu sync.Mutex
+var mu sync.RWMutex
 
 // Matrix is a list representation of a squared matrix
 // it concurrent safe
@@ -42,8 +42,8 @@ func (m *Matrix) Set(r, c int, v int64) {
 
 // Get returns the value in row r and column c
 func (m *Matrix) At(r, c int) int64 {
-	//mu.RLock()
-	//defer mu.RUnlock()
+	mu.RLock()
+	defer mu.RUnlock()
 	i := m.Dim()
 	return (*m)[r*i+c]
 }
