@@ -21,6 +21,7 @@ package orchestrator
 import (
 	"encoding/json"
 	"github.com/owulveryck/gorchestrator/structure"
+	"log"
 	"regexp"
 	"sync"
 	"time"
@@ -28,13 +29,12 @@ import (
 
 // Graph is the input of the orchestrator
 type Graph struct {
-	Name         string           `json:"name,omitempty"`
-	State        int              `json:"state"`
-	Digraph      structure.Matrix `json:"digraph"`
-	Nodes        []Node           `json:"nodes"`
-	Timeout      <-chan time.Time `json:"-"`
-	sync.RWMutex `json:"-"`
-	ID           string `json:"id,omitempty"`
+	Name    string           `json:"name,omitempty"`
+	State   int              `json:"state"`
+	Digraph structure.Matrix `json:"digraph"`
+	Nodes   []Node           `json:"nodes"`
+	Timeout <-chan time.Time `json:"-"`
+	ID      string           `json:"id,omitempty"`
 }
 
 func (g *Graph) UnmarshalJSON(b []byte) (err error) {
@@ -75,15 +75,11 @@ func (g *Graph) MarshalJSON() ([]byte, error) {
 
 func (n *Graph) GetState() int {
 	var state int
-	n.RLock()
-	defer n.RUnlock()
 	state = n.State
 	return state
 }
 
 func (n *Graph) SetState(s int) {
-	n.Lock()
-	defer n.Unlock()
 	n.State = s
 }
 
@@ -105,6 +101,7 @@ func (v *Graph) getNodeFromName(n string) (*Node, error) {
 
 // Run executes the Graph structure
 func (v *Graph) Run(exe []ExecutorBackend) {
+	log.Println("V's address:", &v)
 	v.SetState(Running)
 
 	n := v.Digraph.Dim()
@@ -113,10 +110,8 @@ func (v *Graph) Run(exe []ExecutorBackend) {
 	cos := broadcast(co, n, n)
 
 	for i := 0; i < n; i++ {
-		cs[i] = v.Nodes[i].Run(exe)
-		v.Nodes[i].Lock()
 		v.Nodes[i].waitForEvent = cos[i]
-		v.Nodes[i].Unlock()
+		cs[i] = v.Nodes[i].Run(exe)
 	}
 	c := fanIn(cs...)
 	co <- v
@@ -152,7 +147,16 @@ func (v *Graph) Run(exe []ExecutorBackend) {
 			if v.GetState() >= Success {
 				return
 			}
-			co <- v
+			nodes := make([]Node, n-1)
+			for _, n := range v.Nodes {
+				if n.ID != node.ID {
+					nodes = append(nodes, n)
+				}
+			}
+			co <- &Graph{
+				Digraph: v.Digraph,
+				Nodes:   nodes,
+			}
 		case <-v.Timeout:
 			co <- v
 			v.SetState(Timeout)

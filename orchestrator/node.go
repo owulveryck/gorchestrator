@@ -9,37 +9,31 @@ import (
 	"math/rand"
 	"net/http"
 	"regexp"
-	"sync"
 	"time"
 )
 
 // Node is a "runable" node description
 type Node struct {
-	ID       int               `json:"id"`
-	State    int               `json:"state,omitempty"`
-	Name     string            `json:"name,omitempty"`   // The targeted host
-	Target   string            `json:"target,omitempty"` // The execution engine (ie ansible, shell); aim to be like a shebang in a shell file
-	Engine   string            `json:"engine,omitempty"` // The execution engine (ie ansible, shell); aim to be like a shebang in a shell file
-	Artifact string            `json:"artifact"`
-	Args     []string          `json:"args,omitempty"`   // the arguments of the artifact, if needed
-	Outputs  map[string]string `json:"output,omitempty"` // the key is the name of the parameter, the value its value (always a string)
-	GraphID  string            `json:"graph_id,omitempty"`
-	execID   string
-	sync.RWMutex
+	ID           int               `json:"id"`
+	State        int               `json:"state,omitempty"`
+	Name         string            `json:"name,omitempty"`   // The targeted host
+	Target       string            `json:"target,omitempty"` // The execution engine (ie ansible, shell); aim to be like a shebang in a shell file
+	Engine       string            `json:"engine,omitempty"` // The execution engine (ie ansible, shell); aim to be like a shebang in a shell file
+	Artifact     string            `json:"artifact"`
+	Args         []string          `json:"args,omitempty"`   // the arguments of the artifact, if needed
+	Outputs      map[string]string `json:"output,omitempty"` // the key is the name of the parameter, the value its value (always a string)
+	GraphID      string            `json:"graph_id,omitempty"`
+	execID       string
 	waitForEvent chan *Graph
 }
 
 func (n *Node) GetState() int {
 	var state int
-	n.RLock()
-	defer n.RUnlock()
 	state = n.State
 	return state
 }
 
 func (n *Node) SetState(s int) {
-	n.Lock()
-	defer n.Unlock()
 	n.State = s
 }
 
@@ -84,9 +78,7 @@ func (n *Node) Execute(exe ExecutorBackend) error {
 		//n.SetState(Failure)
 		return err
 	}
-	n.Lock()
 	n.execID = t.ID
-	n.Unlock()
 	id = t.ID
 	n.LogInfo("Running")
 
@@ -106,15 +98,13 @@ func (n *Node) Execute(exe ExecutorBackend) error {
 		}
 		time.Sleep(2 * time.Second)
 	}
-	n.Lock()
 	n.Outputs = res.Outputs
-	n.Unlock()
 	return nil
 }
 
 // Run the node
 func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
-	n.LogDebug("Entering the Run function")
+	log.Println("Entering the Run function for node at address", &n)
 	c := make(chan Message)
 	var ga = regexp.MustCompile(`^(.*)=get_attribute (.+):(.+)$`)
 
@@ -129,14 +119,10 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 			n.Engine = "nil"
 		}
 
-		n.RLock()
 		message := Message{n.ID, n.GetState()}
-		n.RUnlock()
-		n.Lock()
 		log.Printf("[%v]Waiting", n.ID)
 		g = <-n.waitForEvent
 		log.Printf("[%v]Done Waiting", n.ID)
-		n.Unlock()
 		for {
 			message.State = n.GetState()
 			//n.LogDebug("Received event", g.Nodes)
@@ -145,9 +131,7 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 				s := g.Digraph.Dim()
 				state := Running
 				for i := 0; i < s; i++ {
-					g.RLock()
 					val := g.Digraph.At(i, n.ID)
-					g.RUnlock()
 					if val < Success && val > 0 {
 						state = ToRun
 					} else if val >= Failure {
@@ -208,9 +192,7 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 				message.State = n.GetState()
 				c <- message
 			case n.GetState() == message.State:
-				n.RLock()
 				g = <-n.waitForEvent
-				n.RUnlock()
 			}
 		}
 	}()

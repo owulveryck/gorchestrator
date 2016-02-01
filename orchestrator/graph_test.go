@@ -88,14 +88,14 @@ func TestRun(t *testing.T) {
 	var wg sync.WaitGroup
 	for index, _ := range allValid {
 		wg.Add(1)
-		go func(v *Graph) {
+		go func(v Graph) {
 			v.Run([]ExecutorBackend{exe})
 			if v.GetState() != Success {
 				t.Fatalf("Failed: %v", v)
 			}
 			t.Logf("[%v] Test Finished", v.Name)
 			wg.Done()
-		}(&allValid[index])
+		}(allValid[index])
 	}
 	/*
 		allInvalid := []Graph{validAndTimeout, validAndExecFailure}
