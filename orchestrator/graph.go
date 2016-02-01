@@ -23,7 +23,6 @@ import (
 	"github.com/owulveryck/gorchestrator/structure"
 	"log"
 	"regexp"
-	"sync"
 	"time"
 )
 
@@ -49,7 +48,7 @@ func (g *Graph) UnmarshalJSON(b []byte) (err error) {
 	if err = json.Unmarshal(b, &s); err == nil {
 		g.Name = s.Name
 		g.State = s.State
-		g.Digraph = structure.Matrix{s.Digraph, sync.RWMutex{}}
+		g.Digraph = structure.Matrix{s.Digraph}
 		g.Nodes = s.Nodes
 	} else {
 		return err
