@@ -58,17 +58,35 @@ It is composed of and adjaceny matrix and a list of nodes.
 
 # Getting it up and running
 
+## Grab and compile
 The engine is written in pure go. The package is go-gettable. Assuming you have a GO environment up and running, the following tasks should be enough to enjoy the orchestrator:
 
 * `go get github.com/owulveryck/gorchestrator`
 * `cd $GOPATH/src/github.com/owulveryck/gorchestrator`
-* `go run`
+* `make dist` This will create a complete distribution for your system in the `dist` subfolder
+
+## Run
+
+Executor and Orchestrator are by default talking to each other in https, and are using mutual authentication.
+Demo certificates for localhost should have been generated if you ran the `make dist` command.
+
+### Running the orchestrator
+
+Simply go to the ./dist/*/*/orchestrator and run `./orchestrator`
+
+#### Running the executor
+
+go to the ./dist/*/*executor and run `./executor`
+
+### Running a sample
 
 Then you can post a query as described in the example folder:
 
 ```shell
 # curl -X POST -H 'Content-Type:application/json' -H 'Accept:application/json' -d @example.json -k http://localhost:8080/v1/tasks
 ```
+
+See the *webclient* subsection for a webview of what you've posted
 
 # API
 
