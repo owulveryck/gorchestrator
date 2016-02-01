@@ -103,7 +103,7 @@ func (n *Node) Execute(exe ExecutorBackend) error {
 }
 
 // Run the node
-func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
+func (n *Node) Run(exe []ExecutorBackend, waitForEvent chan *Graph) <-chan Message {
 	log.Println("Entering the Run function for node at address", &n)
 	c := make(chan Message)
 	var ga = regexp.MustCompile(`^(.*)=get_attribute (.+):(.+)$`)
@@ -121,7 +121,7 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 
 		message := Message{n.ID, n.GetState()}
 		log.Printf("[%v]Waiting", n.ID)
-		g = <-n.waitForEvent
+		g = <-waitForEvent
 		log.Printf("[%v]Done Waiting", n.ID)
 		for {
 			message.State = n.GetState()
@@ -192,7 +192,7 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 				message.State = n.GetState()
 				c <- message
 			case n.GetState() == message.State:
-				g = <-n.waitForEvent
+				g = <-waitForEvent
 			}
 		}
 	}()

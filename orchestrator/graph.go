@@ -110,8 +110,8 @@ func (v *Graph) Run(exe []ExecutorBackend) {
 	cos := broadcast(co, n, n)
 
 	for i := 0; i < n; i++ {
-		v.Nodes[i].waitForEvent = cos[i]
-		cs[i] = v.Nodes[i].Run(exe)
+		//v.Nodes[i].waitForEvent = cos[i]
+		cs[i] = v.Nodes[i].Run(exe, cos[i])
 	}
 	c := fanIn(cs...)
 	co <- v

@@ -83,6 +83,11 @@ func TestRun(t *testing.T) {
 	allValid = []Graph{
 		valid,
 		valid,
+		valid,
+		valid,
+		valid,
+		valid,
+		valid,
 	}
 
 	var wg sync.WaitGroup
