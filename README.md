@@ -2,7 +2,7 @@
 
 # Abstract
 
-A simple orchestrator that takes and adjacency matrix as input.
+A simple orchestrator that takes an adjacency matrix as input.
 
 This orchestrator acts as a webservice.
 This means that you send a representation of your graph and nodes via an HTTP POST request to the engine, and:
