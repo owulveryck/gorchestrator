@@ -48,7 +48,7 @@ func (g *Graph) UnmarshalJSON(b []byte) (err error) {
 	if err = json.Unmarshal(b, &s); err == nil {
 		g.Name = s.Name
 		g.State = s.State
-		g.Digraph = structure.Matrix{s.Digraph}
+		g.Digraph = s.Digraph
 		g.Nodes = s.Nodes
 	} else {
 		return err
@@ -67,7 +67,7 @@ func (g *Graph) MarshalJSON() ([]byte, error) {
 	s := graph{}
 	s.Name = g.Name
 	s.State = g.State
-	s.Digraph = g.Digraph.Matrix
+	s.Digraph = g.Digraph
 	s.Nodes = g.Nodes
 	return json.Marshal(s)
 }
@@ -169,7 +169,7 @@ func (v *Graph) Run(exe []ExecutorBackend) {
 
 // Check is the structure is coherent, (a squared matrix with as many nodes as needed)
 func (i *Graph) Check() Error {
-	if len(i.Nodes)*len(i.Nodes) != len(i.Digraph.Matrix) {
+	if len(i.Nodes)*len(i.Nodes) != len(i.Digraph) {
 		return Error{1, "Structure is not coherent"}
 	}
 	return Error{0, ""}

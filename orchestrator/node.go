@@ -25,12 +25,12 @@ type Node struct {
 	Outputs  map[string]string `json:"output,omitempty"` // the key is the name of the parameter, the value its value (always a string)
 	GraphID  string            `json:"graph_id,omitempty"`
 	execID   string
-	sync.RWMutex
+	sync.Mutex
 }
 
 func (n *Node) GetState() int {
-	n.RLock()
-	defer n.RUnlock()
+	//n.RLock()
+	//defer n.RUnlock()
 	var state int
 	state = n.State
 	return state

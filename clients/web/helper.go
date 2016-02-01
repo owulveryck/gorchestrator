@@ -105,36 +105,36 @@ func generateSvg(id string) ([]byte, error) {
 	m := make(map[int]string)
 	// Now add every node
 	// Hack: If node has no Engine and no Artiface, and if sum(row)=sum(col)=0, skip it
-	for _, n := range v.Nodes {
+	for i, _ := range v.Nodes {
 		sumr := int64(0)
 		sumc := int64(0)
 		for r := 0; r < v.Digraph.Dim(); r++ {
-			sumr = sumr + v.Digraph.At(n.ID, r)
-			sumc = sumc + v.Digraph.At(r, n.ID)
+			sumr = sumr + v.Digraph.At(v.Nodes[i].ID, r)
+			sumc = sumc + v.Digraph.At(r, v.Nodes[i].ID)
 		}
-		if n.Artifact == "" && sumr == 0 && sumc == 0 {
+		if v.Nodes[i].Artifact == "" && sumr == 0 && sumc == 0 {
 			continue
 		}
 		tmp := make([]string, 2)
-		n.Name = strings.Replace(n.Name, "-", "_", -1)
-		tmp = strings.SplitAfter(n.Name, ":")
-		n.Name = strings.Replace(n.Name, ":", "_", -1)
+		v.Nodes[i].Name = strings.Replace(v.Nodes[i].Name, "-", "_", -1)
+		tmp = strings.SplitAfter(v.Nodes[i].Name, ":")
+		v.Nodes[i].Name = strings.Replace(v.Nodes[i].Name, ":", "_", -1)
 		if len(tmp) != 2 {
-			tmp[0] = n.Name
+			tmp[0] = v.Nodes[i].Name
 			tmp = append(tmp, "")
 		}
 		var out bytes.Buffer
-		err = template.ExecuteTemplate(&out, "NODE", n)
-		g.AddNode("G", n.Name,
+		err = template.ExecuteTemplate(&out, "NODE", v.Nodes[i])
+		g.AddNode("G", v.Nodes[i].Name,
 			map[string]string{
-				"id": fmt.Sprintf("\"%v\"", strconv.Itoa(n.ID)),
+				"id": fmt.Sprintf("\"%v\"", strconv.Itoa(v.Nodes[i].ID)),
 				//"label": fmt.Sprintf("\"%v|%v\"", tmp[0], tmp[1]),
 				"label": out.String(),
-				//"label": fmt.Sprintf("\"%v|%v|%v|%v|%v\"", tmp[0], tmp[1], n.Engine, n.Artifact, n.Args[:]),
+				//"label": fmt.Sprintf("\"%v|%v|%v|%v|%v\"", tmp[0], tmp[1], v.Nodes[i].Engine, v.Nodes[i].Artifact, v.Nodes[i].Args[:]),
 				"shape": "\"record\"",
 				"style": "\"rounded\"",
 			})
-		m[n.ID] = n.Name
+		m[v.Nodes[i].ID] = v.Nodes[i].Name
 	}
 	for r := 0; r < v.Digraph.Dim(); r++ {
 		for c := 0; c < v.Digraph.Dim(); c++ {

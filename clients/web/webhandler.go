@@ -83,9 +83,9 @@ func displayMain(w http.ResponseWriter, r *http.Request) {
 	}
 	//w.WriteHeader(http.StatusOK)
 	var nodes []orchestrator.Node
-	for _, node := range g.Nodes {
-		if node.Artifact != "" || node.Engine != "nil" {
-			nodes = append(nodes, node)
+	for i, _ := range g.Nodes {
+		if g.Nodes[i].Artifact != "" || g.Nodes[i].Engine != "nil" {
+			nodes = append(nodes, g.Nodes[i])
 		}
 	}
 	err = t.Execute(w, res{id, fmt.Sprintf("/graph/%v.json", id), nodes})
