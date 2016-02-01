@@ -88,6 +88,16 @@ Then you can post a query as described in the example folder:
 
 See the *webclient* subsection for a webview of what you've posted
 
+# Logging
+
+Logging is a work in progress. The [logrus](github.com/Sirupsen/logrus) framework in used to perform logging
+by default it logs on stdout (with a colored output if it's running on a terminal). 
+
+You can configure two additionnal hooks:
+* syslog to log to a local/remote syslog
+* logstash to log to a logstash instance (and use the ELK suite to see what happens)
+
+
 # API
 
 The REST API is in developement but nearly stable. It is self documented with swagger. 
