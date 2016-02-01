@@ -46,16 +46,16 @@ func main() {
 	g.SetDir(true)
 	m := make(map[int]string)
 	// Now add every node
-	for _, n := range v.Nodes {
-		n.Name = strings.Replace(n.Name, "-", "_", -1)
-		n.Name = strings.Replace(n.Name, ":", "_Method", -1)
-		g.AddNode("G", n.Name,
+	for i, _ := range v.Nodes {
+		v.Nodes[i].Name = strings.Replace(v.Nodes[i].Name, "-", "_", -1)
+		v.Nodes[i].Name = strings.Replace(v.Nodes[i].Name, ":", "_Method", -1)
+		g.AddNode("G", v.Nodes[i].Name,
 			map[string]string{
-				"id":    fmt.Sprintf("\"%v\"", strconv.Itoa(n.ID)),
-				"label": fmt.Sprintf("\"%v|%v|%v|%v\"", n.Name, n.Engine, n.Artifact, n.Args),
+				"id":    fmt.Sprintf("\"%v\"", strconv.Itoa(v.Nodes[i].ID)),
+				"label": fmt.Sprintf("\"%v|%v|%v|%v\"", v.Nodes[i].Name, v.Nodes[i].Engine, v.Nodes[i].Artifact, v.Nodes[i].Args),
 				"shape": "\"record\"",
 			})
-		m[n.ID] = n.Name
+		m[v.Nodes[i].ID] = v.Nodes[i].Name
 	}
 	l := v.Digraph.Dim()
 	for r := 0; r < l; r++ {
