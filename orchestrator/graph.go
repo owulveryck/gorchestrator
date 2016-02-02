@@ -21,10 +21,15 @@ package orchestrator
 import (
 	"encoding/json"
 	"github.com/owulveryck/gorchestrator/structure"
-	"log"
+	//"log"
 	"regexp"
 	"time"
 )
+
+type Information struct {
+	Sequence int
+	Matrix   structure.Matrix
+}
 
 // Graph is the input of the orchestrator
 type Graph struct {
@@ -100,14 +105,14 @@ func (v *Graph) getNodeFromName(n string) (*Node, error) {
 
 // Run executes the Graph structure
 func (v *Graph) Run(exe []ExecutorBackend) {
-	log.Println("V's address:", &v)
+	//log.Println("V's address:", &v)
 	v.SetState(Running)
 
 	n := v.Digraph.Dim()
 	cs := make([]<-chan Message, n)
-	co := make(chan *Graph)
+	co := make(chan Information)
 	defer close(co)
-	cos := broadcast(co, n, 1)
+	cos := broadcast(co, n, n)
 	// Set up a done channel that's shared by the whole pipeline,
 	// and close that channel when this pipeline exits, as a signal
 	// for all the goroutines we started to exit.
@@ -119,14 +124,20 @@ func (v *Graph) Run(exe []ExecutorBackend) {
 	}
 	c := merge(done, cs...)
 	//c := fanIn(cs...)
-	co <- v
+	sequence := 0
+	co <- Information{
+		Matrix:   v.Digraph,
+		Sequence: sequence,
+	}
 	for node := range c {
-		log.Println("RANGE")
+		//log.Printf("[SEQ %v] RANGE, got %v information", sequence, node)
 		if node.State >= Running {
 			for c := 0; c < n; c++ {
 				val := v.Digraph.At(node.ID, c)
 				if val != 0 {
+					//log.Printf("[SEQ %v] Setting %v:%v = %v (current is %v)", sequence, node.ID, c, int64(node.State), v.Digraph.At(node.ID, c))
 					v.Digraph.Set(node.ID, c, int64(node.State))
+					//log.Printf("[SEQ %v] Checking %v:%v = %v", sequence, node.ID, c, v.Digraph.At(node.ID, c))
 				}
 			}
 		}
@@ -145,18 +156,23 @@ func (v *Graph) Run(exe []ExecutorBackend) {
 		}
 		v.SetState(state)
 		if v.GetState() >= Success {
-			//return
+			return
 		}
 		//co <- v
 		select {
 		//case node := <-c:
-		case co <- v:
+		case co <- Information{
+			Matrix:   v.Digraph,
+			Sequence: sequence,
+		}:
+			//log.Printf("[SEQ %v] Message sent (node%v should be change to state %v): ", sequence, node.ID, node.State, v.Digraph)
 		case <-v.Timeout:
 			close(done)
 			//co <- v
 			v.SetState(Timeout)
 			return
 		}
+		sequence += 1
 	}
 }
 

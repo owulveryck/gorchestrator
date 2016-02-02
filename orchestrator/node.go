@@ -5,10 +5,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
+	//"log"
 	"math/rand"
 	"net/http"
-	"regexp"
+	//	"regexp"
 	"sync"
 	"time"
 )
@@ -44,7 +44,7 @@ func (n *Node) SetState(s int) {
 
 // Actually executes the node (via the executor)
 func (n *Node) Execute(exe ExecutorBackend) error {
-	//n.LogDebug("Entering the Execute function")
+	//n.//log.ebug("Entering the Execute function")
 	if exe.Client == nil {
 		err := exe.Init()
 		if err != nil {
@@ -85,7 +85,7 @@ func (n *Node) Execute(exe ExecutorBackend) error {
 	}
 	n.execID = t.ID
 	id = t.ID
-	//n.LogInfo("Running")
+	//n.//log.nfo("Running")
 
 	// Now loop for the result
 	var res Node
@@ -108,11 +108,11 @@ func (n *Node) Execute(exe ExecutorBackend) error {
 }
 
 // Run the node
-func (n *Node) Run(exe []ExecutorBackend, done <-chan struct{}, in <-chan *Graph) <-chan Message {
+func (n *Node) Run(exe []ExecutorBackend, done <-chan struct{}, in <-chan Information) <-chan Message {
 	out := make(chan Message)
-	var ga = regexp.MustCompile(`^(.*)=get_attribute (.+):(.+)$`)
+	//var ga = regexp.MustCompile(`^(.*)=get_attribute (.+):(.+)$`)
 
-	var g *Graph
+	var g Information
 	go func() {
 		defer close(out)
 		n.SetState(ToRun)
@@ -124,44 +124,41 @@ func (n *Node) Run(exe []ExecutorBackend, done <-chan struct{}, in <-chan *Graph
 		}
 
 		message := Message{n.ID, n.GetState()}
-		for g = range in {
-			log.Printf("[%v] Received a message", n.ID)
-			message.State = n.GetState()
-			//n.LogDebug("Received event", g.Nodes)
-			switch {
-			case n.GetState() <= ToRun:
-				s := g.Digraph.Dim()
-				state := Running
+
+		// This "angle" functions, waits for an information and change the state of the node regarding the information received
+		stateChan := make(chan int)
+		currentState := n.GetState()
+		go func() {
+			for g = range in {
+				//log.Printf("[%v] Received a message (sequence number %v)", n.ID, g.Sequence)
+				s := g.Matrix.Dim()
+				newState := Running
 				for i := 0; i < s; i++ {
-					val := g.Digraph.At(i, n.ID)
+					val := g.Matrix.At(i, n.ID)
 					if val < Success && val > 0 {
-						state = ToRun
+						newState = ToRun
 					} else if val >= Failure {
-						state = NotRunnable
+						newState = NotRunnable
 					}
-					if state == NotRunnable {
-						n.SetState(state)
+					if newState == NotRunnable {
 						continue
 					}
 				}
-				if state != n.GetState() {
-					n.SetState(state)
+				if currentState != newState {
+					// State has changed, tell it to the main
+					currentState = newState
+					stateChan <- currentState
+					message.State = currentState
+					out <- message
 				}
-			case n.GetState() == Running:
-				//n.LogInfo("Starting execution")
-				// Check and find the arguments
-				for i, arg := range n.Args {
-					// If argument is a get_attribute node:attribute
-					// Then substitute it to its actual value
-					subargs := ga.FindStringSubmatch(arg)
-					if len(subargs) == 4 {
-						nn, _ := g.getNodesFromRegexp(subargs[2])
-						for _, nn := range nn {
-							n.Args[i] = fmt.Sprintf("%v=%v", subargs[1], nn.Outputs[subargs[3]])
-						}
-					}
-				}
+			}
+		}()
 
+		for state := range stateChan {
+			//log.Printf("[%v] state has changed => %v", n.ID, state)
+			n.SetState(state)
+			switch {
+			case n.GetState() == Running:
 				switch n.Engine {
 				case "nil":
 					n.SetState(Success)
@@ -183,18 +180,12 @@ func (n *Node) Run(exe []ExecutorBackend, done <-chan struct{}, in <-chan *Graph
 						n.SetState(Failure)
 					}
 				}
-				log.Printf("[%v] Done", n.ID)
 			}
+			//log.Printf("[%v] Done", n.ID)
 			if message.State != n.GetState() {
 				message.State = n.GetState()
-				select {
-				case out <- message:
-					log.Printf("[%v] Message sent %v", n.ID, message)
-				case <-done:
-					return
-				}
+				out <- message
 			}
-
 		}
 	}()
 	return out

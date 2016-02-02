@@ -81,9 +81,9 @@ func TestRun(t *testing.T) {
 	t.Log("Launching tests")
 	allValid := []Graph{
 		valid,
-		//validAndNoArtifact,
-		//validAndSleep,
-		//validAndExecSuccess,
+		validAndNoArtifact,
+		validAndSleep,
+		validAndExecSuccess,
 	}
 
 	var wg sync.WaitGroup
@@ -109,8 +109,8 @@ func TestRun(t *testing.T) {
 				if v.State <= Success {
 					t.Fatalf("Failed: %v", v)
 				}
-				wg.Done(v)
-			}()
+				wg.Done()
+			}(&v)
 		}
 	*/
 	wg.Wait()

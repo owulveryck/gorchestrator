@@ -1,22 +1,22 @@
 package orchestrator
 
 import (
-	"log"
 	"sync"
 )
 
-func broadcast(ch <-chan *Graph, size, lag int) []chan *Graph {
-	cs := make([]chan *Graph, size)
+func broadcast(ch <-chan Information, size, lag int) []chan Information {
+	cs := make([]chan Information, size)
 	for i, _ := range cs {
 		// The size of the channels buffer controls how far behind the recievers
 		// of the fanOut channels can lag the other channels.
-		//cs[i] = make(chan Graph)
-		cs[i] = make(chan *Graph, lag)
+		//cs[i] = make(chan Information)
+		cs[i] = make(chan Information, lag)
 
 	}
 	go func() {
 		for i := range ch {
 			for _, c := range cs {
+				//log.Printf("Sending sequence %v to %v", i.Sequence, id)
 				c <- i
 			}
 		}
@@ -67,9 +67,9 @@ func fanIn(inputs ...<-chan Message) <-chan Message {
 		input := inputs[i] // New instance of 'input' for each loop.
 		go func() {
 			for {
-				log.Println("fanIn", input)
+				//log.Println("fanIn", input)
 				c <- <-input
-				log.Println("end fanIn", input)
+				//log.Println("end fanIn", input)
 			}
 		}()
 	}
