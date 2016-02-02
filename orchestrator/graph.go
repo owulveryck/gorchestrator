@@ -106,13 +106,20 @@ func (v *Graph) Run(exe []ExecutorBackend) {
 	n := v.Digraph.Dim()
 	cs := make([]<-chan Message, n)
 	co := make(chan *Graph)
+	defer close(co)
 	cos := broadcast(co, n, n)
 
 	for i := 0; i < n; i++ {
 		//v.Nodes[i].waitForEvent = cos[i]
 		cs[i] = v.Nodes[i].Run(exe, cos[i])
 	}
-	c := fanIn(cs...)
+	// Set up a done channel that's shared by the whole pipeline,
+	// and close that channel when this pipeline exits, as a signal
+	// for all the goroutines we started to exit.
+	done := make(chan struct{})
+	defer close(done)
+	c := merge(done, cs...)
+	//c := fanIn(cs...)
 	co <- v
 	for {
 		select {

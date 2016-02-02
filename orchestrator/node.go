@@ -110,6 +110,7 @@ func (n *Node) Execute(exe ExecutorBackend) error {
 // Run the node
 func (n *Node) Run(exe []ExecutorBackend, waitForEvent chan *Graph) <-chan Message {
 	c := make(chan Message)
+	log.Printf("Node %v has channel %v", n.ID, c)
 	var ga = regexp.MustCompile(`^(.*)=get_attribute (.+):(.+)$`)
 
 	var g *Graph
