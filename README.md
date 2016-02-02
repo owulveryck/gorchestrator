@@ -1,4 +1,6 @@
 [![Build Status](https://travis-ci.org/owulveryck/gorchestrator.svg?branch=master)](https://travis-ci.org/owulveryck/gorchestrator)
+[![Coverage Status](https://coveralls.io/repos/github/owulveryck/gorchestrator/badge.svg?branch=master)](https://coveralls.io/github/owulveryck/gorchestrator?branch=master)
+
 
 # Abstract
 
