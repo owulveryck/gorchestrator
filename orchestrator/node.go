@@ -44,7 +44,7 @@ func (n *Node) SetState(s int) {
 
 // Actually executes the node (via the executor)
 func (n *Node) Execute(exe ExecutorBackend) error {
-	n.LogDebug("Entering the Execute function")
+	//n.LogDebug("Entering the Execute function")
 	if exe.Client == nil {
 		err := exe.Init()
 		if err != nil {
@@ -85,7 +85,7 @@ func (n *Node) Execute(exe ExecutorBackend) error {
 	}
 	n.execID = t.ID
 	id = t.ID
-	n.LogInfo("Running")
+	//n.LogInfo("Running")
 
 	// Now loop for the result
 	var res Node
@@ -150,10 +150,10 @@ func (n *Node) Run(exe []ExecutorBackend, waitForEvent chan *Graph) <-chan Messa
 					n.SetState(state)
 				}
 			case n.GetState() == NotRunnable:
-				n.LogInfo("I cannot run")
+				//n.LogInfo("I cannot run")
 
 			case n.GetState() == Running:
-				n.LogInfo("Starting execution")
+				//n.LogInfo("Starting execution")
 				// Check and find the arguments
 				for i, arg := range n.Args {
 					// If argument is a get_attribute node:attribute
@@ -188,7 +188,7 @@ func (n *Node) Run(exe []ExecutorBackend, waitForEvent chan *Graph) <-chan Messa
 						n.SetState(Failure)
 					}
 				}
-				n.LogInfo("Execution done")
+				//n.LogInfo("Execution done")
 			case n.GetState() > Running:
 			}
 			switch {
