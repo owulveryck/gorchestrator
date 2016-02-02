@@ -31,7 +31,7 @@ func broadcast(ch <-chan *Graph, size, lag int) []chan *Graph {
 
 func merge(done <-chan struct{}, cs ...<-chan Message) <-chan Message {
 	var wg sync.WaitGroup
-	out := make(chan Message)
+	out := make(chan Message, 1)
 
 	// Start an output goroutine for each input channel in cs.  output
 	// copies values from c to out until c is closed, then calls wg.Done.

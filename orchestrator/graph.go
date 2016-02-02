@@ -107,67 +107,53 @@ func (v *Graph) Run(exe []ExecutorBackend) {
 	cs := make([]<-chan Message, n)
 	co := make(chan *Graph)
 	defer close(co)
-	cos := broadcast(co, n, n)
-
-	for i := 0; i < n; i++ {
-		//v.Nodes[i].waitForEvent = cos[i]
-		cs[i] = v.Nodes[i].Run(exe, cos[i])
-	}
+	cos := broadcast(co, n, 1)
 	// Set up a done channel that's shared by the whole pipeline,
 	// and close that channel when this pipeline exits, as a signal
 	// for all the goroutines we started to exit.
 	done := make(chan struct{})
 	defer close(done)
+
+	for i := 0; i < n; i++ {
+		cs[i] = v.Nodes[i].Run(exe, done, cos[i])
+	}
 	c := merge(done, cs...)
 	//c := fanIn(cs...)
 	co <- v
-	for {
+	for node := range c {
+		log.Println("RANGE")
+		if node.State >= Running {
+			for c := 0; c < n; c++ {
+				val := v.Digraph.At(node.ID, c)
+				if val != 0 {
+					v.Digraph.Set(node.ID, c, int64(node.State))
+				}
+			}
+		}
+		state := Success
+		for r := 0; r < n; r++ {
+			for c := 0; c < n; c++ {
+				switch {
+				case v.Digraph.At(r, c) == ToRun:
+					state = Running
+				case v.Digraph.At(r, c) == Running:
+					state = Running
+				case v.Digraph.At(r, c) > Success:
+					state = Failure
+				}
+			}
+		}
+		v.SetState(state)
+		if v.GetState() >= Success {
+			//return
+		}
+		//co <- v
 		select {
-		case node := <-c:
-			if node.State >= Running {
-				for c := 0; c < n; c++ {
-					//v.RLock()
-					val := v.Digraph.At(node.ID, c)
-					//v.RUnlock()
-					if val != 0 {
-						//v.Lock()
-						v.Digraph.Set(node.ID, c, int64(node.State))
-						//v.Unlock()
-					}
-				}
-			}
-			state := Success
-			for r := 0; r < n; r++ {
-				for c := 0; c < n; c++ {
-					switch {
-					case v.Digraph.At(r, c) == ToRun:
-						state = Running
-					case v.Digraph.At(r, c) == Running:
-						state = Running
-					case v.Digraph.At(r, c) > Success:
-						state = Failure
-					}
-				}
-			}
-			v.SetState(state)
-			if v.GetState() >= Success {
-				return
-			}
-			co <- v
-			/*
-				nodes := make([]Node, n-1)
-				for _, n := range v.Nodes {
-					if n.ID != node.ID {
-						nodes = append(nodes, n)
-					}
-				}
-				co <- &Graph{
-					Digraph: v.Digraph,
-					Nodes:   nodes,
-				}
-			*/
+		//case node := <-c:
+		case co <- v:
 		case <-v.Timeout:
-			co <- v
+			close(done)
+			//co <- v
 			v.SetState(Timeout)
 			return
 		}

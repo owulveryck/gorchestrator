@@ -108,14 +108,13 @@ func (n *Node) Execute(exe ExecutorBackend) error {
 }
 
 // Run the node
-func (n *Node) Run(exe []ExecutorBackend, waitForEvent chan *Graph) <-chan Message {
-	c := make(chan Message)
-	log.Printf("Node %v has channel %v", n.ID, c)
+func (n *Node) Run(exe []ExecutorBackend, done <-chan struct{}, in <-chan *Graph) <-chan Message {
+	out := make(chan Message)
 	var ga = regexp.MustCompile(`^(.*)=get_attribute (.+):(.+)$`)
 
 	var g *Graph
 	go func() {
-		defer close(c)
+		defer close(out)
 		n.SetState(ToRun)
 		if len(n.Outputs) == 0 {
 			n.Outputs = make(map[string]string, 0)
@@ -125,10 +124,8 @@ func (n *Node) Run(exe []ExecutorBackend, waitForEvent chan *Graph) <-chan Messa
 		}
 
 		message := Message{n.ID, n.GetState()}
-		log.Printf("[%v]Waiting", n.ID)
-		g = <-waitForEvent
-		log.Printf("[%v]Done Waiting", n.ID)
-		for {
+		for g = range in {
+			log.Printf("[%v] Received a message", n.ID)
 			message.State = n.GetState()
 			//n.LogDebug("Received event", g.Nodes)
 			switch {
@@ -150,9 +147,6 @@ func (n *Node) Run(exe []ExecutorBackend, waitForEvent chan *Graph) <-chan Messa
 				if state != n.GetState() {
 					n.SetState(state)
 				}
-			case n.GetState() == NotRunnable:
-				//n.LogInfo("I cannot run")
-
 			case n.GetState() == Running:
 				//n.LogInfo("Starting execution")
 				// Check and find the arguments
@@ -189,17 +183,19 @@ func (n *Node) Run(exe []ExecutorBackend, waitForEvent chan *Graph) <-chan Messa
 						n.SetState(Failure)
 					}
 				}
-				//n.LogInfo("Execution done")
-			case n.GetState() > Running:
+				log.Printf("[%v] Done", n.ID)
 			}
-			switch {
-			case n.GetState() != message.State:
+			if message.State != n.GetState() {
 				message.State = n.GetState()
-				c <- message
-			case n.GetState() == message.State:
-				g = <-waitForEvent
+				select {
+				case out <- message:
+					log.Printf("[%v] Message sent %v", n.ID, message)
+				case <-done:
+					return
+				}
 			}
+
 		}
 	}()
-	return c
+	return out
 }
