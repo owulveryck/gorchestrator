@@ -16,7 +16,7 @@ This means that you send a representation of your graph and nodes via an HTTP PO
 
 OaaS is micro service oriented. Which means that it does not actually run the artifact of the node. Instead, It calls another web service that acts as a proxy for the execution task. The proxy may implement drivers as needed, such as a `shell` driver, an `ansible` driver, `docker`, ...
 
-The concurrency is implemented thanks to go routines (See this [post](http://blog.owulveryck.info/2015/12/02/orchestrate-a-digraph-with-goroutine-a-concurrent-orchestrator/) for more information about the implementation)
+The concurrency is implemented thanks to go routines (See this [post](http://dev.owulveryck.info/blog/2015/12/02/orchestrate-a-digraph-with-goroutine-a-concurrent-orchestrator/) for more information about the implementation)
 
 # Architecture
 
