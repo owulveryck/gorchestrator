@@ -81,13 +81,13 @@ func TestRun(t *testing.T) {
 	t.Log("Launching tests")
 	allValid := []Graph{
 		valid,
-		validAndNoArtifact,
-		validAndSleep,
-		validAndExecSuccess,
+		//	validAndNoArtifact,
+		//	validAndSleep,
+		//	validAndExecSuccess,
 	}
 
 	var wg sync.WaitGroup
-	for num := 0; num < 1; num++ {
+	for num := 0; num < 2; num++ {
 		for index, _ := range allValid {
 			wg.Add(1)
 			go func(v Graph) {
