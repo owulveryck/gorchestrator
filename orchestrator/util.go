@@ -1,43 +1,75 @@
-/*
-Olivier Wulveryck - author of Gorchestrator
-Copyright (C) 2015 Olivier Wulveryck
-
-This file is part of the Gorchestrator project and
-is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
 package orchestrator
 
-func fanOut(outputs ...chan<- Graph) chan<- Graph {
-	c := make(chan Graph)
-	for i := range outputs {
-		output := outputs[i] // New instance of 'input' for each loop.
-		go func(i int) {
-			for {
-				output <- <-c
-			}
-		}(i)
+import (
+	"sync"
+)
+
+func broadcast(ch <-chan Information, size, lag int) []chan Information {
+	cs := make([]chan Information, size)
+	for i, _ := range cs {
+		// The size of the channels buffer controls how far behind the recievers
+		// of the fanOut channels can lag the other channels.
+		//cs[i] = make(chan Information)
+		cs[i] = make(chan Information, lag)
+
 	}
-	return c
+	go func() {
+		for i := range ch {
+			for _, c := range cs {
+				//log.Printf("Sending sequence %v to %v", i.Sequence, id)
+				c <- i
+			}
+		}
+		for _, c := range cs {
+			// close all our fanOut channels when the input channel is exhausted.
+			close(c)
+		}
+	}()
+	return cs
+
 }
+
+func merge(done <-chan struct{}, cs ...<-chan Message) <-chan Message {
+	var wg sync.WaitGroup
+	out := make(chan Message, 1)
+
+	// Start an output goroutine for each input channel in cs.  output
+	// copies values from c to out until c is closed, then calls wg.Done.
+	output := func(c <-chan Message) {
+		defer wg.Done()
+		for n := range c {
+			select {
+			case out <- n:
+			case <-done:
+				return
+			}
+		}
+	}
+	wg.Add(len(cs))
+	for _, c := range cs {
+		go output(c)
+	}
+	// Start a goroutine to close out once all the output goroutines are
+	// done.  This must start after the wg.Add call.
+	go func() {
+		wg.Wait()
+		close(out)
+
+	}()
+	return out
+
+}
+
 func fanIn(inputs ...<-chan Message) <-chan Message {
+
 	c := make(chan Message)
 	for i := range inputs {
 		input := inputs[i] // New instance of 'input' for each loop.
 		go func() {
 			for {
+				//log.Println("fanIn", input)
 				c <- <-input
+				//log.Println("end fanIn", input)
 			}
 		}()
 	}

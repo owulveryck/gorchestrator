@@ -1,22 +1,3 @@
-/*
-Olivier Wulveryck - author of Gorchestrator
-Copyright (C) 2015 Olivier Wulveryck
-
-This file is part of the Gorchestrator project and
-is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
 package orchestrator
 
 import (
@@ -24,11 +5,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/owulveryck/gorchestrator/structure"
-	"log"
+	//"log"
 	"math/rand"
 	"net/http"
-	"regexp"
+	//	"regexp"
+	"sync"
 	"time"
 )
 
@@ -42,10 +23,28 @@ type Node struct {
 	Artifact string            `json:"artifact"`
 	Args     []string          `json:"args,omitempty"`   // the arguments of the artifact, if needed
 	Outputs  map[string]string `json:"output,omitempty"` // the key is the name of the parameter, the value its value (always a string)
+	GraphID  string            `json:"graph_id,omitempty"`
+	execID   string
+	sync.RWMutex
+}
+
+func (n *Node) GetState() int {
+	n.RLock()
+	defer n.RUnlock()
+	var state int
+	state = n.State
+	return state
+}
+
+func (n *Node) SetState(s int) {
+	n.Lock()
+	defer n.Unlock()
+	n.State = s
 }
 
 // Actually executes the node (via the executor)
 func (n *Node) Execute(exe ExecutorBackend) error {
+	//n.//log.ebug("Entering the Execute function")
 	if exe.Client == nil {
 		err := exe.Init()
 		if err != nil {
@@ -58,7 +57,7 @@ func (n *Node) Execute(exe ExecutorBackend) error {
 		ID string `json:"id"`
 	}
 	url := fmt.Sprintf("%v/tasks", exe.Url)
-	b, _ := json.Marshal(*n)
+	b, _ := json.Marshal(n)
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(b))
 	//req.Header.Set("X-Custom-Header", "myvalue")
 	req.Header.Set("Content-Type", "application/json")
@@ -68,53 +67,55 @@ func (n *Node) Execute(exe ExecutorBackend) error {
 	// Do a ping before for testing purpose
 	resp, err := client.Do(req)
 	if err != nil {
-		n.State = NotRunnable
+		//n.SetState(NotRunnable)
 		return err
 
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode >= http.StatusBadRequest {
-		n.State = NotRunnable
+		//n.SetState(NotRunnable)
 		return errors.New("Error in the executor")
 
 	}
 	dec := json.NewDecoder(resp.Body)
 	if err := dec.Decode(&t); err != nil {
-		n.State = Failure
+		//n.SetState(Failure)
 		return err
 	}
+	n.execID = t.ID
 	id = t.ID
+	//n.//log.nfo("Running")
 
 	// Now loop for the result
 	var res Node
-	for err == nil && res.State < Success {
+	for err == nil && res.GetState() < Success {
 		r, err := client.Get(fmt.Sprintf("%v/%v", url, id))
 		if err != nil {
-			n.State = NotRunnable
+			//n.SetState(NotRunnable)
 			return err
 		}
 		defer r.Body.Close()
 		dec := json.NewDecoder(r.Body)
 		if err := dec.Decode(&res); err != nil {
-			n.State = Failure
+			//n.SetState(Failure)
 			return err
 		}
 		time.Sleep(2 * time.Second)
 	}
-	*n = res
+	n.Outputs = res.Outputs
 	return nil
 }
 
 // Run the node
-func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
-	c := make(chan Message)
-	waitForIt := make(chan Graph) // Shared between all messages.
-	var ga = regexp.MustCompile(`^(.*)=get_attribute (.+):(.+)$`)
+func (n *Node) Run(exe []ExecutorBackend, done <-chan struct{}, in <-chan Information) <-chan Message {
+	out := make(chan Message)
+	//var ga = regexp.MustCompile(`^(.*)=get_attribute (.+):(.+)$`)
 
-	var g Graph
+	var g Information
 	go func() {
-		n.State = ToRun
+		defer close(out)
+		n.SetState(ToRun)
 		if len(n.Outputs) == 0 {
 			n.Outputs = make(map[string]string, 0)
 		}
@@ -122,51 +123,49 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 			n.Engine = "nil"
 		}
 
-		for n.State <= ToRun {
-			c <- Message{n.ID, n.State, waitForIt}
-			g = <-waitForIt
-			var m structure.Matrix
-			m = g.Digraph
-			s := m.Dim()
-			state := Running
-			for i := 0; i < s; i++ {
-				mu.RLock()
-				if m.At(i, n.ID) < Success && m.At(i, n.ID) > 0 {
-					state = ToRun
-				} else if m.At(i, n.ID) >= Failure {
-					state = NotRunnable
-				}
-				mu.RUnlock()
-				if n.State == NotRunnable {
-					continue
-				}
-			}
-			n.State = state
-			if n.State == NotRunnable {
-				c <- Message{n.ID, n.State, waitForIt}
-			}
-			if n.State == Running {
-				// Check and find the arguments
-				for i, arg := range n.Args {
-					// If argument is a get_attribute node:attribute
-					// Then substitute it to its actual value
-					subargs := ga.FindStringSubmatch(arg)
-					log.Println("DEBUG:", subargs)
-					if len(subargs) == 4 {
-						nn, _ := g.getNodesFromRegexp(subargs[2])
-						for _, nn := range nn {
-							n.Args[i] = fmt.Sprintf("%v=%v", subargs[1], nn.Outputs[subargs[3]])
-						}
+		message := Message{n.ID, n.GetState()}
+
+		// This "angle" functions, waits for an information and change the state of the node regarding the information received
+		stateChan := make(chan int)
+		currentState := n.GetState()
+		go func() {
+			for g = range in {
+				//log.Printf("[%v] Received a message (sequence number %v)", n.ID, g.Sequence)
+				s := g.Matrix.Dim()
+				newState := Running
+				for i := 0; i < s; i++ {
+					val := g.Matrix.At(i, n.ID)
+					if val < Success && val > 0 {
+						newState = ToRun
+					} else if val >= Failure {
+						newState = NotRunnable
+					}
+					if newState == NotRunnable {
+						continue
 					}
 				}
-				c <- Message{n.ID, n.State, waitForIt}
+				if currentState != newState {
+					// State has changed, tell it to the main
+					currentState = newState
+					stateChan <- currentState
+					message.State = currentState
+					out <- message
+				}
+			}
+		}()
+
+		for state := range stateChan {
+			//log.Printf("[%v] state has changed => %v", n.ID, state)
+			n.SetState(state)
+			switch {
+			case n.GetState() == Running:
 				switch n.Engine {
 				case "nil":
-					n.State = Success
+					n.SetState(Success)
 				case "sleep": // For test purpose
 					time.Sleep(time.Duration(rand.Intn(1e3)) * time.Millisecond)
 					rand.Seed(time.Now().Unix())
-					n.State = Success
+					n.SetState(Success)
 					n.Outputs["result"] = fmt.Sprintf("%v_%v", n.Name, time.Now().Unix())
 				default:
 					var executor ExecutorBackend
@@ -177,15 +176,17 @@ func (n *Node) Run(exe []ExecutorBackend) <-chan Message {
 						}
 					}
 					err := n.Execute(executor)
-					if err != nil && n.State <= Success {
-						n.State = Failure
+					if err != nil && n.GetState() <= Success {
+						n.SetState(Failure)
 					}
-
 				}
-				c <- Message{n.ID, n.State, waitForIt}
+			}
+			//log.Printf("[%v] Done", n.ID)
+			if message.State != n.GetState() {
+				message.State = n.GetState()
+				out <- message
 			}
 		}
-		close(c)
 	}()
-	return c
+	return out
 }

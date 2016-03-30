@@ -171,7 +171,7 @@ func TaskShow(w http.ResponseWriter, r *http.Request) {
 	if v, ok := tasks[id]; ok {
 		switch v.Artifact {
 		case "success":
-			v.State = Success
+			v.SetState(Success)
 		case "notfound":
 			w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 			w.WriteHeader(http.StatusNotFound)
@@ -180,9 +180,9 @@ func TaskShow(w http.ResponseWriter, r *http.Request) {
 
 			}
 		case "failure":
-			v.State = Failure
+			v.SetState(Failure)
 		default:
-			v.State = Success
+			v.SetState(Success)
 		}
 
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")

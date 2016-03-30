@@ -82,12 +82,12 @@ func main() {
 
 	log.Println(t.TopologyTemplate.Inputs)
 	v = togorch(t, []string{"create", "configure", "start"})
-	for _, n := range v.Nodes {
+	for i, _ := range v.Nodes {
 		log.WithFields(logrus.Fields{
-			"Name":     n.Name,
-			"Artifact": n.Artifact,
-			"Args":     n.Args,
-			"Outputs":  n.Outputs,
+			"Name":     v.Nodes[i].Name,
+			"Artifact": v.Nodes[i].Artifact,
+			"Args":     v.Nodes[i].Args,
+			"Outputs":  v.Nodes[i].Outputs,
 		}).Info("")
 
 	}

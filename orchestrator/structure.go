@@ -26,7 +26,6 @@ import (
 type Message struct {
 	ID    int
 	State int
-	Wait  chan Graph
 }
 
 // Error is a type used when any error related to the input or node structure occurs

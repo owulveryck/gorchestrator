@@ -78,21 +78,42 @@ func TestRun(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	allValid := []Graph{valid, validAndNoArtifact, validAndSleep, validAndExecSuccess}
-	allInvalid := []Graph{validAndTimeout, validAndExecFailure}
+	t.Log("Launching tests")
+	allValid := []Graph{
+		valid,
+		//	validAndNoArtifact,
+		//	validAndSleep,
+		//	validAndExecSuccess,
+	}
 
-	for _, v := range allValid {
-		v.Run([]ExecutorBackend{exe})
-		if v.State != Success {
-			t.Fatalf("Failed: %v", v)
+	var wg sync.WaitGroup
+	for num := 0; num < 2; num++ {
+		for index, _ := range allValid {
+			wg.Add(1)
+			go func(v Graph) {
+				v.Run([]ExecutorBackend{exe})
+				if v.GetState() != Success {
+					t.Fatalf("Failed: %v", v)
+				}
+				t.Logf("[%v] Test Finished", v.Name)
+				wg.Done()
+			}(allValid[index])
 		}
 	}
-	for _, v := range allInvalid {
-		v.Run([]ExecutorBackend{exe})
-		if v.State <= Success {
-			t.Fatalf("Failed: %v", v)
+	/*
+		allInvalid := []Graph{validAndTimeout, validAndExecFailure}
+		for _, v := range allInvalid {
+			wg.Add(1)
+			go func(v *Graph) {
+				v.Run([]ExecutorBackend{exe})
+				if v.State <= Success {
+					t.Fatalf("Failed: %v", v)
+				}
+				wg.Done()
+			}(&v)
 		}
-	}
+	*/
+	wg.Wait()
 }
 func BenchmarkRun(b *testing.B) {
 	e := valid.Check()
@@ -121,10 +142,10 @@ func BenchmarkRun(b *testing.B) {
 	for i := 0; i < count; i++ {
 		vs[i] = valid
 		vs[i].Name = fmt.Sprintf("%v", i)
-		go func(v Graph, wg *sync.WaitGroup) {
+		go func(v *Graph, wg *sync.WaitGroup) {
 			v.Run([]ExecutorBackend{exe})
 			wg.Done()
-		}(vs[i], &wg)
+		}(&vs[i], &wg)
 	}
 	wg.Wait()
 }

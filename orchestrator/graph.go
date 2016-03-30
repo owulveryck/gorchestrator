@@ -14,16 +14,22 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+along with this prograv.Digraph.  If not, see <http://www.gnu.org/licenses/>.
 */
 package orchestrator
 
 import (
+	"encoding/json"
 	"github.com/owulveryck/gorchestrator/structure"
+	//"log"
 	"regexp"
-	"sync"
 	"time"
 )
+
+type Information struct {
+	Sequence int
+	Matrix   structure.Matrix
+}
 
 // Graph is the input of the orchestrator
 type Graph struct {
@@ -32,93 +38,141 @@ type Graph struct {
 	Digraph structure.Matrix `json:"digraph"`
 	Nodes   []Node           `json:"nodes"`
 	Timeout <-chan time.Time `json:"-"`
+	ID      string           `json:"id,omitempty"`
 }
 
-func (v *Graph) getNodesFromRegexp(n string) ([]Node, error) {
+func (g *Graph) UnmarshalJSON(b []byte) (err error) {
+	type graph struct {
+		Name    string           `json:"name,omitempty"`
+		State   int              `json:"state"`
+		Digraph []int64          `json:"digraph"`
+		Nodes   []Node           `json:"nodes"`
+		Timeout <-chan time.Time `json:"-"`
+	}
+	s := graph{}
+	if err = json.Unmarshal(b, &s); err == nil {
+		g.Name = s.Name
+		g.State = s.State
+		g.Digraph = s.Digraph
+		g.Nodes = s.Nodes
+	} else {
+		return err
+	}
+	return nil
+}
+
+func (g *Graph) MarshalJSON() ([]byte, error) {
+	type graph struct {
+		Name    string           `json:"name,omitempty"`
+		State   int              `json:"state"`
+		Digraph []int64          `json:"digraph"`
+		Nodes   []Node           `json:"nodes"`
+		Timeout <-chan time.Time `json:"-"`
+	}
+	s := graph{}
+	s.Name = g.Name
+	s.State = g.State
+	s.Digraph = g.Digraph
+	s.Nodes = g.Nodes
+	return json.Marshal(s)
+}
+
+func (n *Graph) GetState() int {
+	var state int
+	state = n.State
+	return state
+}
+
+func (n *Graph) SetState(s int) {
+	n.State = s
+}
+
+func (v *Graph) getNodesFromRegexp(n string) ([]*Node, error) {
 	re := regexp.MustCompile(n)
-	var nn []Node
-	for _, node := range v.Nodes {
-		if re.MatchString(node.Name) {
-			nn = append(nn, node)
+	var nn []*Node
+	for i, _ := range v.Nodes {
+		if re.MatchString(v.Nodes[i].Name) {
+			nn = append(nn, &v.Nodes[i])
 		}
 	}
 	return nn, nil
 }
 
-func (v *Graph) getNodeFromName(n string) (Node, error) {
-	var nn Node
+func (v *Graph) getNodeFromName(n string) (*Node, error) {
+	var nn *Node
 	return nn, nil
 }
-
-var mu sync.RWMutex
 
 // Run executes the Graph structure
 func (v *Graph) Run(exe []ExecutorBackend) {
-	v.State = Running
-	m := v.Digraph
+	//log.Println("V's address:", &v)
+	v.SetState(Running)
 
-	n := m.Dim()
+	n := v.Digraph.Dim()
 	cs := make([]<-chan Message, n)
-	cos := make([]chan<- Graph, n)
-	for i := 0; i < n; i++ {
-		cs[i] = v.Nodes[i].Run(exe)
-	}
-	for i := 0; i < n; i++ {
-		node := <-cs[i]
-		cos[i] = node.Wait
-	}
+	co := make(chan Information)
+	defer close(co)
+	cos := broadcast(co, n, n)
+	// Set up a done channel that's shared by the whole pipeline,
+	// and close that channel when this pipeline exits, as a signal
+	// for all the goroutines we started to exit.
+	done := make(chan struct{})
+	defer close(done)
 
-	co := fanOut(cos...)
-	c := fanIn(cs...)
-	for {
-		select {
-		case node := <-c:
-			if node.State >= Running {
-				for c := 0; c < n; c++ {
-					if m.At(node.ID, c) != 0 {
-						mu.Lock()
-						m.Set(node.ID, c, int64(node.State))
-						mu.Unlock()
-					}
+	for i := 0; i < n; i++ {
+		cs[i] = v.Nodes[i].Run(exe, done, cos[i])
+	}
+	c := merge(done, cs...)
+	//c := fanIn(cs...)
+	sequence := 0
+	co <- Information{
+		Matrix:   v.Digraph,
+		Sequence: sequence,
+	}
+	for node := range c {
+		//log.Printf("[SEQ %v] RANGE, got %v information", sequence, node)
+		if node.State >= Running {
+			for c := 0; c < n; c++ {
+				val := v.Digraph.At(node.ID, c)
+				if val != 0 {
+					//log.Printf("[SEQ %v] Setting %v:%v = %v (current is %v)", sequence, node.ID, c, int64(node.State), v.Digraph.At(node.ID, c))
+					v.Digraph.Set(node.ID, c, int64(node.State))
+					//log.Printf("[SEQ %v] Checking %v:%v = %v", sequence, node.ID, c, v.Digraph.At(node.ID, c))
 				}
 			}
-			stop := true
-			v.State = Success
-			for r := 0; r < n; r++ {
-				for c := 0; c < n; c++ {
-					switch {
-					case m.At(r, c) == ToRun:
-						stop = false
-						v.State = Running
-					case m.At(r, c) == Running:
-						stop = false
-						v.State = Running
-					case m.At(r, c) > Success:
-						v.State = Failure
-					}
-				}
-			}
-			if stop {
-				return
-			}
-		case <-v.Timeout:
-			co <- Graph{
-				(*v).Name,
-				(*v).State,
-				(*v).Digraph,
-				(*v).Nodes,
-				(*v).Timeout,
-			}
-			v.State = Timeout
-			return
-		case co <- Graph{
-			(*v).Name,
-			(*v).State,
-			(*v).Digraph,
-			(*v).Nodes,
-			(*v).Timeout,
-		}:
 		}
+		state := Success
+		for r := 0; r < n; r++ {
+			for c := 0; c < n; c++ {
+				switch {
+				case v.Digraph.At(r, c) == ToRun:
+					state = Running
+				case v.Digraph.At(r, c) == Running:
+					state = Running
+				case v.Digraph.At(r, c) > Success:
+					state = Failure
+				}
+			}
+		}
+		v.SetState(state)
+		if v.GetState() >= Success {
+			return
+		}
+		//co <- v
+		select {
+		//case node := <-c:
+		case co <- Information{
+			Matrix:   v.Digraph,
+			Sequence: sequence,
+		}:
+			//log.Printf("[SEQ %v] Message sent (node%v should be change to state %v): ", sequence, node.ID, node.State, v.Digraph)
+		case <-v.Timeout:
+			close(done)
+			//co <- v
+			v.SetState(Timeout)
+			return
+		}
+		sequence += 1
 	}
 }
 

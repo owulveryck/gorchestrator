@@ -73,6 +73,12 @@ func init() {
 	}
 }
 
-func GetLog() logrus.Logger {
-	return *log
+type Fields logrus.Fields
+
+func (f Fields) Fields() logrus.Fields {
+	return logrus.Fields(f)
+}
+
+func GetLog() *logrus.Logger {
+	return log
 }
